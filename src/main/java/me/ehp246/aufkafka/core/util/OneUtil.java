@@ -13,6 +13,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import me.ehp246.aufkafka.api.annotation.ByProducer;
+
 /**
  * @author Lei Yang
  *
@@ -111,6 +113,18 @@ public final class OneUtil {
             final Class<? extends Annotation> type) {
         return Optional.ofNullable(annos).filter(Objects::nonNull).orElseGet(ArrayList::new).stream()
                 .filter(anno -> anno.annotationType() == type);
+    }
+
+    public static String producerInterfaceBeanName(final Class<?> byRestInterface) {
+        final var name = byRestInterface.getAnnotation(ByProducer.class).name();
+        if (!name.isBlank()) {
+            return name;
+        }
+
+        final char c[] = byRestInterface.getSimpleName().toCharArray();
+        c[0] = Character.toLowerCase(c[0]);
+
+        return new String(c);
     }
 }
 
