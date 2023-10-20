@@ -1,3 +1,0 @@
-spring:
-  artemis:
-    mode: embedded
