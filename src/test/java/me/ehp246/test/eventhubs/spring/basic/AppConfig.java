@@ -40,6 +40,7 @@ class AppConfig {
     @Bean
     ConsumerFactory<String, String> consumerFactory() {
         final Map<String, Object> configMap = new HashMap<>();
+        configMap.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configMap.put("sasl.jaas.config", jaasConfig);
         configMap.put("security.protocol", "SASL_SSL");
         configMap.put("sasl.mechanism", "PLAIN");
