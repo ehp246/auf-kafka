@@ -7,7 +7,7 @@ import me.ehp246.aufkafka.api.annotation.ByProducer;
  *
  */
 interface TestCases {
-    @ByProducer(value = "")
+    @ByProducer(value = "basic")
     interface Case01 {
         void newEvent(Event event);
     }
