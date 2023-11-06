@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import me.ehp246.aufkafka.api.annotation.ByProducer;
+import me.ehp246.aufkafka.api.annotation.ByKafka;
 
 /**
  * @author Lei Yang
@@ -116,7 +116,7 @@ public final class OneUtil {
     }
 
     public static String producerInterfaceBeanName(final Class<?> byRestInterface) {
-        final var name = byRestInterface.getAnnotation(ByProducer.class).name();
+        final var name = byRestInterface.getAnnotation(ByKafka.class).name();
         if (!name.isBlank()) {
             return name;
         }

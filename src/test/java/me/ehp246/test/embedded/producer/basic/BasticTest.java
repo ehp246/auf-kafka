@@ -12,6 +12,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
+import me.ehp246.test.embedded.producer.basic.TestCases.Event;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
 /**
@@ -22,6 +23,9 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
 @EmbeddedKafka(topics = { "embedded" }, partitions = 1)
 @DirtiesContext
 class BasticTest {
+    @Autowired
+    private TestCases.Case01 case01;
+
     @Autowired
     private MsgListener listener;
 
@@ -42,5 +46,16 @@ class BasticTest {
 
         Assertions.assertEquals("NewEvent", received.key());
         Assertions.assertEquals(value, received.value());
+    }
+
+    @Test
+    void producer_02() throws InterruptedException, ExecutionException {
+        final var value = new Event(UUID.randomUUID().toString());
+        this.case01.newEvent(value);
+
+        final var received = listener.take();
+
+        Assertions.assertEquals("NewEvent", received.key());
+        Assertions.assertEquals(value.id(), received.value());
     }
 }

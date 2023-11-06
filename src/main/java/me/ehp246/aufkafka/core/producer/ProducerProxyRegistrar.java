@@ -13,18 +13,18 @@ import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 
-import me.ehp246.aufkafka.api.annotation.ByProducer;
-import me.ehp246.aufkafka.api.annotation.EnableByProducer;
+import me.ehp246.aufkafka.api.annotation.ByKafka;
+import me.ehp246.aufkafka.api.annotation.EnableByKafka;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
-public final class ProducerInterfaceRegistrar implements ImportBeanDefinitionRegistrar {
+public final class ProducerProxyRegistrar implements ImportBeanDefinitionRegistrar {
     private final static Logger LOGGER = LogManager.getLogger();
 
     @Override
     public void registerBeanDefinitions(final AnnotationMetadata metadata, final BeanDefinitionRegistry registry) {
-        LOGGER.atTrace().log("Scanning for {}", ByProducer.class::getCanonicalName);
+        LOGGER.atTrace().log("Scanning for {}", ByKafka.class::getCanonicalName);
 
-        for (final var found : new ProducerInterfaceScanner(EnableByProducer.class, ByProducer.class, metadata)
+        for (final var found : new ProducerInterfaceScanner(EnableByKafka.class, ByKafka.class, metadata)
                 .perform()
                 .collect(Collectors.toList())) {
 
@@ -38,7 +38,7 @@ public final class ProducerInterfaceRegistrar implements ImportBeanDefinitionReg
 
             final var beanName = OneUtil.producerInterfaceBeanName(producerInterface);
             final var proxyBeanDefinition = this.getProxyBeanDefinition(
-                    metadata.getAnnotationAttributes(EnableByProducer.class.getCanonicalName()), producerInterface);
+                    metadata.getAnnotationAttributes(EnableByKafka.class.getCanonicalName()), producerInterface);
 
             if (registry.containsBeanDefinition(beanName)) {
                 throw new BeanDefinitionOverrideException(beanName, proxyBeanDefinition,
@@ -49,17 +49,17 @@ public final class ProducerInterfaceRegistrar implements ImportBeanDefinitionReg
         }
     }
 
-    private BeanDefinition getProxyBeanDefinition(final Map<String, Object> map, final Class<?> byRestInterface) {
+    private BeanDefinition getProxyBeanDefinition(final Map<String, Object> map, final Class<?> byKafkaInterface) {
         final var args = new ConstructorArgumentValues();
 
-        args.addGenericArgumentValue(byRestInterface);
+        args.addGenericArgumentValue(byKafkaInterface);
 
         final var beanDef = new GenericBeanDefinition();
-        beanDef.setBeanClass(byRestInterface);
+        beanDef.setBeanClass(byKafkaInterface);
         beanDef.setConstructorArgumentValues(args);
-        beanDef.setFactoryBeanName(ByRestProxyFactory.class.getName());
+        beanDef.setFactoryBeanName(ProducerProxyFactory.class.getName());
         beanDef.setFactoryMethodName("newInstance");
-        beanDef.setResourceDescription(byRestInterface.getCanonicalName());
+        beanDef.setResourceDescription(byKafkaInterface.getCanonicalName());
 
         return beanDef;
     }

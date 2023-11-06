@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 @Documented
 @Target(TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ByProducer {
+public @interface ByKafka {
     /**
      * Specifies the destination name and type, i.e., {@linkplain Queue} vs
      * {@linkplain Topic} for out-bound messages.

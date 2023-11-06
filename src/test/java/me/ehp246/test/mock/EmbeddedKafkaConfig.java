@@ -19,6 +19,8 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
+import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
+
 /**
  * @author Lei Yang
  *
@@ -44,6 +46,15 @@ public class EmbeddedKafkaConfig {
         configMap.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         return new DefaultKafkaConsumerFactory<>(configMap);
+    }
+
+    @Bean
+    ProducerConfigProvider defaultProducerConfigProvider() {
+        final Map<String, Object> configMap = KafkaTestUtils.producerProps(embeddedKafka);
+        configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
+
+        return name -> configMap;
     }
 
     @Bean

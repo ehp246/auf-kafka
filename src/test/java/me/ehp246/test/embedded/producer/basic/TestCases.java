@@ -1,13 +1,13 @@
 package me.ehp246.test.embedded.producer.basic;
 
-import me.ehp246.aufkafka.api.annotation.ByProducer;
+import me.ehp246.aufkafka.api.annotation.ByKafka;
 
 /**
  * @author Lei Yang
  *
  */
 interface TestCases {
-    @ByProducer(value = "basic")
+    @ByKafka(value = "basic")
     interface Case01 {
         void newEvent(Event event);
     }
