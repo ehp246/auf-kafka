@@ -52,18 +52,26 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                 .map(p -> (Function<Object[], String>) args -> {
                     final var value = args[p.index()];
                     return value == null ? null : value + "";
+                }).orElseGet(() -> reflected.findOnMethodUp(OfKey.class).map(ofKey -> {
+                    final var key = ofKey.value();
+                    return key.isBlank() ? (Function<Object[], String>) args -> null
+                            : (Function<Object[], String>) args -> key;
                 }).orElseGet(() -> {
                     String key = OneUtil.firstUpper(reflected.method().getName());
                     return args -> key;
-                });
+                }));
 
-        final var partitionBinder = reflected.allParametersWith(OfPartition.class).stream().findFirst()
-                .map(p -> (Function<Object[], Integer>) args -> (Integer) args[p.index()]).orElseGet(() -> args -> null);
+        final var partitionBinder = reflected.allParametersWith(OfPartition.class).stream()
+                .findFirst()
+                .map(p -> (Function<Object[], Integer>) args -> (Integer) args[p.index()])
+                .orElseGet(() -> args -> null);
 
-        final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream().findFirst()
-                .map(p -> (Function<Object[], Instant>) args -> (Instant) args[p.index()]).orElseGet(() -> args -> null);
+        final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream()
+                .findFirst()
+                .map(p -> (Function<Object[], Instant>) args -> (Instant) args[p.index()])
+                .orElseGet(() -> args -> null);
 
-        return new Parsed(
-                new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder, null));
+        return new Parsed(new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder,
+                timestampBinder, null));
     }
 }

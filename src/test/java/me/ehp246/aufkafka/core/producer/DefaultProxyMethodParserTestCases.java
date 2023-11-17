@@ -18,13 +18,17 @@ interface DefaultProxyMethodParserTestCases {
         void m01();
     }
 
-    interface KeyCase {
+    @ByKafka("topic")
+    interface KeyCase01 {
         void m01();
 
-        void m02(@OfKey String key);
+        @OfKey("aa143627-0e3f-4758-a7cf-e56db55c77c1")
+        void m02(@OfKey Object key);
+        
+        @OfKey
+        void m03();
+
+        @OfKey("887114e5-5770-4f7f-b0c6-e0803753eb58")
+        void m04();
     }
-
-    void m03(@OfPartition Integer partition);
-
-    void m04(@OfPartition int partiion);
 }

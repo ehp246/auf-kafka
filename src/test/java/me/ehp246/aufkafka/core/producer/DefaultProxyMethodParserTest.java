@@ -1,5 +1,7 @@
 package me.ehp246.aufkafka.core.producer;
 
+import java.util.UUID;
+
 import org.apache.kafka.common.Uuid;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -63,5 +65,66 @@ class DefaultProxyMethodParserTest {
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
         Assertions.assertEquals("bc5beb1b-569c-4055-bedf-3b06f9af2e5d", message.topic());
+    }
+    
+    @Test
+    void key_01() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase01.class);
+
+        captor.proxy().m01();
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals("M01", message.key());
+    }
+    
+    @Test
+    void key_02() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase01.class);
+        final var expected = UUID.randomUUID();
+        
+        captor.proxy().m02(expected);
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(expected.toString(), message.key());
+    }
+    
+    @Test
+    void key_03() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase01.class);
+        
+        captor.proxy().m02(null);
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(null, message.key());
+    }
+    
+    @Test
+    void key_04() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase01.class);
+        
+        captor.proxy().m03();
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(null, message.key(), "should supress");
+    }
+    
+    @Test
+    void key_05() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase01.class);
+        
+        captor.proxy().m04();
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals("887114e5-5770-4f7f-b0c6-e0803753eb58", message.key(), "should follow annotation");
     }
 }
