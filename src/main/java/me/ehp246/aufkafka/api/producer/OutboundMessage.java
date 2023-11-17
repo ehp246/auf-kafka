@@ -21,7 +21,7 @@ public interface OutboundMessage {
         return null;
     }
 
-    default Instant instant() {
+    default Instant timestamp() {
         return null;
     }
 }

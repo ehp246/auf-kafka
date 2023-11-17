@@ -30,7 +30,7 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider {
 
         return message -> {
             final var producerRecord = new ProducerRecord<String, String>(message.topic(), message.partition(),
-                    Optional.ofNullable(message.instant()).map(Instant::toEpochMilli).orElse(null), message.key(),
+                    Optional.ofNullable(message.timestamp()).map(Instant::toEpochMilli).orElse(null), message.key(),
                     null, null);
             final var completeableFuture = new CompletableFuture<Sent>();
 

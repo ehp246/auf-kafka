@@ -11,7 +11,7 @@ import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
  *
  */
 record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Function<Object[], String> keyBinder,
-        Function<Object[], Integer> partitionBinder, Function<Object[], Instant> instantBinder,
+        Function<Object[], Integer> partitionBinder, Function<Object[], Instant> timestampBinder,
         Function<Object[], String> correlIdBinder)
         implements ProxyInvocationBinder {
     @Override
@@ -19,7 +19,7 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Func
         final var topic = topicBinder.apply(args);
         final var key = keyBinder.apply(args);
         final var partition = partitionBinder.apply(args);
-        final var instant = instantBinder.apply(args);
+        final var timestamp = timestampBinder.apply(args);
 
         return new Bound(new OutboundMessage() {
 
@@ -45,8 +45,8 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Func
             }
 
             @Override
-            public Instant instant() {
-                return instant;
+            public Instant timestamp() {
+                return timestamp;
             }
 
         });

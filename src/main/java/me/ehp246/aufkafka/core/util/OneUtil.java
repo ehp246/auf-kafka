@@ -28,6 +28,7 @@ public final class OneUtil {
         return value == null || value.length() == 0 ? value
                 : value.substring(0, 1).toUpperCase(Locale.US) + value.substring(1);
     }
+    
     public static String toString(final Object value) {
         return toString(value, null);
     }

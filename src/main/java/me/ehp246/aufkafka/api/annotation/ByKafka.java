@@ -24,7 +24,7 @@ public @interface ByKafka {
     /**
      * Specifies the destination name for out-bound messages.
      */
-    String value();
+    String value() ;
 
     /**
      * Specifies a bean name by which the interface can be injected.
@@ -36,4 +36,12 @@ public @interface ByKafka {
      * @see Qualifier
      */
     String name() default "";
+    
+    /**
+     * Specifies the key value for out-bound messages.
+     * <p>
+     * By default, the key is the method name with first letter capitalized. 
+     * 
+     */
+    String key() default "";
 }

@@ -3,6 +3,8 @@ package me.ehp246.test;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
+import me.ehp246.test.TestUtil.InvocationCaptor;
+
 /**
  * @author Lei Yang
  *
@@ -18,30 +20,32 @@ public class TestUtil {
                     return returnRef[0];
                 }));
 
-        return new InvocationCaptor<T>(proxy);
+        return new InvocationCaptor<T>() {
+
+            @Override
+            public T proxy() {
+                return proxy;
+            }
+
+            @Override
+            public Invocation invocation() {
+                return captured[0];
+            }
+
+            @Override
+            public InvocationCaptor<T> setReturn(final Object r) {
+                returnRef[0] = r;
+                return this;
+            }
+        };
     }
 
-    public static class InvocationCaptor<T> {
-        private final T proxy;
-        private final Invocation[] invocationRef = new Invocation[1];
-        private final Object[] returnRef = new Object[] { null };
+    public interface InvocationCaptor<T> {
+        T proxy();
 
-        InvocationCaptor(final T proxy) {
-            super();
-            this.proxy = proxy;
-        }
+        Invocation invocation();
 
-        void setInvocation(final Invocation invocation) {
-            this.invocationRef[0] = invocation;
-        }
-
-        public T proxy() {
-            return proxy;
-        }
-
-        public Invocation invocation() {
-            return invocationRef[0];
-        }
+        InvocationCaptor<T> setReturn(Object ret);
     }
 
     public record Invocation(Method method, Object target, Object[] args) {
