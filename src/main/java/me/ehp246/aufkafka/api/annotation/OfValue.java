@@ -8,11 +8,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
+ * Specifies a parameter to be the value.
+ * 
  * @author Lei Yang
- *
+ * @since 1.0
  */
 @Documented
 @Retention(RUNTIME)
 @Target(PARAMETER)
-public @interface OfPartition {
+public @interface OfValue {
 }

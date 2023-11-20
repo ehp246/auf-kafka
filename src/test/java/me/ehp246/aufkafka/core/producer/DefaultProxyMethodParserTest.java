@@ -1,5 +1,6 @@
 package me.ehp246.aufkafka.core.producer;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import org.apache.kafka.common.Uuid;
@@ -163,5 +164,128 @@ class DefaultProxyMethodParserTest {
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
         Assertions.assertEquals(null, message.partition());
+    }
+    
+    @Test
+    void timestamp_01() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TimestampCase01.class);
+        
+        captor.proxy().m01();
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(null, message.timestamp());
+    }
+    
+    @Test
+    void timestamp_02() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TimestampCase01.class);
+        final var expected = Instant.now();
+        
+        captor.proxy().m02(expected);
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(expected, message.timestamp());
+    }
+    
+    @Test
+    void timestamp_03() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TimestampCase01.class);
+        
+        captor.proxy().m02(null);
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(null, message.timestamp());
+    }
+    
+    @Test
+    void timestamp_04() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TimestampCase01.class);
+        final var expected = Instant.now().toEpochMilli();
+        
+        captor.proxy().m03(expected);
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(expected, message.timestamp().toEpochMilli());
+    }
+    
+    @Test
+    void timestamp_05() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TimestampCase01.class);
+        
+        captor.proxy().m03(null);
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(null, message.timestamp());
+    }
+    
+    @Test
+    void timestamp_06() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TimestampCase01.class);
+        final var expected = Instant.now();
+        captor.proxy().m04(expected.toEpochMilli());
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(expected.toEpochMilli(), message.timestamp().toEpochMilli());
+    }
+    
+    @Test
+    void value_01() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.ValueCase01.class);
+        
+        captor.proxy().m01();
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(null, message.value());
+    }
+    
+    @Test
+    void value_02() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.ValueCase01.class);
+        final var expected = Instant.now();
+        
+        captor.proxy().m02(expected);
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(expected, message.value());
+    }
+    
+    @Test
+    void value_03() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.ValueCase01.class);
+        
+        captor.proxy().m02(null);
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(null, message.value());
+    }
+    
+    @Test
+    void value_04() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.ValueCase01.class);
+        
+        captor.proxy().m03(UUID.randomUUID());
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(null, message.value());
     }
 }

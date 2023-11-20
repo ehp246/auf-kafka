@@ -1,9 +1,14 @@
 package me.ehp246.aufkafka.core.producer;
 
+import java.time.Instant;
+import java.util.UUID;
+
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
+import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfTopic;
+import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.producer.SimpleValuePartitionMap;
 
 interface DefaultProxyMethodParserTestCases {
@@ -37,8 +42,26 @@ interface DefaultProxyMethodParserTestCases {
     interface PartitionCase01 {
         void m01();
 
-        void m02(@OfPartition(SimpleValuePartitionMap.class) Integer partition);
+        void m02(@OfPartition Object partition);
+    }
+    
+    @ByKafka("topic")
+    interface TimestampCase01 {
+        void m01();
 
-        void m03(@OfPartition Object partitionKey);
+        void m02(@OfTimestamp Instant timestamp);
+        
+        void m03(@OfTimestamp Long timestamp);
+        
+        void m04(@OfTimestamp long timestamp);
+    }
+    
+    @ByKafka("topic")
+    interface ValueCase01 {
+        void m01();
+
+        void m02(@OfValue Instant value);
+        
+        void m03(UUID uuid);
     }
 }

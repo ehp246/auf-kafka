@@ -14,9 +14,11 @@ import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfTopic;
+import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
 import me.ehp246.aufkafka.api.spi.PropertyResolver;
 import me.ehp246.aufkafka.core.reflection.ReflectedMethod;
+import me.ehp246.aufkafka.core.reflection.ReflectedParameter;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
@@ -24,9 +26,6 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  *
  */
 public final class DefaultProxyMethodParser implements ProxyMethodParser {
-    private final static Set<Class<? extends Annotation>> PARAMETER_ANNOTATIONS = Set.of(
-            OfTopic.class, OfKey.class, OfPartition.class, OfHeader.class, OfCorrelationId.class);
-
     private final PropertyResolver propertyResolver;
 
     DefaultProxyMethodParser(final PropertyResolver propertyResolver) {
@@ -67,11 +66,30 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                 .orElseGet(() -> args -> null);
 
         final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream()
-                .findFirst()
-                .map(p -> (Function<Object[], Instant>) args -> (Instant) args[p.index()])
-                .orElseGet(() -> args -> null);
+                .findFirst().map(p -> {
+                    final var index = p.index();
+                    final var type = p.parameter().getType();
+                    if (type == Instant.class) {
+                        return (Function<Object[], Instant>) args -> (Instant) args[index];
+                    }
+                    if (type == Long.class) {
+                        return (Function<Object[], Instant>) args -> {
+                            final var value = args[index];
+                            return value == null ? null : Instant.ofEpochMilli((Long) value);
+                        };
+                    }
+                    if (type == long.class) {
+                        return (Function<Object[], Instant>) args -> Instant
+                                .ofEpochMilli((long) args[index]);
+                    }
+                    throw new IllegalArgumentException(
+                            "Un-supported type " + type + " on " + p.parameter());
+                }).orElseGet(() -> args -> null);
+
+        final var valueParamIndex = reflected.allParametersWith(OfValue.class).stream().findFirst()
+                .map(ReflectedParameter::index).orElse(-1);
 
         return new Parsed(new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder,
-                timestampBinder, null));
+                timestampBinder, null, valueParamIndex));
     }
 }
