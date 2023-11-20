@@ -9,11 +9,11 @@ import java.time.Instant;
 public interface OutboundMessage {
     String topic();
 
-    default Integer partition() {
+    default String key() {
         return null;
     }
 
-    default String key() {
+    default Object partition() {
         return null;
     }
 

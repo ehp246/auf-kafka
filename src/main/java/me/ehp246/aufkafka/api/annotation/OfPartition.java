@@ -7,6 +7,9 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import me.ehp246.aufkafka.api.producer.PartitionMap;
+import me.ehp246.aufkafka.api.producer.HashCodePartitionMap;
+
 /**
  * @author Lei Yang
  *
@@ -15,5 +18,5 @@ import java.lang.annotation.Target;
 @Retention(RUNTIME)
 @Target(PARAMETER)
 public @interface OfPartition {
-
+    Class<? extends PartitionMap> value() default HashCodePartitionMap.class;
 }

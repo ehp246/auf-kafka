@@ -127,4 +127,41 @@ class DefaultProxyMethodParserTest {
 
         Assertions.assertEquals("887114e5-5770-4f7f-b0c6-e0803753eb58", message.key(), "should follow annotation");
     }
+    
+    @Test
+    void partition_01() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase01.class);
+        
+        captor.proxy().m01();
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(null, message.partition());
+    }
+    
+    @Test
+    void partition_02() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase01.class);
+        final var expected = Integer.valueOf((int) (Math.random() * 100));
+        
+        captor.proxy().m02(expected);
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(true, message.partition() == expected);
+    }
+    
+    @Test
+    void partition_03() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase01.class);
+        
+        captor.proxy().m02(null);
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(null, message.partition());
+    }
 }

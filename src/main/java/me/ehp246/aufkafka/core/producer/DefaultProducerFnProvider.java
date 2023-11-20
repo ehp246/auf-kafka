@@ -29,7 +29,7 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider {
         final var producer = new KafkaProducer<String, String>(producerConfigProvider.get(name));
 
         return message -> {
-            final var producerRecord = new ProducerRecord<String, String>(message.topic(), message.partition(),
+            final var producerRecord = new ProducerRecord<String, String>(message.topic(), null,
                     Optional.ofNullable(message.timestamp()).map(Instant::toEpochMilli).orElse(null), message.key(),
                     null, null);
             final var completeableFuture = new CompletableFuture<Sent>();
