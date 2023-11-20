@@ -3,7 +3,7 @@ package me.ehp246.aufkafka.core.producer;
 import java.time.Instant;
 import java.util.function.Function;
 
-import me.ehp246.aufkafka.api.producer.OutboundMessage;
+import me.ehp246.aufkafka.api.producer.OutboundRecord;
 import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
 
 /**
@@ -21,7 +21,7 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Func
         final var partition = partitionBinder.apply(args);
         final var timestamp = timestampBinder.apply(args);
 
-        return new Bound(new OutboundMessage() {
+        return new Bound(new OutboundRecord() {
 
             @Override
             public String topic() {
@@ -41,7 +41,7 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Func
             @Override
             public Object value() {
                 // TODO Auto-generated method stub
-                return OutboundMessage.super.value();
+                return OutboundRecord.super.value();
             }
 
             @Override

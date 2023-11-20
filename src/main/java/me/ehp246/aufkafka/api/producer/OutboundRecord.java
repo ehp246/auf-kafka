@@ -6,7 +6,7 @@ import java.time.Instant;
  * @author Lei Yang
  *
  */
-public interface OutboundMessage {
+public interface OutboundRecord {
     String topic();
 
     default String key() {

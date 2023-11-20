@@ -7,6 +7,6 @@ package me.ehp246.aufkafka.api.producer;
 public interface ProxyInvocationBinder {
     Bound apply(Object target, Object[] args) throws Throwable;
 
-    record Bound(OutboundMessage message) {
+    record Bound(OutboundRecord message) {
     }
 }
