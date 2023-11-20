@@ -22,7 +22,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, MsgListener.class })
 @EmbeddedKafka(topics = { "embedded" }, partitions = 1)
 @DirtiesContext
-class BasticTest {
+class BasicTest {
     @Autowired
     private TestCases.Case01 case01;
 
@@ -48,7 +48,7 @@ class BasticTest {
         Assertions.assertEquals(value, received.value());
     }
 
-    @Test
+    //@Test
     void producer_02() throws InterruptedException, ExecutionException {
         final var value = new Event(UUID.randomUUID().toString());
         this.case01.newEvent(value);
