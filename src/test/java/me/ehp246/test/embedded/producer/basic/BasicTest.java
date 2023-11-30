@@ -1,5 +1,6 @@
 package me.ehp246.test.embedded.producer.basic;
 
+import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
@@ -48,14 +49,37 @@ class BasicTest {
         Assertions.assertEquals(value, received.value());
     }
 
-    //@Test
+    @Test
     void producer_02() throws InterruptedException, ExecutionException {
         final var value = new Event(UUID.randomUUID().toString());
         this.case01.newEvent(value);
 
         final var received = listener.take();
 
-        Assertions.assertEquals("NewEvent", received.key());
-        Assertions.assertEquals(value.id(), received.value());
+        Assertions.assertEquals(true, received.topic().equals("embedded"));
+        Assertions.assertEquals(true, received.key().equals("NewEvent"));
+        //Assertions.assertEquals(value.id(), received.value());
+    }
+    
+    @Test
+    void producer_timestamp_01() throws InterruptedException, ExecutionException {
+        final var expected = Instant.now();
+        
+        this.case01.newEvent(new Event(UUID.randomUUID().toString()), expected);
+
+        final var received = listener.take();
+
+        Assertions.assertEquals(expected.toEpochMilli(), received.timestamp());
+    }
+    
+    @Test
+    void producer_timestamp_02() throws InterruptedException, ExecutionException {
+        final var expected = (long)( Math.random() * 1000000);
+        
+        this.case01.newEvent(new Event(UUID.randomUUID().toString()), expected);
+
+        final var received = listener.take();
+
+        Assertions.assertEquals(expected, received.timestamp());
     }
 }
