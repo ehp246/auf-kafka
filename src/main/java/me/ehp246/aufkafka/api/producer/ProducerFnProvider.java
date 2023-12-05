@@ -8,6 +8,6 @@ package me.ehp246.aufkafka.api.producer;
 public interface ProducerFnProvider {
     ProducerFn get(ProducerFnConfig config);
     
-    record ProducerFnConfig(String producerConfigName, String paritionKeyMapName) {
+    record ProducerFnConfig(String producerConfigName, Class<? extends PartitionMap> partitionMapType) {
     }
 }

@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
+import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
+import me.ehp246.aufkafka.api.producer.PartitionMap;
+import me.ehp246.aufkafka.api.producer.SerializedPartitionMap;
+
 /**
  * Serializing by {@linkplain JsonView} is supported on the body.
  *
@@ -24,7 +28,7 @@ public @interface ByKafka {
     /**
      * Specifies the destination name for out-bound messages.
      */
-    String value() ;
+    String value();
 
     /**
      * Specifies a bean name by which the interface can be injected.
@@ -36,4 +40,13 @@ public @interface ByKafka {
      * @see Qualifier
      */
     String name() default "";
+
+    /**
+     * Specifies the type of Spring bean that implements {@linkplain PartitionMap}
+     * to use with the interface to map partition key to partition.
+     * 
+     * @see SerializedPartitionMap
+     * @see DirectPartitionMap
+     */
+    Class<? extends PartitionMap> partitionMap() default SerializedPartitionMap.class;
 }

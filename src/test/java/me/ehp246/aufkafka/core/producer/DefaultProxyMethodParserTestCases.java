@@ -9,7 +9,7 @@ import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
-import me.ehp246.aufkafka.api.producer.SimpleValuePartitionMap;
+import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
 
 interface DefaultProxyMethodParserTestCases {
     @ByKafka("c26d1201-a956-4a45-a049-bc7fece18fff")

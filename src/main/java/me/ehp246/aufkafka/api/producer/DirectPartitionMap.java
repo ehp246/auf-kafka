@@ -8,9 +8,9 @@ import org.apache.kafka.common.PartitionInfo;
  * A mapper that assumes the partition key is an {@linkplain Integer} and returns it as the value.
  * 
  * @author Lei Yang
- * @see PartitionKeyMap
+ * @see PartitionMap
  */
-public final class SimpleValuePartitionMap implements PartitionKeyMap {
+public final class DirectPartitionMap implements PartitionMap {
 
     /**
      * <code>null</code> is returned as-is.

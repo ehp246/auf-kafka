@@ -25,6 +25,9 @@ class PartitionTest {
     private TestCases.Case01 case01;
 
     @Autowired
+    private TestCases.Case02 case02;
+
+    @Autowired
     private MsgListener listener;
 
     @BeforeEach
@@ -48,5 +51,28 @@ class PartitionTest {
         final var received = listener.take();
 
         Assertions.assertEquals(2, received.partition(), "should not change");
+    }
+    
+    @Test
+    void producer_partition_direct_01() throws InterruptedException, ExecutionException {
+        this.case02.newEventWithDirectPartition(9);
+
+        final var received = listener.take();
+
+        Assertions.assertEquals(9, received.partition(), "should use it");
+    }
+    
+    @Test
+    void producer_partition_direct_02() throws InterruptedException, ExecutionException {
+        this.case02.newEventWithDirectPartition(Integer.valueOf(7));
+
+        final var received = listener.take();
+
+        Assertions.assertEquals(7, received.partition(), "should use it");
+    }
+    
+    @Test
+    void producer_partition_direct_03() throws InterruptedException, ExecutionException {
+        Assertions.assertThrows(RuntimeException.class, () ->this.case02.newEvent(new TestCases.Event(null)));
     }
 }

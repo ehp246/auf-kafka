@@ -7,6 +7,8 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import me.ehp246.aufkafka.api.producer.PartitionMap;
+
 /**
  * @author Lei Yang
  *

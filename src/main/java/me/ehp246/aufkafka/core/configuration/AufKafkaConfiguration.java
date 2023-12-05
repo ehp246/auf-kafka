@@ -3,8 +3,9 @@ package me.ehp246.aufkafka.core.configuration;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.annotation.Bean;
 
-import me.ehp246.aufkafka.api.producer.PartitionKeyMap;
-import me.ehp246.aufkafka.api.producer.PartitionKeyMapProvider;
+import me.ehp246.aufkafka.api.producer.PartitionMap;
+import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
+import me.ehp246.aufkafka.api.producer.PartitionMapProvider;
 import me.ehp246.aufkafka.api.producer.SerializedPartitionMap;
 import me.ehp246.aufkafka.api.spi.PropertyResolver;
 
@@ -20,14 +21,17 @@ public final class AufKafkaConfiguration {
     }
 
     @Bean
-    PartitionKeyMapProvider partitionKeyMapProvider(final BeanFactory beanFactroy) {
-        return name -> beanFactroy.getBean(
-                name == null || name.isBlank() ? "8166c453-5ec8-472b-a294-844d28694c32" : name,
-                PartitionKeyMap.class);
+    PartitionMapProvider partitionKeyMapProvider(final BeanFactory beanFactroy) {
+        return mapClass -> beanFactroy.getBean(mapClass);
     }
 
-    @Bean("8166c453-5ec8-472b-a294-844d28694c32")
-    PartitionKeyMap serializPartitionKeyMap() {
+    @Bean
+    PartitionMap serializPartitionKeyMap() {
         return new SerializedPartitionMap();
+    }
+    
+    @Bean
+    PartitionMap directPartitionMap() {
+        return new DirectPartitionMap();
     }
 }

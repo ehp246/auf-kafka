@@ -8,6 +8,7 @@ import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.EnableByKafka;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider.ProducerFnConfig;
@@ -26,7 +27,8 @@ public final class ProducerProxyFactory {
     private final ProxyMethodParser methodParser;
     private final ProducerFnProvider producerFnProvider;
 
-    public ProducerProxyFactory(final ProxyMethodParser methodParser, final ProducerFnProvider producerFnProvider) {
+    public ProducerProxyFactory(final ProxyMethodParser methodParser,
+            final ProducerFnProvider producerFnProvider) {
         super();
         this.methodParser = methodParser;
         this.producerFnProvider = producerFnProvider;
@@ -34,15 +36,18 @@ public final class ProducerProxyFactory {
 
     @SuppressWarnings("unchecked")
     public <T> T newInstance(final Class<T> proxyInterface) {
-        final var producerFn = producerFnProvider.get(new ProducerFnConfig("", ""));
+        final var byKafka = proxyInterface.getAnnotation(ByKafka.class);
+        
+        final var producerFn = producerFnProvider
+                .get(new ProducerFnConfig("", byKafka.partitionMap()));
 
-        return (T) Proxy.newProxyInstance(proxyInterface.getClassLoader(), new Class[] { proxyInterface },
-                new InvocationHandler() {
+        return (T) Proxy.newProxyInstance(proxyInterface.getClassLoader(),
+                new Class[] { proxyInterface }, new InvocationHandler() {
                     private final int hashCode = new Object().hashCode();
 
                     @Override
-                    public Object invoke(final Object proxy, final Method method, final Object[] args)
-                            throws Throwable {
+                    public Object invoke(final Object proxy, final Method method,
+                            final Object[] args) throws Throwable {
                         if (method.getName().equals("toString")) {
                             return proxyInterface.toString();
                         }
@@ -54,14 +59,17 @@ public final class ProducerProxyFactory {
                         }
 
                         if (method.isDefault()) {
-                            return MethodHandles.privateLookupIn(proxyInterface, MethodHandles.lookup())
+                            return MethodHandles
+                                    .privateLookupIn(proxyInterface, MethodHandles.lookup())
                                     .findSpecial(proxyInterface, method.getName(),
-                                            MethodType.methodType(method.getReturnType(), method.getParameterTypes()),
+                                            MethodType.methodType(method.getReturnType(),
+                                                    method.getParameterTypes()),
                                             proxyInterface)
                                     .bindTo(proxy).invokeWithArguments(args);
                         }
 
-                        final var bound = parsedCache.computeIfAbsent(method, m -> methodParser.parse(method))
+                        final var bound = parsedCache
+                                .computeIfAbsent(method, m -> methodParser.parse(method))
                                 .invocationBinder().apply(proxy, args);
 
                         producerFn.send(bound.message());

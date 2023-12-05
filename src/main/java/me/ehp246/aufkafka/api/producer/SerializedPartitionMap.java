@@ -3,19 +3,22 @@ package me.ehp246.aufkafka.api.producer;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.List;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.utils.Utils;
 
 /**
- * Maps an {@linkplain Object} partition key to a value deterministically by
- * {@linkplain Object#hashCode()}.
+ * Maps a {@linkplain OutboundRecord#partitionKey()} to
+ * {@linkplain ProducerRecord#partition()} deterministically by converting the
+ * object to a byte array via {@linkplain Serializable}.
  * 
  * @author Lei Yang
- * @see PartitionKeyMap
+ * @see PartitionMap
  */
-public final class SerializedPartitionMap implements PartitionKeyMap {
+public final class SerializedPartitionMap implements PartitionMap {
 
     /**
      * <code>null</code> key is mapped to <code>null</code> value.
