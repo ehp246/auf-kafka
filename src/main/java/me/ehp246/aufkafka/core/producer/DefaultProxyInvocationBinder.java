@@ -11,7 +11,7 @@ import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
  *
  */
 record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Function<Object[], String> keyBinder,
-        Function<Object[], Integer> partitionBinder, Function<Object[], Instant> timestampBinder,
+        Function<Object[], Object> partitionBinder, Function<Object[], Instant> timestampBinder,
         Function<Object[], String> correlIdBinder, int valueParamIndex)
         implements ProxyInvocationBinder {
     @Override
@@ -30,7 +30,7 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Func
             }
 
             @Override
-            public Integer partition() {
+            public Object partition() {
                 return partition;
             }
 

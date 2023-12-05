@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import me.ehp246.aufkafka.api.annotation.EnableByKafka;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
+import me.ehp246.aufkafka.api.producer.ProducerFnProvider.ProducerFnConfig;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
 
 /**
@@ -33,7 +34,7 @@ public final class ProducerProxyFactory {
 
     @SuppressWarnings("unchecked")
     public <T> T newInstance(final Class<T> proxyInterface) {
-        final var producerFn = producerFnProvider.get("");
+        final var producerFn = producerFnProvider.get(new ProducerFnConfig("", ""));
 
         return (T) Proxy.newProxyInstance(proxyInterface.getClassLoader(), new Class[] { proxyInterface },
                 new InvocationHandler() {

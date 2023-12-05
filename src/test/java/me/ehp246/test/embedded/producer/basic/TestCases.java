@@ -3,6 +3,7 @@ package me.ehp246.test.embedded.producer.basic;
 import java.time.Instant;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
+import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 
@@ -16,6 +17,8 @@ interface TestCases {
         void newEvent(@OfValue Event event);
         void newEvent(@OfValue Event event, @OfTimestamp Instant timestamp);
         void newEvent(@OfValue Event event, @OfTimestamp Long timestamp);
+        
+        void newEventWithPartition(@OfPartition Object partitionKey);
     }
 
     record Event(String id) {

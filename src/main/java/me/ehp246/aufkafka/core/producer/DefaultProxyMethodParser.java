@@ -62,7 +62,10 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
 
         final var partitionBinder = reflected.allParametersWith(OfPartition.class).stream()
                 .findFirst()
-                .map(p -> (Function<Object[], Integer>) args -> (Integer) args[p.index()])
+                .map(p -> {
+                    final var index = p.index();
+                    return (Function<Object[], Object>) args -> args[index];
+                })
                 .orElseGet(() -> args -> null);
 
         final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream()

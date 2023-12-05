@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
 
+import me.ehp246.aufkafka.api.producer.SerializedPartitionMap;
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
 import me.ehp246.aufkafka.core.producer.DefaultProducerFnProvider;
 import me.ehp246.aufkafka.core.producer.DefaultProxyMethodParser;

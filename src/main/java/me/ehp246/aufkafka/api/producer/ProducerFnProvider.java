@@ -6,5 +6,8 @@ package me.ehp246.aufkafka.api.producer;
  */
 @FunctionalInterface
 public interface ProducerFnProvider {
-    ProducerFn get(String name);
+    ProducerFn get(ProducerFnConfig config);
+    
+    record ProducerFnConfig(String producerConfigName, String paritionKeyMapName) {
+    }
 }

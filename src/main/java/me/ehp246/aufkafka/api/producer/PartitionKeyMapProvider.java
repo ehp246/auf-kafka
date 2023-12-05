@@ -5,6 +5,6 @@ package me.ehp246.aufkafka.api.producer;
  *
  */
 @FunctionalInterface
-public interface PartitionMap {
-    Integer get(String topic, Object key);
+public interface PartitionKeyMapProvider {
+    PartitionKeyMap get(String name);
 }
