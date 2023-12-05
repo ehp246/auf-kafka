@@ -37,7 +37,7 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider {
 
         return message -> {
             final var producerRecord = new ProducerRecord<String, String>(message.topic(),
-                    partitionMap.get(producer.partitionsFor(message.topic()), message.partition()),
+                    partitionMap.get(producer.partitionsFor(message.topic()), message.partitionKey()),
                     Optional.ofNullable(message.timestamp()).map(Instant::toEpochMilli)
                             .orElse(null),
                     message.key(), null, null);

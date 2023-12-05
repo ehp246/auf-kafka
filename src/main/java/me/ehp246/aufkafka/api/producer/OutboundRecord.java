@@ -13,7 +13,7 @@ public interface OutboundRecord {
         return null;
     }
 
-    default Object partition() {
+    default Object partitionKey() {
         return null;
     }
 

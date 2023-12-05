@@ -61,35 +61,6 @@ class BasicTest {
     }
     
     @Test
-    void producer_partition_01() throws InterruptedException, ExecutionException {
-        this.case01.newEvent(null);
-
-        final var received = listener.take();
-
-        Assertions.assertEquals(0, received.partition());
-    }
-
-    @Test
-    void producer_partition_02() throws InterruptedException, ExecutionException {
-        this.case01.newEventWithPartition(null);
-
-        final var received = listener.take();
-
-        Assertions.assertEquals(0, received.partition());
-    }
-
-    @Test
-    void producer_partition_03() throws InterruptedException, ExecutionException {
-        final var key = UUID.randomUUID().toString();
-        
-        this.case01.newEventWithPartition(key);
-
-        final var received = listener.take();
-
-        Assertions.assertEquals(0, received.partition());
-    }
-
-    @Test
     void producer_timestamp_01() throws InterruptedException, ExecutionException {
         final var expected = Instant.now();
         

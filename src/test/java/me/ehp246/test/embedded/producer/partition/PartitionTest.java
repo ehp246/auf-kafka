@@ -1,0 +1,52 @@
+package me.ehp246.test.embedded.producer.partition;
+
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.annotation.DirtiesContext;
+
+import me.ehp246.test.mock.EmbeddedKafkaConfig;
+
+/**
+ * @author Lei Yang
+ *
+ */
+@SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, MsgListener.class })
+@EmbeddedKafka(topics = { "embedded" }, partitions = 10)
+@DirtiesContext
+class PartitionTest {
+    @Autowired
+    private TestCases.Case01 case01;
+
+    @Autowired
+    private MsgListener listener;
+
+    @BeforeEach
+    void reset() {
+        listener.reset();
+    }
+
+    @Test
+    void producer_partition_01() throws InterruptedException, ExecutionException {
+        this.case01.newEventWithPartition("7dd344b8-b48a-49f0-8e5f-8fc685cbc797");
+
+        final var received = listener.take();
+
+        Assertions.assertEquals(3, received.partition(), "should not change");
+    }
+    
+    @Test
+    void producer_partition_02() throws InterruptedException, ExecutionException {
+        this.case01.newEventWithPartition(Integer.valueOf(1234));
+
+        final var received = listener.take();
+
+        Assertions.assertEquals(2, received.partition(), "should not change");
+    }
+}

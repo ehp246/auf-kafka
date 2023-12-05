@@ -30,7 +30,7 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Func
             }
 
             @Override
-            public Object partition() {
+            public Object partitionKey() {
                 return partition;
             }
 

@@ -138,7 +138,7 @@ class DefaultProxyMethodParserTest {
         final var message = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
-        Assertions.assertEquals(null, message.partition());
+        Assertions.assertEquals(null, message.partitionKey());
     }
     
     @Test
@@ -151,7 +151,7 @@ class DefaultProxyMethodParserTest {
         final var message = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
-        Assertions.assertEquals(true, message.partition() == expected);
+        Assertions.assertEquals(true, message.partitionKey() == expected);
     }
     
     @Test
@@ -163,7 +163,7 @@ class DefaultProxyMethodParserTest {
         final var message = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
-        Assertions.assertEquals(null, message.partition());
+        Assertions.assertEquals(null, message.partitionKey());
     }
     
     @Test
