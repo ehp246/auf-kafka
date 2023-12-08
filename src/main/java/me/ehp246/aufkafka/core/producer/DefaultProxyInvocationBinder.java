@@ -1,10 +1,11 @@
 package me.ehp246.aufkafka.core.producer;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import me.ehp246.aufkafka.api.producer.OutboundRecord;
 import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
@@ -16,8 +17,8 @@ import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
 record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder,
         Function<Object[], String> keyBinder, Function<Object[], Object> partitionBinder,
         Function<Object[], Instant> timestampBinder, Function<Object[], String> correlIdBinder,
-        int valueParamIndex, Map<Integer, String> headerBinder,
-        List<Pair<String, Object>> headerStatic) implements ProxyInvocationBinder {
+        int valueParamIndex, Map<Integer, HeaderParam> headerBinder,
+        List<OutboundRecord.Header> headerStatic) implements ProxyInvocationBinder {
     @Override
     public Bound apply(final Object target, final Object[] args) throws Throwable {
         final var topic = topicBinder.apply(args);
@@ -25,7 +26,28 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder,
         final var partition = partitionBinder.apply(args);
         final var timestamp = timestampBinder.apply(args);
         final var value = valueParamIndex == -1 ? null : args[valueParamIndex];
-        final var headers = new ArrayList<Pair<String, Object>>(this.headerStatic);
+        final var headers = Stream.concat(this.headerBinder.entrySet().stream()
+                .filter(entry -> args[entry.getKey()] != null).map(entry -> {
+                    final var argIndex = entry.getKey();
+                    final var headerParam = entry.getValue();
+                    final var name = headerParam.name();
+                    final var type = headerParam.type();
+                    final var arg = args[argIndex];
+
+                    return new OutboundRecord.Header() {
+
+                        @Override
+                        public String name() {
+                            return name;
+                        }
+
+                        @Override
+                        public Object value() {
+                            return arg;
+                        }
+
+                    };
+                }), this.headerStatic.stream()).collect(Collectors.toList());
 
         return new Bound(new OutboundRecord() {
 
@@ -55,7 +77,7 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder,
             }
 
             @Override
-            public Iterable<Pair<String, Object>> headers() {
+            public Iterable<Header> headers() {
                 return headers;
             }
 

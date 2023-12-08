@@ -1,6 +1,7 @@
 package me.ehp246.aufkafka.core.producer;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.kafka.common.Uuid;
@@ -312,11 +313,75 @@ class DefaultProxyMethodParserTest {
                 .message().headers());
 
         Assertions.assertEquals(3, headers.size());
-        Assertions.assertEquals("header1", headers.get(0).key());
+        Assertions.assertEquals("header1", headers.get(0).name());
         Assertions.assertEquals("value1", headers.get(0).value());
-        Assertions.assertEquals("header2", headers.get(1).key());
+
+        Assertions.assertEquals("header2", headers.get(1).name());
         Assertions.assertEquals("value2", headers.get(1).value());
-        Assertions.assertEquals("header1", headers.get(2).key());
+
+        Assertions.assertEquals("header1", headers.get(2).name());
         Assertions.assertEquals("value2", headers.get(2).value());
+    }
+
+    @Test
+    void header_02() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.HeaderCase01.class);
+
+        captor.proxy().m02(UUID.randomUUID());
+
+        final var headers = OneUtil.toList(parser.parse(captor.invocation().method())
+                .invocationBinder().apply(captor.invocation().target(), captor.invocation().args())
+                .message().headers());
+
+        Assertions.assertEquals(4, headers.size());
+
+        Assertions.assertEquals("Header", headers.get(0).name());
+        Assertions.assertEquals(captor.invocation().args()[0], headers.get(0).value());
+
+        Assertions.assertEquals("header1", headers.get(1).name());
+        Assertions.assertEquals("value1", headers.get(1).value());
+
+        Assertions.assertEquals("header2", headers.get(2).name());
+        Assertions.assertEquals("value2", headers.get(2).value());
+
+        Assertions.assertEquals("header1", headers.get(3).name());
+        Assertions.assertEquals("value2", headers.get(3).value());
+    }
+
+    @Test
+    void header_04() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.HeaderCase02.class);
+        captor.proxy().m02(null);
+
+        final var headers = OneUtil.toList(parser.parse(captor.invocation().method())
+                .invocationBinder().apply(captor.invocation().target(), captor.invocation().args())
+                .message().headers());
+
+        Assertions.assertEquals(0, headers.size(), "should filter out null values");
+    }
+
+    @Test
+    void header_05() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.HeaderCase02.class);
+        captor.proxy().m01();
+
+        final var headers = OneUtil.toList(parser.parse(captor.invocation().method())
+                .invocationBinder().apply(captor.invocation().target(), captor.invocation().args())
+                .message().headers());
+
+        Assertions.assertEquals(0, headers.size());
+    }
+
+    @Test
+    void header_06() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.HeaderCase02.class);
+
+        captor.proxy().m02(List.of());
+
+        final var headers = OneUtil.toList(parser.parse(captor.invocation().method())
+                .invocationBinder().apply(captor.invocation().target(), captor.invocation().args())
+                .message().headers());
+
+        Assertions.assertEquals(0, headers.size(), "should parse iterable");
     }
 }

@@ -2,8 +2,6 @@ package me.ehp246.aufkafka.api.producer;
 
 import java.time.Instant;
 
-import me.ehp246.aufkafka.core.producer.Pair;
-
 /**
  * @author Lei Yang
  *
@@ -27,7 +25,13 @@ public interface OutboundRecord {
         return null;
     }
 
-    default Iterable<Pair<String, Object>> headers() {
+    default Iterable<Header> headers() {
         return null;
+    }
+
+    interface Header {
+        String name();
+
+        Object value();
     }
 }

@@ -10,6 +10,7 @@ import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
+import me.ehp246.aufkafka.api.producer.OutboundRecord;
 
 interface DefaultProxyMethodParserTestCases {
     @ByKafka("c26d1201-a956-4a45-a049-bc7fece18fff")
@@ -70,8 +71,15 @@ interface DefaultProxyMethodParserTestCases {
     interface HeaderCase01 {
         void m01();
 
-        void m02(@OfHeader Object header);
+        void m02(@OfHeader UUID header);
 
         void m03(@OfHeader("header1") Object value1, @OfHeader("header1") Object value2);
+    }
+
+    @ByKafka(value = "topic")
+    interface HeaderCase02 {
+        void m01();
+
+        void m02(@OfHeader Iterable<OutboundRecord.Header> header);
     }
 }

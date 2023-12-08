@@ -15,6 +15,8 @@ import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
+import me.ehp246.aufkafka.api.producer.OutboundRecord;
+import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.HeaderParam;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
 import me.ehp246.aufkafka.api.spi.PropertyResolver;
 import me.ehp246.aufkafka.core.reflection.ReflectedMethod;
@@ -39,9 +41,8 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
 
         final var topicBinder = reflected.allParametersWith(OfTopic.class).stream().findFirst()
                 .map(p -> (Function<Object[], String>) args -> {
-                    Object value = args[p.index()];
-                    final Object value1 = value;
-                    return value1 == null ? null : value1 + "";
+                    final Object value = args[p.index()];
+                    return value == null ? null : value + "";
                 }).orElseGet(() -> {
                     final var topic = propertyResolver.resolve(byKafka.value());
                     return (Function<Object[], String>) args -> topic;
@@ -95,18 +96,20 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                 headerStatic(reflected, byKafka)));
     }
 
-    private Map<Integer, String> headerBinder(final ReflectedMethod reflected) {
-        final var headerBinder = new HashMap<Integer, String>();
-        for (final var p : reflected.allParametersWith(OfHeader.class)) {
-            final var parameter = p.parameter();
-            headerBinder.put(p.index(),
-                    OneUtil.getIfBlank(parameter.getAnnotation(OfHeader.class).value(),
-                            () -> OneUtil.firstUpper(parameter.getName())));
+    private Map<Integer, HeaderParam> headerBinder(final ReflectedMethod reflected) {
+        final var headerBinder = new HashMap<Integer, HeaderParam>();
+        for (final var reflectedParam : reflected.allParametersWith(OfHeader.class)) {
+            final var parameter = reflectedParam.parameter();
+            headerBinder.put(reflectedParam.index(),
+                    new HeaderParam(
+                            OneUtil.getIfBlank(parameter.getAnnotation(OfHeader.class).value(),
+                                    () -> OneUtil.firstUpper(parameter.getName())),
+                            parameter.getType()));
         }
         return headerBinder;
     }
 
-    private List<Pair<String, Object>> headerStatic(final ReflectedMethod reflected,
+    private List<OutboundRecord.Header> headerStatic(final ReflectedMethod reflected,
             final ByKafka byKafka) {
         final var headers = byKafka.headers();
         if ((headers.length & 1) != 0) {
@@ -114,9 +117,23 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                     + reflected.method().getDeclaringClass());
         }
 
-        final List<Pair<String, Object>> headerStatic = new ArrayList<>();
+        final List<OutboundRecord.Header> headerStatic = new ArrayList<>();
         for (int i = 0; i < headers.length; i += 2) {
-            headerStatic.add(new Pair<>(headers[i], propertyResolver.resolve(headers[i + 1])));
+            final var name = headers[i];
+            final var value = propertyResolver.resolve(headers[i + 1]);
+
+            headerStatic.add(new OutboundRecord.Header() {
+
+                @Override
+                public String name() {
+                    return name;
+                }
+
+                @Override
+                public Object value() {
+                    return value;
+                }
+            });
         }
         return headerStatic;
     }
