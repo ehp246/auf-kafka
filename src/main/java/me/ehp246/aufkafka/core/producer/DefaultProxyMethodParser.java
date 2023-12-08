@@ -1,14 +1,14 @@
 package me.ehp246.aufkafka.core.producer;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.time.Instant;
-import java.util.Optional;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
-import me.ehp246.aufkafka.api.annotation.OfCorrelationId;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
@@ -35,7 +35,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
     @Override
     public Parsed parse(final Method method) {
         final var reflected = new ReflectedMethod(method);
-        final var byKafka = reflected.findOnMethodUp(ByKafka.class).get();
+        final var byKafka = reflected.method().getDeclaringClass().getAnnotation(ByKafka.class);
 
         final var topicBinder = reflected.allParametersWith(OfTopic.class).stream().findFirst()
                 .map(p -> (Function<Object[], String>) args -> {
@@ -61,12 +61,10 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                 }));
 
         final var partitionBinder = reflected.allParametersWith(OfPartition.class).stream()
-                .findFirst()
-                .map(p -> {
+                .findFirst().map(p -> {
                     final var index = p.index();
                     return (Function<Object[], Object>) args -> args[index];
-                })
-                .orElseGet(() -> args -> null);
+                }).orElseGet(() -> args -> null);
 
         final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream()
                 .findFirst().map(p -> {
@@ -93,6 +91,33 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                 .map(ReflectedParameter::index).orElse(-1);
 
         return new Parsed(new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder,
-                timestampBinder, null, valueParamIndex));
+                timestampBinder, null, valueParamIndex, headerBinder(reflected),
+                headerStatic(reflected, byKafka)));
+    }
+
+    private Map<Integer, String> headerBinder(final ReflectedMethod reflected) {
+        final var headerBinder = new HashMap<Integer, String>();
+        for (final var p : reflected.allParametersWith(OfHeader.class)) {
+            final var parameter = p.parameter();
+            headerBinder.put(p.index(),
+                    OneUtil.getIfBlank(parameter.getAnnotation(OfHeader.class).value(),
+                            () -> OneUtil.firstUpper(parameter.getName())));
+        }
+        return headerBinder;
+    }
+
+    private List<Pair<String, Object>> headerStatic(final ReflectedMethod reflected,
+            final ByKafka byKafka) {
+        final var headers = byKafka.headers();
+        if ((headers.length & 1) != 0) {
+            throw new IllegalArgumentException("Headers are not in name/value pairs on "
+                    + reflected.method().getDeclaringClass());
+        }
+
+        final List<Pair<String, Object>> headerStatic = new ArrayList<>();
+        for (int i = 0; i < headers.length; i += 2) {
+            headerStatic.add(new Pair<>(headers[i], propertyResolver.resolve(headers[i + 1])));
+        }
+        return headerStatic;
     }
 }

@@ -42,6 +42,29 @@ public @interface ByKafka {
     String name() default "";
 
     /**
+     * Specifies header name/value pairs for out-going messages.
+     * <p>
+     * E.g.,
+     * <p>
+     * <code>
+     *     { "AppName", "AufJms", "AppVersion", "1.0", ... }
+     * </code>
+     * <p>
+     * Must be specified in pairs. Missing value will trigger an exception.
+     * <p>
+     * E.g., the following is missing value for property '{@code appVersion}' and
+     * will result an exception.
+     * <p>
+     * <code>
+     *     { "AppVersion" }
+     * </code>
+     * <p>
+     * Spring property placeholder is supported on values but not on names.
+     *
+     */
+    String[] headers() default {};
+
+    /**
      * Specifies the type of Spring bean that implements {@linkplain PartitionMap}
      * to use with the interface to map partition key to partition.
      * 
