@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import me.ehp246.aufkafka.api.Pair;
 import me.ehp246.aufkafka.api.producer.OutboundRecord;
 import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
 
@@ -26,28 +27,10 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder,
         final var partition = partitionBinder.apply(args);
         final var timestamp = timestampBinder.apply(args);
         final var value = valueParamIndex == -1 ? null : args[valueParamIndex];
-        final var headers = Stream.concat(this.headerBinder.entrySet().stream()
-                .filter(entry -> args[entry.getKey()] != null).map(entry -> {
-                    final var argIndex = entry.getKey();
-                    final var headerParam = entry.getValue();
-                    final var name = headerParam.name();
-                    final var type = headerParam.type();
-                    final var arg = args[argIndex];
-
-                    return new OutboundRecord.Header() {
-
-                        @Override
-                        public String name() {
-                            return name;
-                        }
-
-                        @Override
-                        public Object value() {
-                            return arg;
-                        }
-
-                    };
-                }), this.headerStatic.stream()).collect(Collectors.toList());
+        final var headers = Stream.concat(
+                this.headerBinder.entrySet().stream().map(
+                        entry -> new Pair<Object>(entry.getValue().name(), args[entry.getKey()])),
+                this.headerStatic.stream()).collect(Collectors.toList());
 
         return new Bound(new OutboundRecord() {
 

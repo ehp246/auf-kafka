@@ -21,16 +21,20 @@ import java.nio.charset.StandardCharsets;
  * <code>byte []</code> via {@linkplain String#getBytes()} with
  * {@linkplain StandardCharsets#UTF_8}.
  * <p>
+ * If the argument is <code>null</code>, the header will have a value of
+ * zero-length <code>byte []</code>.
+ * <p>
  * On the consumer side, applied to a parameter of a {@linkplain ForKey}
  * {@linkplain Applying} method, it specifies the injection point for the value
  * of the named header of the in-coming message.
  * <p>
- * For {@linkplain String} parameters, <code>byte []</code> values are converted by
- * {@linkplain StandardCharsets#UTF_8}.
+ * For {@linkplain String} parameters, <code>byte []</code> values are converted
+ * by {@linkplain StandardCharsets#UTF_8}.
  * <p>
- * When {@linkplain OfHeader#value()} is not specified, the header name is inferred from the
- * parameter name with the first letter capitalized. For the inferencing to work properly,
- * '<code>-parameters</code>' compiler option is probably desired.
+ * When {@linkplain OfHeader#value()} is not specified, the header name is
+ * inferred from the parameter name with the first letter capitalized. For the
+ * inferencing to work properly, '<code>-parameters</code>' compiler option is
+ * probably desired.
  *
  * @author Lei Yang
  * @since 1.0
