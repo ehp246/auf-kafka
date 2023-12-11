@@ -22,34 +22,34 @@ class SerializedPartitionMapTest {
     void test_01() {
         final var infos = List.of(Mockito.mock(PartitionInfo.class), Mockito.mock(PartitionInfo.class), Mockito.mock(PartitionInfo.class));
 
-        Assertions.assertEquals(2, map.get(infos, "97e9ed90-4f2e-4c72-b9fd-9f4eaf5d259c").intValue());
+        Assertions.assertEquals(2, map.apply(infos, "97e9ed90-4f2e-4c72-b9fd-9f4eaf5d259c").intValue());
     }
 
     @Test
     void test_02() {
         final var infos = List.of(Mockito.mock(PartitionInfo.class), Mockito.mock(PartitionInfo.class), Mockito.mock(PartitionInfo.class));
 
-        Assertions.assertEquals(null, map.get(infos, null));
+        Assertions.assertEquals(null, map.apply(infos, null));
     }
     
     @Test
     void test_03() {
         final var infos = List.of(Mockito.mock(PartitionInfo.class), Mockito.mock(PartitionInfo.class), Mockito.mock(PartitionInfo.class));
 
-        Assertions.assertEquals(1, map.get(infos, "").intValue());
+        Assertions.assertEquals(1, map.apply(infos, "").intValue());
     }
     
     @Test
     void test_04() {
         final var infos = List.of(Mockito.mock(PartitionInfo.class), Mockito.mock(PartitionInfo.class), Mockito.mock(PartitionInfo.class));
 
-        Assertions.assertEquals(1, map.get(infos, Long.valueOf(20000000L)).intValue());
+        Assertions.assertEquals(1, map.apply(infos, Long.valueOf(20000000L)).intValue());
     }
     
     @Test
     void test_05() {
         final var infos = List.of(Mockito.mock(PartitionInfo.class), Mockito.mock(PartitionInfo.class), Mockito.mock(PartitionInfo.class));
 
-        Assertions.assertEquals(0, map.get(infos, UUID.fromString("74770d6d-a15e-48e0-9949-cbad7f208e26")).intValue());
+        Assertions.assertEquals(0, map.apply(infos, UUID.fromString("74770d6d-a15e-48e0-9949-cbad7f208e26")).intValue());
     }
 }

@@ -25,7 +25,7 @@ public final class SerializedPartitionMap implements PartitionMap {
      * 
      */
     @Override
-    public Integer get(List<PartitionInfo> infos, Object key) {
+    public Integer apply(List<PartitionInfo> infos, Object key) {
         if (key == null) {
             return null;
         }

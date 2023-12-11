@@ -1,48 +1,40 @@
 package me.ehp246.aufkafka.core.producer;
 
-import java.time.Instant;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import org.apache.kafka.clients.admin.KafkaAdminClient;
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerRecord;
-
-import me.ehp246.aufkafka.api.producer.PartitionMap;
 import me.ehp246.aufkafka.api.producer.PartitionMapProvider;
-import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
 import me.ehp246.aufkafka.api.producer.ProducerFn;
 import me.ehp246.aufkafka.api.producer.ProducerFn.Sent;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
+import me.ehp246.aufkafka.api.producer.ProducerProvider;
+import me.ehp246.aufkafka.api.producer.ProducerRecordBuilderProvider;
 
 /**
  * @author Lei Yang
  *
  */
 public final class DefaultProducerFnProvider implements ProducerFnProvider {
-    private final ProducerConfigProvider producerConfigProvider;
+    private final ProducerProvider producerProvider;
+    private final ProducerRecordBuilderProvider recordBuilderProvider;
     private final PartitionMapProvider partitionKeyMapProvider;
 
-    DefaultProducerFnProvider(final ProducerConfigProvider producerConfigProvider,
-            final PartitionMapProvider partitionKeyMapProvider) {
+    DefaultProducerFnProvider(final ProducerProvider producerProvider,
+            final PartitionMapProvider partitionKeyMapProvider,
+            final ProducerRecordBuilderProvider recordBuilderProvider) {
         super();
-        this.producerConfigProvider = producerConfigProvider;
+        this.producerProvider = producerProvider;
         this.partitionKeyMapProvider = partitionKeyMapProvider;
+        this.recordBuilderProvider = recordBuilderProvider;
     }
 
     @Override
     public ProducerFn get(final ProducerFnConfig config) {
-        final var producer = new KafkaProducer<String, String>(
-                producerConfigProvider.get(config.producerConfigName()));
-        final var partitionMap = this.partitionKeyMapProvider.get(config.partitionMapType());
+        final var producer = producerProvider.get(config.producerConfigName());
+        final var recordBuilder = recordBuilderProvider.apply(topic -> producer.partitionsFor(topic),
+                this.partitionKeyMapProvider.get(config.partitionMapType()));
 
-        return message -> {
-            final var producerRecord = new ProducerRecord<String, String>(message.topic(),
-                    partitionMap.get(producer.partitionsFor(message.topic()),
-                            message.partitionKey()),
-                    Optional.ofNullable(message.timestamp()).map(Instant::toEpochMilli)
-                            .orElse(null),
-                    message.key(), null, null);
+        return outboundRecord -> {
+            final var producerRecord = recordBuilder.apply(outboundRecord);
             final var completeableFuture = new CompletableFuture<Sent>();
 
             producer.send(producerRecord, (metadata, exception) -> {

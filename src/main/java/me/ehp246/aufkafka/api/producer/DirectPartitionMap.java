@@ -16,7 +16,7 @@ public final class DirectPartitionMap implements PartitionMap {
      * <code>null</code> is returned as-is.
      */
     @Override
-    public Integer get(List<PartitionInfo> infos, Object key) {
+    public Integer apply(List<PartitionInfo> infos, Object key) {
         return key == null ? null : (Integer) key;
     }
 

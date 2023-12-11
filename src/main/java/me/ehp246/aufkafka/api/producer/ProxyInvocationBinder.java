@@ -9,4 +9,7 @@ public interface ProxyInvocationBinder {
 
     record Bound(OutboundRecord message) {
     }
+
+    record HeaderParam(String name, Class<?> type) {
+    }
 }

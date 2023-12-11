@@ -1,8 +1,13 @@
 package me.ehp246.aufkafka.core.producer;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import me.ehp246.aufkafka.api.Pair;
 import me.ehp246.aufkafka.api.producer.OutboundRecord;
 import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
 
@@ -10,10 +15,11 @@ import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
  * @author Lei Yang
  *
  */
-record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Function<Object[], String> keyBinder,
-        Function<Object[], Object> partitionBinder, Function<Object[], Instant> timestampBinder,
-        Function<Object[], String> correlIdBinder, int valueParamIndex)
-        implements ProxyInvocationBinder {
+record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder,
+        Function<Object[], String> keyBinder, Function<Object[], Object> partitionBinder,
+        Function<Object[], Instant> timestampBinder, Function<Object[], String> correlIdBinder,
+        int valueParamIndex, Map<Integer, HeaderParam> headerBinder,
+        List<OutboundRecord.Header> headerStatic) implements ProxyInvocationBinder {
     @Override
     public Bound apply(final Object target, final Object[] args) throws Throwable {
         final var topic = topicBinder.apply(args);
@@ -21,6 +27,10 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Func
         final var partition = partitionBinder.apply(args);
         final var timestamp = timestampBinder.apply(args);
         final var value = valueParamIndex == -1 ? null : args[valueParamIndex];
+        final var headers = Stream.concat(
+                this.headerBinder.entrySet().stream().map(
+                        entry -> new Pair<Object>(entry.getValue().name(), args[entry.getKey()])),
+                this.headerStatic.stream()).collect(Collectors.toList());
 
         return new Bound(new OutboundRecord() {
 
@@ -49,7 +59,11 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Func
                 return timestamp;
             }
 
+            @Override
+            public Iterable<Header> headers() {
+                return headers;
+            }
+
         });
     }
-
 }

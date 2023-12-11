@@ -24,4 +24,14 @@ public interface OutboundRecord {
     default Instant timestamp() {
         return null;
     }
+
+    default Iterable<Header> headers() {
+        return null;
+    }
+
+    interface Header {
+        String key();
+
+        Object value();
+    }
 }

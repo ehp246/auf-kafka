@@ -3,6 +3,7 @@ package me.ehp246.test.mock;
 import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -19,7 +20,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
-import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
+import me.ehp246.aufkafka.api.producer.ProducerProvider;
 
 /**
  * @author Lei Yang
@@ -41,20 +42,22 @@ public class EmbeddedKafkaConfig {
     @Bean
     ConsumerFactory<String, String> consumerFactory() {
         final var configMap = KafkaTestUtils.consumerProps("test", "true", embeddedKafka);
-        configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class.getName());
+        configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class.getName());
+        configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                JsonDeserializer.class.getName());
         configMap.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         return new DefaultKafkaConsumerFactory<>(configMap);
     }
 
     @Bean
-    ProducerConfigProvider defaultProducerConfigProvider() {
+    ProducerProvider defaultProducerConfigProvider() {
         final Map<String, Object> configMap = KafkaTestUtils.producerProps(embeddedKafka);
         configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
 
-        return name -> configMap;
+        return name -> new KafkaProducer<String, String>(configMap);
     }
 
     @Bean
@@ -67,7 +70,8 @@ public class EmbeddedKafkaConfig {
     }
 
     @Bean
-    KafkaTemplate<String, String> kafkaTemplate(final ProducerFactory<String, String> producerFactory) {
+    KafkaTemplate<String, String> kafkaTemplate(
+            final ProducerFactory<String, String> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
 
     }

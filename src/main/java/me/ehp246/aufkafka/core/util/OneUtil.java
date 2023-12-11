@@ -7,11 +7,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 
@@ -28,7 +31,7 @@ public final class OneUtil {
         return value == null || value.length() == 0 ? value
                 : value.substring(0, 1).toUpperCase(Locale.US) + value.substring(1);
     }
-    
+
     public static String toString(final Object value) {
         return toString(value, null);
     }
@@ -66,7 +69,8 @@ public final class OneUtil {
     }
 
     public static Stream<String> streamValues(final Collection<String> values) {
-        return Optional.ofNullable(values).orElseGet(ArrayList::new).stream().filter(OneUtil::hasValue);
+        return Optional.ofNullable(values).orElseGet(ArrayList::new).stream()
+                .filter(OneUtil::hasValue);
     }
 
     public static List<String> listValues(final Collection<String> values) {
@@ -106,14 +110,15 @@ public final class OneUtil {
         }
     }
 
-    public static boolean isPresent(final List<? extends Annotation> annos, final Class<? extends Annotation> type) {
+    public static boolean isPresent(final List<? extends Annotation> annos,
+            final Class<? extends Annotation> type) {
         return OneUtil.filter(annos, type).findAny().isPresent();
     }
 
     public static Stream<? extends Annotation> filter(final List<? extends Annotation> annos,
             final Class<? extends Annotation> type) {
-        return Optional.ofNullable(annos).filter(Objects::nonNull).orElseGet(ArrayList::new).stream()
-                .filter(anno -> anno.annotationType() == type);
+        return Optional.ofNullable(annos).filter(Objects::nonNull).orElseGet(ArrayList::new)
+                .stream().filter(anno -> anno.annotationType() == type);
     }
 
     public static String producerInterfaceBeanName(final Class<?> byRestInterface) {
@@ -127,5 +132,10 @@ public final class OneUtil {
 
         return new String(c);
     }
-}
 
+    public static <T> List<T> toList(final Iterable<T> iterable) {
+        return StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(iterable.iterator(), Spliterator.ORDERED),
+                false).collect(Collectors.toList());
+    }
+}
