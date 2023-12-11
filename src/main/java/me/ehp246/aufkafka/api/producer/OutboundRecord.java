@@ -30,7 +30,7 @@ public interface OutboundRecord {
     }
 
     interface Header {
-        String name();
+        String key();
 
         Object value();
     }

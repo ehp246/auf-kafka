@@ -312,13 +312,13 @@ class DefaultProxyMethodParserTest {
                 .message().headers());
 
         Assertions.assertEquals(3, headers.size());
-        Assertions.assertEquals("header1", headers.get(0).name());
+        Assertions.assertEquals("header1", headers.get(0).key());
         Assertions.assertEquals("value1", headers.get(0).value());
 
-        Assertions.assertEquals("header2", headers.get(1).name());
+        Assertions.assertEquals("header2", headers.get(1).key());
         Assertions.assertEquals("value2", headers.get(1).value());
 
-        Assertions.assertEquals("header1", headers.get(2).name());
+        Assertions.assertEquals("header1", headers.get(2).key());
         Assertions.assertEquals("value2", headers.get(2).value());
     }
 
@@ -334,16 +334,16 @@ class DefaultProxyMethodParserTest {
 
         Assertions.assertEquals(4, headers.size());
 
-        Assertions.assertEquals("Header", headers.get(0).name());
+        Assertions.assertEquals("Header", headers.get(0).key());
         Assertions.assertEquals(captor.invocation().args()[0], headers.get(0).value());
 
-        Assertions.assertEquals("header1", headers.get(1).name());
+        Assertions.assertEquals("header1", headers.get(1).key());
         Assertions.assertEquals("value1", headers.get(1).value());
 
-        Assertions.assertEquals("header2", headers.get(2).name());
+        Assertions.assertEquals("header2", headers.get(2).key());
         Assertions.assertEquals("value2", headers.get(2).value());
 
-        Assertions.assertEquals("header1", headers.get(3).name());
+        Assertions.assertEquals("header1", headers.get(3).key());
         Assertions.assertEquals("value2", headers.get(3).value());
     }
 
@@ -359,16 +359,16 @@ class DefaultProxyMethodParserTest {
 
         Assertions.assertEquals(4, headers.size());
 
-        Assertions.assertEquals("Header", headers.get(0).name());
+        Assertions.assertEquals("Header", headers.get(0).key());
         Assertions.assertEquals(captor.invocation().args()[0], headers.get(0).value());
 
-        Assertions.assertEquals("header1", headers.get(1).name());
+        Assertions.assertEquals("header1", headers.get(1).key());
         Assertions.assertEquals("value1", headers.get(1).value());
 
-        Assertions.assertEquals("header2", headers.get(2).name());
+        Assertions.assertEquals("header2", headers.get(2).key());
         Assertions.assertEquals("value2", headers.get(2).value());
 
-        Assertions.assertEquals("header1", headers.get(3).name());
+        Assertions.assertEquals("header1", headers.get(3).key());
         Assertions.assertEquals("value2", headers.get(3).value());
     }
 
@@ -395,10 +395,10 @@ class DefaultProxyMethodParserTest {
 
         Assertions.assertEquals(2, headers.size());
 
-        Assertions.assertEquals("header1", headers.get(0).name());
+        Assertions.assertEquals("header1", headers.get(0).key());
         Assertions.assertEquals(captor.invocation().args()[0], headers.get(0).value());
 
-        Assertions.assertEquals("header1", headers.get(1).name());
+        Assertions.assertEquals("header1", headers.get(1).key());
         Assertions.assertEquals(captor.invocation().args()[1], headers.get(1).value());
     }
 
@@ -413,16 +413,17 @@ class DefaultProxyMethodParserTest {
 
         Assertions.assertEquals(2, headers.size());
 
-        Assertions.assertEquals("header1", headers.get(0).name());
+        Assertions.assertEquals("header1", headers.get(0).key());
         Assertions.assertEquals(captor.invocation().args()[0], headers.get(0).value());
 
-        Assertions.assertEquals("header1", headers.get(1).name());
+        Assertions.assertEquals("header1", headers.get(1).key());
         Assertions.assertEquals(captor.invocation().args()[1], headers.get(1).value());
     }
 
     @Test
     void header_08() throws Throwable {
         final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.HeaderCase03.class);
+
         captor.proxy().m01();
 
         final var headers = OneUtil
@@ -434,10 +435,10 @@ class DefaultProxyMethodParserTest {
 
         Assertions.assertEquals(2, headers.size());
 
-        Assertions.assertEquals("header1", headers.get(0).name());
+        Assertions.assertEquals("header1", headers.get(0).key());
         Assertions.assertEquals("bc5beb1b-569c-4055-bedf-3b06f9af2e5d", headers.get(0).value());
 
-        Assertions.assertEquals("header2", headers.get(1).name());
+        Assertions.assertEquals("header2", headers.get(1).key());
         Assertions.assertEquals("value2", headers.get(1).value());
     }
 }

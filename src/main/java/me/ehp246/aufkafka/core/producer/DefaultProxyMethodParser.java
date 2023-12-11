@@ -125,7 +125,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
             headerStatic.add(new OutboundRecord.Header() {
 
                 @Override
-                public String name() {
+                public String key() {
                     return name;
                 }
 
