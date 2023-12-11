@@ -119,14 +119,14 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
 
         final List<OutboundRecord.Header> headerStatic = new ArrayList<>();
         for (int i = 0; i < headers.length; i += 2) {
-            final var name = headers[i];
+            final var key = headers[i];
             final var value = propertyResolver.resolve(headers[i + 1]);
 
             headerStatic.add(new OutboundRecord.Header() {
 
                 @Override
                 public String key() {
-                    return name;
+                    return key;
                 }
 
                 @Override

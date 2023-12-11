@@ -2,9 +2,6 @@ package me.ehp246.test.embedded.producer.header;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
-import me.ehp246.aufkafka.api.annotation.OfPartition;
-import me.ehp246.aufkafka.api.annotation.OfValue;
-import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
 
 /**
  * @author Lei Yang
@@ -13,18 +10,14 @@ import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
 interface TestCases {
     @ByKafka(value = "embedded")
     interface Case01 {
-        void header(@OfHeader Object header, @OfHeader("header02") Object value, @OfHeader("header02") Object value2);
+        void header(@OfHeader Object header, @OfHeader("header02") Object value,
+                @OfHeader("header02") Object value2);
     }
 
-    @ByKafka(value = "embedded", partitionMap = DirectPartitionMap.class)
+    @ByKafka(value = "embedded", headers = { "header", "${static.1}", "header2", "static.2" })
     interface Case02 {
-        void newEvent(@OfPartition Event event);
+        void header();
 
-        void newEventWithDirectPartition(@OfPartition Integer partition);
-
-        void newEventWithDirectPartition(@OfPartition int partition);
-    }
-
-    record Event(String id) {
+        void header(@OfHeader Object header);
     }
 }

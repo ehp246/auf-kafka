@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 
 import me.ehp246.aufkafka.core.util.OneUtil;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
@@ -19,9 +18,9 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  * @author Lei Yang
  *
  */
-@SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, MsgListener.class })
+@SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, MsgListener.class },
+        properties = { "static.1=234e3609-3edd-4059-b685-fa8a0bed19d3" })
 @EmbeddedKafka(topics = { "embedded" }, partitions = 10)
-@DirtiesContext
 class HeaderTest {
     @Autowired
     private TestCases.Case01 case01;
@@ -79,26 +78,42 @@ class HeaderTest {
     }
 
     @Test
-    void producer_partition_direct_01() throws InterruptedException, ExecutionException {
-        this.case02.newEventWithDirectPartition(9);
+    void header_03() throws InterruptedException, ExecutionException {
+        this.case02.header();
 
-        final var received = listener.take();
+        final var headers = OneUtil.toList(listener.take().headers());
 
-        Assertions.assertEquals(9, received.partition(), "should use it");
+        Assertions.assertEquals(2, headers.size());
+
+        Assertions.assertEquals("header", headers.get(0).key());
+        Assertions.assertEquals(true, new String(headers.get(0).value(), StandardCharsets.UTF_8)
+                .equals("234e3609-3edd-4059-b685-fa8a0bed19d3"));
+
+        Assertions.assertEquals("header2", headers.get(1).key());
+        Assertions.assertEquals(true,
+                new String(headers.get(1).value(), StandardCharsets.UTF_8).equals("static.2"));
     }
 
     @Test
-    void producer_partition_direct_02() throws InterruptedException, ExecutionException {
-        this.case02.newEventWithDirectPartition(Integer.valueOf(7));
+    void header_04() throws InterruptedException, ExecutionException {
+        final var value = UUID.randomUUID();
 
-        final var received = listener.take();
+        this.case02.header(value);
 
-        Assertions.assertEquals(7, received.partition(), "should use it");
-    }
+        final var headers = OneUtil.toList(listener.take().headers());
 
-    @Test
-    void producer_partition_direct_03() throws InterruptedException, ExecutionException {
-        Assertions.assertThrows(RuntimeException.class,
-                () -> this.case02.newEvent(new TestCases.Event(null)));
+        Assertions.assertEquals(3, headers.size());
+
+        Assertions.assertEquals("Header", headers.get(0).key());
+        Assertions.assertEquals(true, new String(headers.get(0).value(), StandardCharsets.UTF_8)
+                .equals(value.toString()));
+
+        Assertions.assertEquals("header", headers.get(1).key());
+        Assertions.assertEquals(true, new String(headers.get(1).value(), StandardCharsets.UTF_8)
+                .equals("234e3609-3edd-4059-b685-fa8a0bed19d3"));
+
+        Assertions.assertEquals("header2", headers.get(2).key());
+        Assertions.assertEquals(true,
+                new String(headers.get(2).value(), StandardCharsets.UTF_8).equals("static.2"));
     }
 }
