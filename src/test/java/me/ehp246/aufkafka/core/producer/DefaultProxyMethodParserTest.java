@@ -419,4 +419,25 @@ class DefaultProxyMethodParserTest {
         Assertions.assertEquals("header1", headers.get(1).name());
         Assertions.assertEquals(captor.invocation().args()[1], headers.get(1).value());
     }
+
+    @Test
+    void header_08() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.HeaderCase03.class);
+        captor.proxy().m01();
+
+        final var headers = OneUtil
+                .toList(new DefaultProxyMethodParser(new MockEnvironment().withProperty("value1",
+                        "bc5beb1b-569c-4055-bedf-3b06f9af2e5d")::resolvePlaceholders)
+                                .parse(captor.invocation().method()).invocationBinder()
+                                .apply(captor.invocation().target(), captor.invocation().args())
+                                .message().headers());
+
+        Assertions.assertEquals(2, headers.size());
+
+        Assertions.assertEquals("header1", headers.get(0).name());
+        Assertions.assertEquals("bc5beb1b-569c-4055-bedf-3b06f9af2e5d", headers.get(0).value());
+
+        Assertions.assertEquals("header2", headers.get(1).name());
+        Assertions.assertEquals("value2", headers.get(1).value());
+    }
 }

@@ -79,4 +79,9 @@ interface DefaultProxyMethodParserTestCases {
 
         void m03(@OfHeader("header1") Object value1, @OfHeader("header1") Object value2);
     }
+
+    @ByKafka(value = "topic", headers = { "header1", "${value1}", "header2", "value2" })
+    interface HeaderCase03 {
+        void m01();
+    }
 }
