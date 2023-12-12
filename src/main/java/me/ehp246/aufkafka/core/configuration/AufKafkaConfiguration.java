@@ -81,7 +81,7 @@ public final class AufKafkaConfiguration {
                 .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         MODULES.stream()
-                .filter(name -> !ClassUtils.isPresent(name, ObjectMapper.class.getClassLoader()))
+                .filter(name -> ClassUtils.isPresent(name, ObjectMapper.class.getClassLoader()))
                 .map(name -> {
                     try {
                         return (Module) Class.forName(name).getDeclaredConstructor((Class[]) null)
