@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 import me.ehp246.aufkafka.api.Pair;
 import me.ehp246.aufkafka.api.producer.OutboundRecord;
 import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
+import me.ehp246.aufkafka.api.serializer.ObjectOf;
 
 /**
  * @author Lei Yang
@@ -18,15 +19,17 @@ import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
 record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder,
         Function<Object[], String> keyBinder, Function<Object[], Object> partitionBinder,
         Function<Object[], Instant> timestampBinder, Function<Object[], String> correlIdBinder,
-        int valueParamIndex, Map<Integer, HeaderParam> headerBinder,
+        ValueParam valueParam, Map<Integer, HeaderParam> headerBinder,
         List<OutboundRecord.Header> headerStatic) implements ProxyInvocationBinder {
+
     @Override
     public Bound apply(final Object target, final Object[] args) throws Throwable {
         final var topic = topicBinder.apply(args);
         final var key = keyBinder.apply(args);
         final var partition = partitionBinder.apply(args);
         final var timestamp = timestampBinder.apply(args);
-        final var value = valueParamIndex == -1 ? null : args[valueParamIndex];
+        final var value = valueParam == null ? null : args[valueParam.index()];
+        final var objectOf = valueParam == null ? null : valueParam.objectOf();
         final var headers = Stream.concat(
                 this.headerBinder.entrySet().stream().map(
                         entry -> new Pair<Object>(entry.getValue().name(), args[entry.getKey()])),
@@ -52,6 +55,11 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder,
             @Override
             public Object value() {
                 return value;
+            }
+
+            @Override
+            public ObjectOf<?> objectOf() {
+                return objectOf;
             }
 
             @Override

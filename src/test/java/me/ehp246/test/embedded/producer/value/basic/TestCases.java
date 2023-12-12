@@ -11,6 +11,8 @@ interface TestCases {
     @ByKafka(value = "embedded")
     interface Case01 {
         void newEvent(@OfValue Event event);
+
+        void withoutValue(Event event);
     }
 
     record Event(String id) {

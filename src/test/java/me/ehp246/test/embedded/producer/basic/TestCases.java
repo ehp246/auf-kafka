@@ -5,7 +5,6 @@ import java.time.Instant;
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
-import me.ehp246.aufkafka.api.annotation.OfValue;
 
 /**
  * @author Lei Yang
@@ -14,13 +13,12 @@ import me.ehp246.aufkafka.api.annotation.OfValue;
 interface TestCases {
     @ByKafka(value = "embedded")
     interface Case01 {
-        void newEvent(@OfValue Event event);
-        void newEvent(@OfValue Event event, @OfTimestamp Instant timestamp);
-        void newEvent(@OfValue Event event, @OfTimestamp Long timestamp);
-        
-        void newEventWithPartition(@OfPartition Object partitionKey);
-    }
+        void newEvent();
 
-    record Event(String id) {
+        void newEvent(@OfTimestamp Instant timestamp);
+
+        void newEvent(@OfTimestamp Long timestamp);
+
+        void newEventWithPartition(@OfPartition Object partitionKey);
     }
 }

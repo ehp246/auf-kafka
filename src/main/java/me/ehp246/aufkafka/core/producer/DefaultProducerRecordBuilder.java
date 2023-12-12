@@ -15,6 +15,7 @@ import org.apache.kafka.common.header.Header;
 import me.ehp246.aufkafka.api.producer.OutboundRecord;
 import me.ehp246.aufkafka.api.producer.PartitionMap;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
+import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
 import me.ehp246.aufkafka.api.serializer.json.ToJson;
 
 /**
@@ -42,7 +43,8 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
                         outboundRecord.partitionKey()),
                 Optional.ofNullable(outboundRecord.timestamp()).map(Instant::toEpochMilli)
                         .orElse(null),
-                outboundRecord.key(), this.toJson.apply(outboundRecord.value()),
+                outboundRecord.key(), this.toJson.apply(outboundRecord.value(),
+                        (JacksonObjectOf<?>) outboundRecord.objectOf()),
                 headers(outboundRecord));
     }
 
