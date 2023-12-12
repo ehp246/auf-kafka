@@ -6,7 +6,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
+
+import com.fasterxml.jackson.annotation.JsonView;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
@@ -17,8 +20,10 @@ import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.producer.OutboundRecord;
 import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.HeaderParam;
+import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.ValueParam;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
-import me.ehp246.aufkafka.api.spi.PropertyResolver;
+import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
+import me.ehp246.aufkafka.api.spi.PropertyPlaceholderResolver;
 import me.ehp246.aufkafka.core.reflection.ReflectedMethod;
 import me.ehp246.aufkafka.core.reflection.ReflectedParameter;
 import me.ehp246.aufkafka.core.util.OneUtil;
@@ -28,9 +33,9 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  *
  */
 public final class DefaultProxyMethodParser implements ProxyMethodParser {
-    private final PropertyResolver propertyResolver;
+    private final PropertyPlaceholderResolver propertyResolver;
 
-    DefaultProxyMethodParser(final PropertyResolver propertyResolver) {
+    DefaultProxyMethodParser(final PropertyPlaceholderResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
     }
 
@@ -44,7 +49,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                     final Object value = args[p.index()];
                     return value == null ? null : value + "";
                 }).orElseGet(() -> {
-                    final var topic = propertyResolver.resolve(byKafka.value());
+                    final var topic = propertyResolver.apply(byKafka.value());
                     return (Function<Object[], String>) args -> topic;
                 });
 
@@ -90,10 +95,18 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
 
         final var valueParamIndex = reflected.allParametersWith(OfValue.class).stream().findFirst()
                 .map(ReflectedParameter::index).orElse(-1);
+        final var objectOf = Optional
+                .ofNullable(valueParamIndex == -1 ? null : reflected.getParameter(valueParamIndex))
+                .map(parameter -> new JacksonObjectOf<>(Optional
+                        .ofNullable(parameter.getAnnotation(JsonView.class)).map(JsonView::value)
+                        .filter(OneUtil::hasValue).map(views -> views[0]).orElse(null),
+                        parameter.getType()))
+                .orElse(null);
 
         return new Parsed(new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder,
-                timestampBinder, null, valueParamIndex, headerBinder(reflected),
-                headerStatic(reflected, byKafka)));
+                timestampBinder, null,
+                valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, objectOf),
+                headerBinder(reflected), headerStatic(reflected, byKafka)));
     }
 
     private Map<Integer, HeaderParam> headerBinder(final ReflectedMethod reflected) {
@@ -120,7 +133,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
         final List<OutboundRecord.Header> headerStatic = new ArrayList<>();
         for (int i = 0; i < headers.length; i += 2) {
             final var key = headers[i];
-            final var value = propertyResolver.resolve(headers[i + 1]);
+            final var value = propertyResolver.apply(headers[i + 1]);
 
             headerStatic.add(new OutboundRecord.Header() {
 

@@ -15,6 +15,8 @@ import org.apache.kafka.common.header.Header;
 import me.ehp246.aufkafka.api.producer.OutboundRecord;
 import me.ehp246.aufkafka.api.producer.PartitionMap;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
+import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
+import me.ehp246.aufkafka.api.serializer.json.ToJson;
 
 /**
  * @author Lei Yang
@@ -23,13 +25,15 @@ import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
 public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder {
     private final PartitionMap partitionMap;
     private final Function<String, List<PartitionInfo>> infoProvider;
+    private final ToJson toJson;
 
     public DefaultProducerRecordBuilder(
             final Function<String, List<PartitionInfo>> partitionInfoProvider,
-            PartitionMap partitionMap) {
+            final PartitionMap partitionMap, final ToJson toJson) {
         super();
         this.partitionMap = partitionMap;
         this.infoProvider = partitionInfoProvider;
+        this.toJson = toJson;
     }
 
     @Override
@@ -39,7 +43,9 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
                         outboundRecord.partitionKey()),
                 Optional.ofNullable(outboundRecord.timestamp()).map(Instant::toEpochMilli)
                         .orElse(null),
-                outboundRecord.key(), null, headers(outboundRecord));
+                outboundRecord.key(), this.toJson.apply(outboundRecord.value(),
+                        (JacksonObjectOf<?>) outboundRecord.objectOf()),
+                headers(outboundRecord));
     }
 
     private Iterable<Header> headers(final OutboundRecord outboundRecord) {

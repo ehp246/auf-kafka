@@ -13,7 +13,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
-import me.ehp246.test.embedded.producer.basic.TestCases.Event;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
 /**
@@ -51,31 +50,30 @@ class BasicTest {
 
     @Test
     void producer_key_02() throws InterruptedException, ExecutionException {
-        final var value = new Event(UUID.randomUUID().toString());
-        this.case01.newEvent(value);
+        this.case01.newEvent();
 
         final var received = listener.take();
 
         Assertions.assertEquals(true, received.topic().equals("embedded"));
         Assertions.assertEquals(true, received.key().equals("NewEvent"));
     }
-    
+
     @Test
     void producer_timestamp_01() throws InterruptedException, ExecutionException {
         final var expected = Instant.now();
-        
-        this.case01.newEvent(new Event(UUID.randomUUID().toString()), expected);
+
+        this.case01.newEvent(expected);
 
         final var received = listener.take();
 
         Assertions.assertEquals(expected.toEpochMilli(), received.timestamp());
     }
-    
+
     @Test
     void producer_timestamp_02() throws InterruptedException, ExecutionException {
-        final var expected = (long)( Math.random() * 1000000);
-        
-        this.case01.newEvent(new Event(UUID.randomUUID().toString()), expected);
+        final var expected = (long) (Math.random() * 1000000);
+
+        this.case01.newEvent(expected);
 
         final var received = listener.take();
 
