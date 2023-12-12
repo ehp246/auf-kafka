@@ -2,9 +2,11 @@ package me.ehp246.aufkafka.api.producer;
 
 import java.time.Instant;
 
+import me.ehp246.aufkafka.api.serializer.ObjectOf;
+
 /**
  * @author Lei Yang
- *
+ * @since 1.0
  */
 public interface OutboundRecord {
     String topic();
@@ -18,6 +20,10 @@ public interface OutboundRecord {
     }
 
     default Object value() {
+        return null;
+    }
+
+    default ObjectOf<?> objectOf() {
         return null;
     }
 
