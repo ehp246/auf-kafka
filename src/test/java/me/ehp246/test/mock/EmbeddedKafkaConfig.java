@@ -16,7 +16,6 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
@@ -47,7 +46,7 @@ public final class EmbeddedKafkaConfig {
         configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 StringDeserializer.class.getName());
         configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                JsonDeserializer.class.getName());
+                StringDeserializer.class.getName());
         configMap.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         return new DefaultKafkaConsumerFactory<>(configMap);
@@ -57,14 +56,15 @@ public final class EmbeddedKafkaConfig {
     ProducerProvider defaultProducerProvider() {
         final Map<String, Object> configMap = KafkaTestUtils.producerProps(embeddedKafka);
         configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class.getName());
+        configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                StringSerializer.class.getName());
 
         return name -> new KafkaProducer<String, String>(configMap);
     }
 
     @Bean
     ConsumerProvider defaultConsumerProvider() {
-        final Map<String, Object> configMap = KafkaTestUtils.consumerProps("default", "true",
+        final Map<String, Object> configMap = KafkaTestUtils.consumerProps("test", "true",
                 embeddedKafka);
         configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 StringDeserializer.class.getName());
@@ -87,6 +87,5 @@ public final class EmbeddedKafkaConfig {
     KafkaTemplate<String, String> kafkaTemplate(
             final ProducerFactory<String, String> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
-
     }
 }

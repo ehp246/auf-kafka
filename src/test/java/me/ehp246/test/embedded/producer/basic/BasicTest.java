@@ -13,6 +13,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
+import me.ehp246.aufkafka.api.serializer.json.ToJson;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
 /**
@@ -32,6 +33,9 @@ class BasicTest {
     @Autowired
     private KafkaTemplate<String, String> template;
 
+    @Autowired
+    private ToJson toJson;
+
     @BeforeEach
     void reset() {
         listener.reset();
@@ -45,7 +49,7 @@ class BasicTest {
         final var received = listener.take();
 
         Assertions.assertEquals("NewEvent", received.key());
-        Assertions.assertEquals(value, received.value());
+        Assertions.assertEquals(toJson.apply(value), received.value());
     }
 
     @Test
