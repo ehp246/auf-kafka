@@ -21,7 +21,7 @@ import me.ehp246.aufkafka.api.producer.PartitionMapProvider;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilderProvider;
 import me.ehp246.aufkafka.api.producer.SerializedPartitionMap;
 import me.ehp246.aufkafka.api.serializer.json.ToJson;
-import me.ehp246.aufkafka.api.spi.PropertyPlaceholderResolver;
+import me.ehp246.aufkafka.api.spi.PropertyResolver;
 import me.ehp246.aufkafka.core.producer.DefaultProducerRecordBuilder;
 import me.ehp246.aufkafka.core.provider.jackson.JsonByObjectMapper;
 
@@ -36,7 +36,7 @@ public final class AufKafkaConfiguration {
             "com.fasterxml.jackson.module.paramnames.ParameterNamesModule");
 
     @Bean
-    PropertyPlaceholderResolver propertyResolver(
+    PropertyResolver propertyResolver(
             final org.springframework.core.env.PropertyResolver springResolver) {
         return springResolver::resolveRequiredPlaceholders;
     }

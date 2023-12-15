@@ -6,7 +6,11 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.sql.Connection;
+
+import org.springframework.context.annotation.Import;
+
+import me.ehp246.aufkafka.core.consumer.AnnotatedInboundConsumerRegistrar;
+import me.ehp246.aufkafka.core.consumer.InboundEndpointFactory;
 
 /**
  * @author Lei Yang
@@ -15,6 +19,7 @@ import java.sql.Connection;
 @Documented
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
+@Import({ AnnotatedInboundConsumerRegistrar.class, InboundEndpointFactory.class })
 public @interface EnableForKafka {
     /**
      * Specifies the topics to listen for inbound messages and their configurations.
@@ -50,10 +55,13 @@ public @interface EnableForKafka {
         String autoStartup() default "true";
 
         /**
-         * Specifies the name to pass to {@linkplain ConnectionFactoryProvider} to
-         * eventually retrieve a {@linkplain Connection}.
+         * The bean name of the endpoint. Must be unique if specified.
+         * <p>
+         * The default name would be in the form of <code>'InboundConsumer-${n}'</code>
+         * where <code>'n'</code> is the index from {@linkplain EnableForKafka#value()}
+         * starting at <code>0</code>.
          */
-        String connectionFactory() default "";
+        String name() default "";
 
         @Target({})
         @interface From {

@@ -5,6 +5,6 @@ package me.ehp246.aufkafka.api.spi;
  * @since 1.0
  */
 @FunctionalInterface
-public interface PropertyPlaceholderResolver {
+public interface PropertyResolver {
     String apply(String placeholder);
 }

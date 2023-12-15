@@ -23,7 +23,7 @@ import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.HeaderParam;
 import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.ValueParam;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
 import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
-import me.ehp246.aufkafka.api.spi.PropertyPlaceholderResolver;
+import me.ehp246.aufkafka.api.spi.PropertyResolver;
 import me.ehp246.aufkafka.core.reflection.ReflectedMethod;
 import me.ehp246.aufkafka.core.reflection.ReflectedParameter;
 import me.ehp246.aufkafka.core.util.OneUtil;
@@ -33,9 +33,9 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  *
  */
 public final class DefaultProxyMethodParser implements ProxyMethodParser {
-    private final PropertyPlaceholderResolver propertyResolver;
+    private final PropertyResolver propertyResolver;
 
-    DefaultProxyMethodParser(final PropertyPlaceholderResolver propertyResolver) {
+    DefaultProxyMethodParser(final PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
     }
 
