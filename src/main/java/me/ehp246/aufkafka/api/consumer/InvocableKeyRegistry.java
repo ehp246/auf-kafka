@@ -18,16 +18,16 @@ import me.ehp246.aufkafka.api.annotation.ForKey;
  * @since 1.0
  * @see InboundEndpoint
  */
-public interface InvocableTypeRegistry {
+public interface InvocableKeyRegistry {
     /**
      * Register a new definition.
      */
-    void register(InvocableTypeDefinition definition);
+    void register(InvocableKeyDefinition definition);
 
     /**
      * Returns an un-modifiable copy of all registered.
      */
-    Map<String, InvocableTypeDefinition> registered();
+    Map<String, InvocableKeyDefinition> registered();
 
     /**
      * Resolves a {@linkplain ConsumerRecord} to an {@linkplain InvocableType}.

@@ -7,12 +7,22 @@ package me.ehp246.aufkafka.api.consumer;
 public interface InboundEndpoint {
     From from();
 
+    InvocableKeyRegistry keyRegistry();
+
     default String name() {
         return null;
     }
 
     default boolean autoStartup() {
         return true;
+    }
+
+    default InvocationListener invocationListener() {
+        return null;
+    }
+
+    default MsgConsumer defaultConsumer() {
+        return null;
     }
 
     interface From {

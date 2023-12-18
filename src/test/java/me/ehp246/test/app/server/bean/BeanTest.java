@@ -14,7 +14,7 @@ import me.ehp246.aufkafka.api.consumer.InboundConsumer;
  */
 class BeanTest {
     @Test
-    void inbound_01() {
+    void inbound_name_01() {
         final var appCtx = new AnnotationConfigApplicationContext(AppConfig.Case01.class);
 
         final var inboundConsumers = appCtx.getBeansOfType(InboundConsumer.class);
@@ -26,9 +26,10 @@ class BeanTest {
     }
 
     @Test
-    void inbound_02() {
+    void inbound_topic_02() {
         final var topic2 = Uuid.randomUuid().toString();
         final var appCtx = new AnnotationConfigApplicationContext();
+
         appCtx.setEnvironment(new MockEnvironment().withProperty("topic2", topic2));
         appCtx.register(AppConfig.Case02.class);
         appCtx.refresh();

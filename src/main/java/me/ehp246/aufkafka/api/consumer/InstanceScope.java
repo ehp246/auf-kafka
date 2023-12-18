@@ -22,8 +22,8 @@ public enum InstanceScope {
      */
     BEAN,
     /**
-     * Indicates that for each incoming message, a new instance of the class is to
-     * be initiated, invoked, then discarded.
+     * Indicates that for each inbound message, a new instance of the class is to be
+     * initiated.
      * <p>
      * The instance is created via
      * {@linkplain AutowireCapableBeanFactory#createBean(Class)}.

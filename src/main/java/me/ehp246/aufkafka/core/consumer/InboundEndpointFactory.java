@@ -1,15 +1,17 @@
 package me.ehp246.aufkafka.core.consumer;
 
-import java.beans.ExceptionListener;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
-import org.springframework.util.ErrorHandler;
 
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
+import me.ehp246.aufkafka.api.consumer.InvocableKeyRegistry;
+import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.MsgConsumer;
 import me.ehp246.aufkafka.api.spi.PropertyResolver;
@@ -24,12 +26,14 @@ import me.ehp246.aufkafka.core.util.OneUtil;
 public final class InboundEndpointFactory {
     private final PropertyResolver propertyResolver;
     private final AutowireCapableBeanFactory autowireCapableBeanFactory;
+    private final InvocableScanner invocableScanner;
 
     public InboundEndpointFactory(final AutowireCapableBeanFactory autowireCapableBeanFactory,
-            final PropertyResolver propertyResolver) {
+            final PropertyResolver propertyResolver, final InvocableScanner invocableScanner) {
         super();
         this.autowireCapableBeanFactory = autowireCapableBeanFactory;
         this.propertyResolver = propertyResolver;
+        this.invocableScanner = invocableScanner;
     }
 
     @SuppressWarnings("unchecked")
@@ -43,7 +47,8 @@ public final class InboundEndpointFactory {
 
         final var fromAttribute = (Map<String, Object>) inboundAttributes.get("value");
 
-        final var subAttribute = (Map<String, Object>) fromAttribute.get("sub");
+        final boolean autoStartup = Boolean.parseBoolean(
+                propertyResolver.apply(inboundAttributes.get("autoStartup").toString()));
 
         final InboundEndpoint.From from = new InboundEndpoint.From() {
             private final String topic = propertyResolver
@@ -55,25 +60,45 @@ public final class InboundEndpointFactory {
             }
         };
 
+        final var registery = new DefaultInvocableKeyRegistry()
+                .register(
+                        this.invocableScanner
+                                .apply(Arrays.asList((Class<?>[]) inboundAttributes.get("register"))
+                                        .stream().collect(Collectors.toSet()), scanPackages)
+                                .stream());
+
         final var invocationListener = Optional
                 .ofNullable(inboundAttributes.get("invocationListener").toString())
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
                 .map(name -> autowireCapableBeanFactory.getBean(name, InvocationListener.class))
                 .orElse(null);
 
-        final var errorHandler = Optional
-                .ofNullable(inboundAttributes.get("errorHandler").toString())
-                .map(propertyResolver::apply).filter(OneUtil::hasValue)
-                .map(name -> autowireCapableBeanFactory.getBean(name, ErrorHandler.class))
-                .orElse(null);
-
-        final var exceptionListener = Optional
-                .ofNullable(inboundAttributes.get("exceptionListener").toString())
-                .map(propertyResolver::apply).filter(OneUtil::hasValue)
-                .map(name -> autowireCapableBeanFactory.getBean(name, ExceptionListener.class))
-                .orElse(null);
-
         return new InboundEndpoint() {
+
+            @Override
+            public InvocableKeyRegistry keyRegistry() {
+                return registery;
+            }
+
+            @Override
+            public String name() {
+                return beanName;
+            }
+
+            @Override
+            public boolean autoStartup() {
+                return autoStartup;
+            }
+
+            @Override
+            public InvocationListener invocationListener() {
+                return invocationListener;
+            }
+
+            @Override
+            public MsgConsumer defaultConsumer() {
+                return defaultConsumer;
+            }
 
             @Override
             public From from() {

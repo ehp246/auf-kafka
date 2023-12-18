@@ -32,20 +32,22 @@ public final class AnnotatedInboundConsumerRegistrar implements ImportBeanDefini
             return;
         }
 
+        final var defaultConsumer = (String) enablerAttributes.get("defaultConsumer");
+
         final var inbounds = Arrays
                 .asList(((Map<String, Object>[]) enablerAttributes.get("value")));
         for (int i = 0; i < inbounds.size(); i++) {
             final var inbound = inbounds.get(i);
             final var beanDefinition = newBeanDefinition(inbound);
 
-            Set<String> scanThese = null;
+            final Set<String> scanPackages;
             final var base = (Class<?>[]) inbound.get("scan");
             if (base.length > 0) {
-                scanThese = Stream.of(base).map(baseClass -> baseClass.getPackage().getName())
+                scanPackages = Stream.of(base).map(baseClass -> baseClass.getPackage().getName())
                         .collect(Collectors.toSet());
             } else {
                 final var baseName = importingClassMetadata.getClassName();
-                scanThese = Set.of(baseName.substring(0, baseName.lastIndexOf(".")));
+                scanPackages = Set.of(baseName.substring(0, baseName.lastIndexOf(".")));
             }
 
             final var beanName = Optional.of(inbound.get("name").toString())
@@ -53,8 +55,9 @@ public final class AnnotatedInboundConsumerRegistrar implements ImportBeanDefini
 
             final var constructorArgumentValues = new ConstructorArgumentValues();
             constructorArgumentValues.addGenericArgumentValue(inbound);
-            constructorArgumentValues.addGenericArgumentValue(scanThese);
+            constructorArgumentValues.addGenericArgumentValue(scanPackages);
             constructorArgumentValues.addGenericArgumentValue(beanName);
+            constructorArgumentValues.addGenericArgumentValue(defaultConsumer);
 
             beanDefinition.setConstructorArgumentValues(constructorArgumentValues);
 
