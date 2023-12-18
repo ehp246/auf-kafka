@@ -14,6 +14,7 @@ import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 
+import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
@@ -51,7 +52,8 @@ public final class AnnotatedInboundConsumerRegistrar implements ImportBeanDefini
             }
 
             final var beanName = Optional.of(inbound.get("name").toString())
-                    .filter(OneUtil::hasValue).orElse("InboundConsumer-" + i);
+                    .filter(OneUtil::hasValue)
+                    .orElse(AufKafkaConstant.BEAN_NAME_PREFIX_INBOUND_ENDPOINT + i);
 
             final var constructorArgumentValues = new ConstructorArgumentValues();
             constructorArgumentValues.addGenericArgumentValue(inbound);
