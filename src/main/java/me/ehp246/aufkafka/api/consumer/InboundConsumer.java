@@ -4,10 +4,10 @@ import org.apache.kafka.clients.consumer.Consumer;
 
 /**
  * @author Lei Yang
- *
+ * @since 1.0
  */
-public interface InboundConsumer<K, V> {
+public interface InboundConsumer {
     InboundEndpoint inboundEndpoint();
 
-    Consumer<K, V> consumer();
+    Consumer<String, String> consumer();
 }

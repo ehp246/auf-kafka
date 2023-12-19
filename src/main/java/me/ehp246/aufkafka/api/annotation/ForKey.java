@@ -43,7 +43,7 @@ import me.ehp246.aufkafka.api.consumer.InvocationModel;
  */
 @Documented
 @Retention(RUNTIME)
-@Target(ElementType.METHOD)
+@Target(ElementType.TYPE)
 public @interface ForKey {
     /**
      * Specifies the message keys for which a method of the class should be applied.

@@ -7,10 +7,12 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Import;
 
+import me.ehp246.aufkafka.api.consumer.ConsumerProvider;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
@@ -19,7 +21,10 @@ import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 import me.ehp246.aufkafka.api.consumer.MsgConsumer;
 import me.ehp246.aufkafka.api.exception.UnknownKeyException;
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
+import me.ehp246.aufkafka.core.configuration.ConsumerConfiguration;
 import me.ehp246.aufkafka.core.consumer.AnnotatedInboundConsumerRegistrar;
+import me.ehp246.aufkafka.core.consumer.DefaultInvocableScanner;
+import me.ehp246.aufkafka.core.consumer.InboundEndpointConsumerConfigurer;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointFactory;
 
 /**
@@ -29,8 +34,9 @@ import me.ehp246.aufkafka.core.consumer.InboundEndpointFactory;
 @Documented
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
-@Import({ AufKafkaConfiguration.class, AnnotatedInboundConsumerRegistrar.class,
-        InboundEndpointFactory.class })
+@Import({ AufKafkaConfiguration.class, ConsumerConfiguration.class,
+        AnnotatedInboundConsumerRegistrar.class, InboundEndpointFactory.class,
+        InboundEndpointConsumerConfigurer.class, DefaultInvocableScanner.class })
 public @interface EnableForKafka {
     /**
      * Specifies the topics to listen for inbound messages and their configurations.
@@ -43,6 +49,12 @@ public @interface EnableForKafka {
          * Topics of the incoming messages.
          */
         From value();
+
+        /**
+         * Specifies the name to pass to {@linkplain ConsumerProvider} to retrieve a
+         * {@linkplain Consumer} for this endpoint.
+         */
+        String consumerName() default "";
 
         /**
          * Specifies the packages to scan for {@linkplain ForKey} classes for this

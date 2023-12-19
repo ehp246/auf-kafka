@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.mock.env.MockEnvironment;
 
+import me.ehp246.aufkafka.api.consumer.InboundConsumer;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 
 /**
@@ -14,7 +15,7 @@ import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
  */
 class BeanTest {
     @Test
-    void inbound_name_01() {
+    void inboundEndpoint_name_01() {
         final var appCtx = new AnnotationConfigApplicationContext(AppConfig.Case01.class);
 
         final var inbounds = appCtx.getBeansOfType(InboundEndpoint.class);
@@ -26,7 +27,7 @@ class BeanTest {
     }
 
     @Test
-    void inbound_topic_01() {
+    void inboundEndpoint_topic_01() {
         final var topic2 = Uuid.randomUuid().toString();
         final var appCtx = new AnnotationConfigApplicationContext();
 
@@ -47,6 +48,18 @@ class BeanTest {
 
         Assertions.assertEquals(true, inbound2 != null);
         Assertions.assertEquals(topic2, inbound2.from().topic());
+
+        appCtx.close();
+    }
+
+    @Test
+    void inboundConsumer_01() {
+        final var appCtx = new AnnotationConfigApplicationContext(AppConfig.Case01.class);
+
+        final var inbounds = appCtx.getBeansOfType(InboundConsumer.class);
+
+        Assertions.assertEquals(1, inbounds.size());
+        Assertions.assertEquals(true, inbounds.get("InboundEndpoint-0") != null);
 
         appCtx.close();
     }

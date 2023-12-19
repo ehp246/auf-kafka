@@ -13,6 +13,10 @@ public interface InboundEndpoint {
         return null;
     }
 
+    default String consumerName() {
+        return null;
+    }
+
     default boolean autoStartup() {
         return true;
     }

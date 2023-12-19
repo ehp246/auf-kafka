@@ -8,5 +8,9 @@ import org.apache.kafka.clients.consumer.Consumer;
  */
 @FunctionalInterface
 public interface ConsumerProvider {
+    /**
+     * 
+     * @param name Could be <code>null</code>.
+     */
     Consumer<String, String> get(String name);
 }

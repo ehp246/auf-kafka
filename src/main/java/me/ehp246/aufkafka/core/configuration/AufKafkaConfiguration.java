@@ -3,7 +3,6 @@ package me.ehp246.aufkafka.core.configuration;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.util.ClassUtils;
@@ -15,22 +14,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
-import me.ehp246.aufkafka.api.consumer.InvocableScanner;
-import me.ehp246.aufkafka.api.consumer.MsgConsumer;
-import me.ehp246.aufkafka.api.consumer.NoopConsumer;
-import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
-import me.ehp246.aufkafka.api.producer.PartitionMap;
-import me.ehp246.aufkafka.api.producer.PartitionMapProvider;
-import me.ehp246.aufkafka.api.producer.ProducerRecordBuilderProvider;
-import me.ehp246.aufkafka.api.producer.SerializedPartitionMap;
-import me.ehp246.aufkafka.api.serializer.json.ToJson;
 import me.ehp246.aufkafka.api.spi.PropertyResolver;
-import me.ehp246.aufkafka.core.consumer.DefaultInvocableScanner;
-import me.ehp246.aufkafka.core.producer.DefaultProducerRecordBuilder;
 import me.ehp246.aufkafka.core.provider.jackson.JsonByObjectMapper;
 
 /**
- * Defines the beans that are needed for both consumers and producers.
+ * Defines the beans that are commonly needed for both consumers and producers.
  * 
  * @author Lei Yang
  * @since 1.0
@@ -45,26 +33,6 @@ public final class AufKafkaConfiguration {
     PropertyResolver propertyResolver(
             final org.springframework.core.env.PropertyResolver springResolver) {
         return springResolver::resolveRequiredPlaceholders;
-    }
-
-    @Bean
-    PartitionMapProvider partitionKeyMapProvider(final BeanFactory beanFactroy) {
-        return mapClass -> beanFactroy.getBean(mapClass);
-    }
-
-    @Bean
-    ProducerRecordBuilderProvider producerRecordBuilderProvider(final ToJson toJson) {
-        return (infoProvider, map) -> new DefaultProducerRecordBuilder(infoProvider, map, toJson);
-    }
-
-    @Bean
-    PartitionMap serializPartitionKeyMap() {
-        return new SerializedPartitionMap();
-    }
-
-    @Bean
-    PartitionMap directPartitionMap() {
-        return new DirectPartitionMap();
     }
 
     @Bean
@@ -102,15 +70,5 @@ public final class AufKafkaConfiguration {
                 }).filter(module -> module != null).forEach(newMapper::registerModule);
 
         return new JsonByObjectMapper(newMapper);
-    }
-
-    @Bean("e9c593e2-37c6-48e2-8a76-67540e44e3b1")
-    public MsgConsumer noopConsumer() {
-        return new NoopConsumer();
-    }
-
-    @Bean
-    public InvocableScanner invocableScanner(final PropertyResolver propertyResolver) {
-        return new DefaultInvocableScanner(propertyResolver);
     }
 }

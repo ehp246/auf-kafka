@@ -1,31 +1,36 @@
 package me.ehp246.aufkafka.core.consumer;
 
-import java.util.Map;
-
 import org.apache.kafka.clients.consumer.Consumer;
 
-import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InboundConsumer;
+import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 
 /**
  * @author Lei Yang
- *
+ * @since 1.0
  */
-public final class DefaultInboundConsumer implements InboundConsumer<String, String> {
-    private final Map<String, Object> consumerConfig;
+public final class DefaultInboundConsumer implements InboundConsumer {
+    private final InboundEndpoint endpoint;
+    private final Consumer<String, String> consumer;
 
-    public DefaultInboundConsumer(Map<String, Object> consumerConfig) {
+    public DefaultInboundConsumer(final InboundEndpoint endpoint,
+            final Consumer<String, String> consumer) {
         super();
-        this.consumerConfig = consumerConfig;
+        this.endpoint = endpoint;
+        this.consumer = consumer;
+    }
+
+    public void start() {
+
     }
 
     @Override
     public InboundEndpoint inboundEndpoint() {
-        return null;
+        return this.endpoint;
     }
 
     @Override
     public Consumer<String, String> consumer() {
-        return null;
+        return this.consumer;
     }
 }
