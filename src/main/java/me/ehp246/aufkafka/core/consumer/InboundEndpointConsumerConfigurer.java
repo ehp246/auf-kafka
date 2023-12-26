@@ -1,6 +1,7 @@
 package me.ehp246.aufkafka.core.consumer;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -12,6 +13,7 @@ import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.ConsumerProvider;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
+import me.ehp246.aufkafka.api.consumer.InvocableBinder;
 import me.ehp246.aufkafka.api.exception.UnknownKeyException;
 import me.ehp246.aufkafka.api.spi.Log4jContext;
 
@@ -24,17 +26,19 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
 
     private final Set<InboundEndpoint> endpoints;
     private final InboundConsumerExecutorProvider executorProvider;
+    private final InvocableBinder binder;
     private final ConsumerProvider consumerProvider;
     private final AutowireCapableBeanFactory autowireCapableBeanFactory;
 
     public InboundEndpointConsumerConfigurer(final Set<InboundEndpoint> endpoints,
             final InboundConsumerExecutorProvider executorProvider,
-            final ConsumerProvider consumerProvider,
+            final ConsumerProvider consumerProvider, final InvocableBinder binder,
             final AutowireCapableBeanFactory autowireCapableBeanFactory) {
         super();
         this.endpoints = endpoints;
         this.executorProvider = executorProvider;
         this.consumerProvider = consumerProvider;
+        this.binder = binder;
         this.autowireCapableBeanFactory = autowireCapableBeanFactory;
     }
 
@@ -45,7 +49,8 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
 
             final var executor = this.executorProvider.get();
             final var consumer = this.consumerProvider.get(endpoint.consumerName());
-            final var dispatcher = new DefaultInvocableDispatcher(null, null, null);
+            final var dispatcher = new DefaultInvocableDispatcher(this.binder,
+                    List.of(endpoint.invocationListener()), null);
             final var invocableFactory = new AutowireCapableInvocableFactory(
                     autowireCapableBeanFactory, endpoint.keyRegistry());
             final var defaultConsumer = endpoint.defaultConsumer();

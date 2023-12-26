@@ -23,6 +23,7 @@ import me.ehp246.aufkafka.api.exception.UnknownKeyException;
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
 import me.ehp246.aufkafka.core.configuration.ConsumerConfiguration;
 import me.ehp246.aufkafka.core.consumer.AnnotatedInboundConsumerRegistrar;
+import me.ehp246.aufkafka.core.consumer.DefaultInvocableBinder;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableScanner;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointConsumerConfigurer;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointFactory;
@@ -36,7 +37,8 @@ import me.ehp246.aufkafka.core.consumer.InboundEndpointFactory;
 @Target(ElementType.TYPE)
 @Import({ AufKafkaConfiguration.class, ConsumerConfiguration.class,
         AnnotatedInboundConsumerRegistrar.class, InboundEndpointFactory.class,
-        InboundEndpointConsumerConfigurer.class, DefaultInvocableScanner.class })
+        InboundEndpointConsumerConfigurer.class, DefaultInvocableScanner.class,
+        DefaultInvocableBinder.class })
 public @interface EnableForKafka {
     /**
      * Specifies the topics to listen for inbound messages and their configurations.
