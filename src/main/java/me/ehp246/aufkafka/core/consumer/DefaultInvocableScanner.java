@@ -6,9 +6,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,16 +53,20 @@ public final class DefaultInvocableScanner implements InvocableScanner {
         };
         scanner.addIncludeFilter(new AnnotationTypeFilter(ForKey.class));
 
-        return OneUtil.streamOfNonNull(scanPackages).map(scanner::findCandidateComponents)
-                .flatMap(Set::stream).map(bean -> {
-                    try {
-                        return Class.forName(bean.getBeanClassName());
-                    } catch (final ClassNotFoundException e) {
-                        LOGGER.atError().withThrowable(e).log("This should not happen: {}",
-                                e::getMessage);
-                    }
-                    return null;
-                }).filter(Objects::nonNull).map(this::newDefinition).filter(Objects::nonNull)
+        return Stream.concat(
+                Optional.ofNullable(registering).map(Set::stream)
+                        .orElseGet(() -> Stream.of((Class<?>) null)),
+                OneUtil.streamOfNonNull(scanPackages).map(scanner::findCandidateComponents)
+                        .flatMap(Set::stream).map(bean -> {
+                            try {
+                                return Class.forName(bean.getBeanClassName());
+                            } catch (final ClassNotFoundException e) {
+                                LOGGER.atError().withThrowable(e).log("This should not happen: {}",
+                                        e::getMessage);
+                            }
+                            return null;
+                        }))
+                .filter(Objects::nonNull).map(this::newDefinition).filter(Objects::nonNull)
                 .collect(Collectors.toSet());
     }
 

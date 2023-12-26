@@ -12,7 +12,7 @@ public final class NoopConsumer implements MsgConsumer {
     private final static Logger LOGGER = LogManager.getLogger();
 
     @Override
-    public void apply(final ConsumerRecord<?, ?> msg) {
+    public void apply(final ConsumerRecord<String, String> msg) {
         LOGGER.atTrace().log("Noop on: key '{}', topic '{}'", msg::key, msg::topic);
     }
 }

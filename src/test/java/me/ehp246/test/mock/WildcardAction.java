@@ -7,12 +7,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import me.ehp246.aufkafka.api.annotation.ForKey;
+import me.ehp246.aufkafka.api.consumer.InstanceScope;
 
 /**
  * @author Lei Yang
  *
  */
-@ForKey(".*")
+@ForKey(value = ".*", scope = InstanceScope.BEAN)
 public class WildcardAction {
     private final AtomicReference<CompletableFuture<ConsumerRecord<String, String>>> ref = new AtomicReference<>(
             new CompletableFuture<>());
@@ -22,7 +23,7 @@ public class WildcardAction {
     }
 
     public ConsumerRecord<String, String> take() {
-        ConsumerRecord<String, String> consumerRecord;
+        final ConsumerRecord<String, String> consumerRecord;
 
         try {
             consumerRecord = ref.get().get();
@@ -32,6 +33,10 @@ public class WildcardAction {
         }
 
         return consumerRecord;
+    }
+
+    public CompletableFuture<ConsumerRecord<String, String>> future() {
+        return this.ref.get();
     }
 
     public void reset() {

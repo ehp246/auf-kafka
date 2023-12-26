@@ -9,7 +9,7 @@ import org.apache.logging.log4j.MarkerManager;
  */
 public final class AufKafkaConstant {
     public static final String AUFKAFKA_OBJECT_MAPPER = "aufKafkaObjectMapper";
-    public static final String BEAN_NAME_PREFIX_INBOUND_ENDPOINT = "InboundEndpoint-";
+    public static final String BEAN_NAME_PREFIX_INBOUND_ENDPOINT = "inboundEndpoint-";
 
     public static final String LOG4J_CONTEXT_HEADER_PREFIX = "AufKafkaLog4jContext";
 

@@ -53,11 +53,11 @@ final class DefaultInvocableKeyRegistry implements InvocableKeyRegistry {
 
     @Override
     public InvocableType resolve(final ConsumerRecord<?, ?> msg) {
-        final var msgType = OneUtil.toString(Objects.requireNonNull(msg).key(), "");
+        final var msgKey = OneUtil.toString(Objects.requireNonNull(msg).key(), "");
 
-        final var definition = this.cached.computeIfAbsent(msgType,
+        final var definition = this.cached.computeIfAbsent(msgKey,
                 key -> registeredInvokables.entrySet().stream()
-                        .filter(e -> msgType.matches(e.getKey())).findAny().map(Map.Entry::getValue)
+                        .filter(e -> msgKey.matches(e.getKey())).findAny().map(Map.Entry::getValue)
                         .orElse(null));
 
         if (definition == null) {

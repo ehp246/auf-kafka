@@ -45,6 +45,24 @@ public @interface EnableForKafka {
      */
     Inbound[] value();
 
+    /**
+     * Specifies the bean name of {@linkplain MsgConsumer} type to receive any
+     * message that no matching {@linkplain Invocable} can be found for its
+     * {@linkplain ConsumerRecord#key()}.
+     * <p>
+     * The default value specifies a no-operation bean that logs the un-matched
+     * message by {@linkplain Logger#atTrace()}. This means un-matched messages are
+     * to be expected and acknowledged to the broker.
+     * <p>
+     * If the value is an empty string, an un-matched message will result an
+     * {@linkplain UnknownKeyException}.
+     * <p>
+     * The setting applies to all {@linkplain InboundEndpoint}'s.
+     * <p>
+     * Supports Spring property placeholder.
+     */
+    String defaultConsumer() default "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
+
     @Target({})
     @interface Inbound {
         /**
@@ -82,7 +100,7 @@ public @interface EnableForKafka {
         /**
          * The bean name of the endpoint. Must be unique if specified.
          * <p>
-         * The default name would be in the form of <code>'InboundEndpoint-${n}'</code>
+         * The default name would be in the form of <code>'inboundEndpoint-${n}'</code>
          * where <code>'n'</code> is the index from {@linkplain EnableForKafka#value()}
          * starting at <code>0</code>.
          */

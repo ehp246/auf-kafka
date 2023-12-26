@@ -8,5 +8,5 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
  */
 @FunctionalInterface
 public interface MsgConsumer {
-    void apply(ConsumerRecord<?, ?> msgRecord);
+    void apply(ConsumerRecord<String, String> msgRecord);
 }
