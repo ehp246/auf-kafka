@@ -27,6 +27,11 @@ public final class OneUtil {
         super();
     }
 
+    public static <T> Stream<T> streamOfNonNull(Collection<T> set) {
+        return Optional.ofNullable(set).map(Collection::stream).orElseGet(Stream::empty)
+                .filter(Objects::nonNull);
+    }
+
     public static String firstUpper(final String value) {
         return value == null || value.length() == 0 ? value
                 : value.substring(0, 1).toUpperCase(Locale.US) + value.substring(1);
