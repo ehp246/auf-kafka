@@ -1,4 +1,4 @@
-package me.ehp246.test.embedded.consumer.forkey.key;
+package me.ehp246.test.embedded.consumer.enable.basic.key;
 
 import org.springframework.kafka.annotation.EnableKafka;
 

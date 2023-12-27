@@ -1,4 +1,4 @@
-package me.ehp246.test.embedded.consumer.forkey.key;
+package me.ehp246.test.embedded.consumer.enable.basic.key;
 
 import java.util.UUID;
 
