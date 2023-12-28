@@ -29,7 +29,7 @@ public record StringHeader(String key, String strValue) implements Header {
 
         final var list = new ArrayList<Header>(headers.length / 2);
         for (int i = 0; i < headers.length; i++) {
-            list.add(new StringHeader(headers[i], headers[i++]));
+            list.add(new StringHeader(headers[i], headers[++i]));
         }
 
         return new RecordHeaders(list);
@@ -40,7 +40,8 @@ public record StringHeader(String key, String strValue) implements Header {
         int i = 0;
         for (var entry : map.entrySet()) {
             array[i] = entry.getKey();
-            array[i++] = entry.getValue();
+            array[i + 1] = entry.getValue();
+            i += 2;
         }
 
         return headers(array);

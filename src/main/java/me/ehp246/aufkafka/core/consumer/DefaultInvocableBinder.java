@@ -3,22 +3,31 @@ package me.ehp246.aufkafka.core.consumer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.sun.net.httpserver.Headers;
 
+import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfLog4jContext;
+import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocableBinder;
@@ -36,13 +45,13 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  */
 public final class DefaultInvocableBinder implements InvocableBinder {
     private static final Map<Class<? extends Annotation>, Function<ConsumerRecord<String, String>, Object>> HEADER_VALUE_SUPPLIERS = Map
-            .of(OfKey.class, ConsumerRecord::key);
+            .of(OfKey.class, ConsumerRecord::key, OfPartition.class, ConsumerRecord::partition);
 
-    private static final Set<Class<? extends Annotation>> HEADER_ANNOTATIONS = Set
+    private static final Set<Class<? extends Annotation>> PROPERTY_ANNOTATIONS = Set
             .copyOf(HEADER_VALUE_SUPPLIERS.keySet());
 
     private final FromJson fromJson;
-    private final Map<Method, ArgBinders> parsed = new ConcurrentHashMap<>();
+    private final Map<Method, ConsumerRecordBinders> parsed = new ConcurrentHashMap<>();
 
     public DefaultInvocableBinder(final FromJson fromJson) {
         super();
@@ -55,19 +64,23 @@ public final class DefaultInvocableBinder implements InvocableBinder {
 
         final var argBinders = this.parsed.computeIfAbsent(method, this::parse);
 
-        final var paramBinders = argBinders.paramBinders();
+        final var paramBinders = argBinders.recordBinders();
         final var parameterCount = method.getParameterCount();
 
         /*
-         * Bind the arguments.
+         * Bind the record arguments.
          */
         final var arguments = new Object[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
             arguments[i] = paramBinders.get(i).apply(msg);
         }
 
+        /**
+         * Bind the header arguments.
+         */
+
         /*
-         * Bind the Thread Context
+         * Bind the Log4j Context
          */
         final var log4jContextBinders = argBinders.log4jContextBinders();
         final Map<String, String> log4jContext = new HashMap<>();
@@ -103,7 +116,8 @@ public final class DefaultInvocableBinder implements InvocableBinder {
         };
     }
 
-    private ArgBinders parse(final Method method) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private ConsumerRecordBinders parse(final Method method) {
         method.setAccessible(true);
 
         final var parameters = method.getParameters();
@@ -115,7 +129,7 @@ public final class DefaultInvocableBinder implements InvocableBinder {
             final var type = parameter.getType();
 
             /*
-             * Binding in descending priorities.
+             * Bindings in descending priorities.
              */
             if (type.isAssignableFrom(ConsumerRecord.class)) {
                 paramBinders.put(i, msg -> msg);
@@ -126,20 +140,106 @@ public final class DefaultInvocableBinder implements InvocableBinder {
             }
 
             /*
-             * Headers.
+             * Annotated properties.
              */
             final var annotations = parameter.getAnnotations();
-            final var header = Stream.of(annotations)
-                    .filter(annotation -> HEADER_ANNOTATIONS.contains(annotation.annotationType()))
+            final var propertyAnnotation = Stream.of(annotations).filter(
+                    annotation -> PROPERTY_ANNOTATIONS.contains(annotation.annotationType()))
                     .findAny();
-            if (header.isPresent()) {
-                final var fn = HEADER_VALUE_SUPPLIERS.get(header.get().annotationType());
+            if (propertyAnnotation.isPresent()) {
+                final var fn = HEADER_VALUE_SUPPLIERS
+                        .get(propertyAnnotation.get().annotationType());
                 paramBinders.put(i, msg -> fn.apply(msg));
                 continue;
             }
 
             /*
-             * Body
+             * Headers
+             */
+            final var headerAnnotation = Stream.of(annotations).filter(OfHeader.class::isInstance)
+                    .findAny();
+            if (headerAnnotation.isPresent()) {
+                final var key = OneUtil.getIfBlank(parameter.getAnnotation(OfHeader.class).value(),
+                        () -> OneUtil.firstUpper(parameter.getName()));
+
+                if (type.isAssignableFrom(Headers.class)) {
+                    paramBinders.put(i, ConsumerRecord::headers);
+                    continue;
+                } else if (type.isAssignableFrom(Header.class)) {
+                    paramBinders.put(i, msg -> msg.headers().lastHeader(key));
+                    continue;
+                } else if (type.isAssignableFrom(Iterable.class)) {
+                    paramBinders.put(i, msg -> msg.headers().headers(key));
+                    continue;
+                } else if (type.isAssignableFrom(List.class)) {
+                    paramBinders.put(i, msg -> OneUtil.toList(msg.headers().headers(key)));
+                    continue;
+                } else if (type.isAssignableFrom(Map.class)) {
+                    paramBinders.put(i, msg -> {
+                        return OneUtil.toList(msg.headers()).stream()
+                                .collect(Collectors.toMap(Header::key, header -> {
+                                    final var list = new ArrayList<String>();
+                                    list.add(new String(header.value(), StandardCharsets.UTF_8));
+                                    return list;
+                                }, (l, r) -> {
+                                    l.addAll(r);
+                                    return l;
+                                }));
+                    });
+                    continue;
+                } else if (type.isAssignableFrom(String.class)) {
+                    paramBinders.put(i, msg -> {
+                        final var header = msg.headers().lastHeader(key);
+                        return header == null ? null : OneUtil.toString(header.value());
+                    });
+                    continue;
+                } else if (type.isAssignableFrom(Boolean.class)) {
+                    paramBinders.put(i,
+                            msg -> OneUtil.headerValue(msg.headers(), key, Boolean::valueOf));
+                    continue;
+                } else if (type.isAssignableFrom(Byte.class)) {
+                    paramBinders.put(i,
+                            msg -> OneUtil.headerValue(msg.headers(), key, Byte::valueOf));
+                    continue;
+                } else if (type.isAssignableFrom(Short.class)) {
+                    paramBinders.put(i,
+                            msg -> OneUtil.headerValue(msg.headers(), key, Short::valueOf));
+                    continue;
+                } else if (type.isAssignableFrom(Integer.class)) {
+                    paramBinders.put(i,
+                            msg -> OneUtil.headerValue(msg.headers(), key, Integer::valueOf));
+                    continue;
+                } else if (type.isAssignableFrom(Long.class)) {
+                    paramBinders.put(i,
+                            msg -> OneUtil.headerValue(msg.headers(), key, Long::valueOf));
+                    continue;
+                } else if (type.isAssignableFrom(Double.class)) {
+                    paramBinders.put(i,
+                            msg -> OneUtil.headerValue(msg.headers(), key, Double::valueOf));
+                    continue;
+                } else if (type.isAssignableFrom(Float.class)) {
+                    paramBinders.put(i,
+                            msg -> OneUtil.headerValue(msg.headers(), key, Float::valueOf));
+                    continue;
+                } else if (type.isAssignableFrom(Instant.class)) {
+                    paramBinders.put(i,
+                            msg -> OneUtil.headerValue(msg.headers(), key, Instant::parse));
+                    continue;
+                } else if (type.isAssignableFrom(UUID.class)) {
+                    paramBinders.put(i,
+                            msg -> OneUtil.headerValue(msg.headers(), key, UUID::fromString));
+                    continue;
+                } else if (type.isEnum()) {
+                    paramBinders.put(i, msg -> OneUtil.headerValue(msg.headers(), key,
+                            str -> Enum.valueOf((Class<Enum>) type, str)));
+                    continue;
+                }
+                throw new RuntimeException("Un-supported " + OfHeader.class.getSimpleName()
+                        + " parameter type: " + parameter + " on " + method);
+            }
+
+            /*
+             * Value
              */
             final var bodyOf = JacksonObjectOfBuilder.ofView(
                     Optional.ofNullable(parameter.getAnnotation(JsonView.class))
@@ -175,7 +275,7 @@ public final class DefaultInvocableBinder implements InvocableBinder {
 
         if (valueReflectedParam == null
                 || valueReflectedParam.parameter().getAnnotation(OfLog4jContext.class) == null) {
-            return new ArgBinders(paramBinders, log4jContextBinders);
+            return new ConsumerRecordBinders(paramBinders, log4jContextBinders);
         }
 
         /*
@@ -219,18 +319,19 @@ public final class DefaultInvocableBinder implements InvocableBinder {
                 log4jContextBinders.putAll(bodyFieldBinders);
                 break;
             default:
-                log4jContextBinders.put(
-                        Optional.ofNullable(valueParam.getAnnotation(OfLog4jContext.class))
-                                .map(OfLog4jContext::value).filter(OneUtil::hasValue)
-                                .orElseGet(valueParam::getName),
+                log4jContextBinders.put(Optional
+                        .ofNullable(valueParam.getAnnotation(OfLog4jContext.class))
+                        .map(OfLog4jContext::value).filter(OneUtil::hasValue)
+                        .orElseGet(valueParam::getName),
                         args -> args[valueParamIndex] == null ? null : args[valueParamIndex] + "");
                 break;
         }
 
-        return new ArgBinders(paramBinders, log4jContextBinders);
+        return new ConsumerRecordBinders(paramBinders, log4jContextBinders);
     }
 
-    record ArgBinders(Map<Integer, Function<ConsumerRecord<String, String>, Object>> paramBinders,
+    record ConsumerRecordBinders(
+            Map<Integer, Function<ConsumerRecord<String, String>, Object>> recordBinders,
             Map<String, Function<Object[], String>> log4jContextBinders) {
     };
 }

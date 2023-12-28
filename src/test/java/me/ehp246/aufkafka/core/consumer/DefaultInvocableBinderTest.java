@@ -41,7 +41,7 @@ class DefaultInvocableBinderTest {
     }
 
     @Test
-    void property_02() {
+    void header_02() {
         final var map = Map.of("prop1", UUID.randomUUID().toString());
         final var mq = MockConsumerRecord.withHeaders(StringHeader.headers(map));
         final var bound = binder
@@ -63,7 +63,7 @@ class DefaultInvocableBinderTest {
     }
 
     @Test
-    void property_03() {
+    void header_03() {
         final var map = Map.of("prop1", UUID.randomUUID().toString(), "prop2",
                 UUID.randomUUID().toString());
         final var mq = MockConsumerRecord.withHeaders(StringHeader.headers(map));
@@ -87,8 +87,8 @@ class DefaultInvocableBinderTest {
     }
 
     @Test
-    void property_05() {
-        final var mq = MockConsumerRecord.withHeaders(StringHeader.headers("prop1", "true"));
+    void header_05() {
+        final var mq = MockConsumerRecord.withHeaders(StringHeader.headers("Prop1", "true"));
         final var bound = binder
                 .bind(new InvocableRecord(new InvocableBinderTestCases.HeaderCase01(),
                         new ReflectedType<>(InvocableBinderTestCases.HeaderCase01.class)
@@ -98,14 +98,32 @@ class DefaultInvocableBinderTest {
 
         final var returned = (Boolean) ((Completed) outcome).returned();
 
-        Assertions.assertEquals(true, returned, "should pass in the parameter name");
+        Assertions.assertEquals(true, returned);
 
         Assertions.assertEquals(1, bound.arguments().length);
         Assertions.assertEquals(true, bound.arguments()[0]);
     }
 
     @Test
-    void property_06() {
+    void header_06() {
+        final var mq = new MockConsumerRecord();
+        final var bound = binder
+                .bind(new InvocableRecord(new InvocableBinderTestCases.HeaderCase01(),
+                        new ReflectedType<>(InvocableBinderTestCases.HeaderCase01.class)
+                                .findMethod("m01", Boolean.class)),
+                        mq);
+        final var outcome = bound.invoke();
+
+        final var returned = (Boolean) ((Completed) outcome).returned();
+
+        Assertions.assertEquals(null, returned);
+
+        Assertions.assertEquals(1, bound.arguments().length);
+        Assertions.assertEquals(null, bound.arguments()[0]);
+    }
+
+    @Test
+    void header_07() {
         final var mq = MockConsumerRecord
                 .withHeaders(StringHeader.headers("prop1", PropertyEnum.Enum1.toString()));
         final var bound = binder
