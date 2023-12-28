@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.protocol.Message;
 
 import me.ehp246.aufkafka.api.annotation.OfCorrelationId;
@@ -99,9 +100,12 @@ interface InvocableBinderTestCases {
             return new String[] { value1, value2 };
         }
 
-        public Object[] m01(@OfHeader final Map<String, String> value1,
-                @OfHeader("prop1") final String value2) {
-            return new Object[] { value1, value2 };
+        public Object[] m01(@OfHeader final Map<String, List<String>> value1) {
+            return new Object[] { value1 };
+        }
+
+        public Object[] m01(@OfHeader final Headers value1) {
+            return new Object[] { value1 };
         }
 
         public Boolean m01(@OfHeader final Boolean prop1) {

@@ -20,9 +20,9 @@ import java.util.stream.Stream;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.sun.net.httpserver.Headers;
 
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
@@ -68,16 +68,12 @@ public final class DefaultInvocableBinder implements InvocableBinder {
         final var parameterCount = method.getParameterCount();
 
         /*
-         * Bind the record arguments.
+         * Bind the arguments.
          */
         final var arguments = new Object[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
             arguments[i] = paramBinders.get(i).apply(msg);
         }
-
-        /**
-         * Bind the header arguments.
-         */
 
         /*
          * Bind the Log4j Context
