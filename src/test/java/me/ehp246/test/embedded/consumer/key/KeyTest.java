@@ -20,7 +20,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, KeyAction.class })
 @EmbeddedKafka(topics = { "embedded" }, partitions = 1)
 @DirtiesContext
-class TopicTest {
+class KeyTest {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
     @Autowired
