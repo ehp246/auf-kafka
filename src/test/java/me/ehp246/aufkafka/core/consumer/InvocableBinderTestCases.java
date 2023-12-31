@@ -65,10 +65,15 @@ interface InvocableBinderTestCases {
     }
 
     static class KeyCase01 {
-
         public Object[] m01(final ConsumerRecord<String, String> msg, @OfKey final String type,
                 final String payload) {
             return new Object[] { msg, type, payload };
+        }
+    }
+
+    static class PartitionCase01 {
+        public Object[] m01(final Integer partition) {
+            return new Object[] { partition };
         }
     }
 

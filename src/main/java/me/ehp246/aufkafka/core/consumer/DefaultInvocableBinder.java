@@ -189,31 +189,36 @@ public final class DefaultInvocableBinder implements InvocableBinder {
                         return header == null ? null : OneUtil.toString(header.value());
                     });
                     continue;
-                } else if (type.isAssignableFrom(Boolean.class)) {
+                } else if (type.isAssignableFrom(Boolean.class)
+                        || type.isAssignableFrom(boolean.class)) {
                     paramBinders.put(i,
                             msg -> OneUtil.headerValue(msg.headers(), key, Boolean::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Byte.class)) {
+                } else if (type.isAssignableFrom(Byte.class) || type.isAssignableFrom(byte.class)) {
                     paramBinders.put(i,
                             msg -> OneUtil.headerValue(msg.headers(), key, Byte::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Short.class)) {
+                } else if (type.isAssignableFrom(Short.class)
+                        || type.isAssignableFrom(short.class)) {
                     paramBinders.put(i,
                             msg -> OneUtil.headerValue(msg.headers(), key, Short::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Integer.class)) {
+                } else if (type.isAssignableFrom(Integer.class)
+                        || type.isAssignableFrom(int.class)) {
                     paramBinders.put(i,
                             msg -> OneUtil.headerValue(msg.headers(), key, Integer::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Long.class)) {
+                } else if (type.isAssignableFrom(Long.class) || type.isAssignableFrom(long.class)) {
                     paramBinders.put(i,
                             msg -> OneUtil.headerValue(msg.headers(), key, Long::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Double.class)) {
+                } else if (type.isAssignableFrom(Double.class)
+                        || type.isAssignableFrom(double.class)) {
                     paramBinders.put(i,
                             msg -> OneUtil.headerValue(msg.headers(), key, Double::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Float.class)) {
+                } else if (type.isAssignableFrom(Float.class)
+                        || type.isAssignableFrom(float.class)) {
                     paramBinders.put(i,
                             msg -> OneUtil.headerValue(msg.headers(), key, Float::valueOf));
                     continue;
