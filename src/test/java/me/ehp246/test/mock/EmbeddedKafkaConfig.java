@@ -3,7 +3,6 @@ package me.ehp246.test.mock;
 import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -20,7 +19,7 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
-import me.ehp246.aufkafka.api.consumer.ConsumerProvider;
+import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
 import me.ehp246.aufkafka.api.producer.ProducerProvider;
 
 /**
@@ -63,15 +62,11 @@ public final class EmbeddedKafkaConfig {
     }
 
     @Bean
-    ConsumerProvider defaultConsumerProvider() {
+    ConsumerConfigProvider defaultConsumerProvider() {
         final Map<String, Object> configMap = KafkaTestUtils.consumerProps("test", "true",
                 embeddedKafka);
-        configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
-        configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
 
-        return name -> new KafkaConsumer<String, String>(configMap);
+        return name -> configMap;
     }
 
     @Bean

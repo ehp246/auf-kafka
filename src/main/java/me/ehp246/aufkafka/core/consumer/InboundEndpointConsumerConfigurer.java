@@ -10,7 +10,6 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
-import me.ehp246.aufkafka.api.consumer.ConsumerProvider;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableBinder;

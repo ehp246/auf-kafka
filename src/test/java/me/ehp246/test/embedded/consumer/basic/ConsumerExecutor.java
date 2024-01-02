@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 
-import me.ehp246.aufkafka.api.consumer.ConsumerProvider;
+import me.ehp246.aufkafka.core.consumer.ConsumerProvider;
 
 /**
  * @author Lei Yang
