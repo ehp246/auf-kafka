@@ -1,5 +1,8 @@
 package me.ehp246.aufkafka.core.configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -31,15 +34,19 @@ public final class ConsumerConfiguration {
 
     @Bean
     public ConsumerProvider consumerProvider(final ConsumerConfigProvider configProvider) {
+        final var cache = new ConcurrentHashMap<String, Map<String, Object>>();
+
         return name -> {
-            final var configMap = configProvider.get(name);
+            return new KafkaConsumer<String, String>(cache.computeIfAbsent(name, n -> {
+                final var configMap = new HashMap<>(configProvider.get(n));
 
-            configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                    StringDeserializer.class.getName());
-            configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                    StringDeserializer.class.getName());
+                configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                        StringDeserializer.class.getName());
+                configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                        StringDeserializer.class.getName());
 
-            return new KafkaConsumer<String, String>(configMap);
+                return configMap;
+            }));
         };
     }
 }

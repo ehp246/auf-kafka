@@ -47,7 +47,7 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
                     () -> endpoint.from().topic());
 
             final var executor = this.executorProvider.get();
-            final var consumer = this.consumerProvider.get(endpoint.consumerName());
+            final var consumer = this.consumerProvider.get(endpoint.consumerConfigName());
             final var dispatcher = new DefaultInvocableDispatcher(this.binder,
                     endpoint.invocationListener() == null ? null
                             : List.of(endpoint.invocationListener()),

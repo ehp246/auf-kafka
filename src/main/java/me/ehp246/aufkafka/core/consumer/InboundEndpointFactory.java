@@ -40,6 +40,7 @@ public final class InboundEndpointFactory {
     public InboundEndpoint newInstance(final Map<String, Object> inboundAttributes,
             final Set<String> scanPackages, final String beanName,
             final String defaultConsumerName) {
+        final var consumerConfigName = inboundAttributes.get("consumerConfigName").toString();
         final var defaultConsumer = Optional.ofNullable(defaultConsumerName)
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
                 .map(name -> autowireCapableBeanFactory.getBean(name, MsgConsumer.class))
@@ -83,6 +84,11 @@ public final class InboundEndpointFactory {
             @Override
             public String name() {
                 return beanName;
+            }
+
+            @Override
+            public String consumerConfigName() {
+                return consumerConfigName;
             }
 
             @Override
