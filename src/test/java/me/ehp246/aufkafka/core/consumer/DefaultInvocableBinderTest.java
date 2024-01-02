@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
-import me.ehp246.aufkafka.api.serializer.json.FromJson;
-import me.ehp246.aufkafka.api.serializer.json.ToJson;
 import me.ehp246.aufkafka.core.consumer.InvocableBinderTestCases.HeaderCase01.PropertyEnum;
+import me.ehp246.aufkafka.core.consumer.InvocableBinderTestCases.ValueCase01.Account;
+import me.ehp246.aufkafka.core.consumer.InvocableBinderTestCases.ValueCase01.Received;
 import me.ehp246.aufkafka.core.provider.jackson.JsonByObjectMapper;
 import me.ehp246.aufkafka.core.reflection.ReflectedType;
 import me.ehp246.test.TestUtil;
@@ -25,9 +25,68 @@ import me.ehp246.test.mock.StringHeader;
  */
 class DefaultInvocableBinderTest {
     private final JsonByObjectMapper jackson = new JsonByObjectMapper(TestUtil.OBJECT_MAPPER);
-    private final FromJson fromJson = jackson;
-    private final ToJson toJson = jackson;
-    private final DefaultInvocableBinder binder = new DefaultInvocableBinder(fromJson);
+    private final DefaultInvocableBinder binder = new DefaultInvocableBinder(jackson);
+
+    @Test
+    void value_01() {
+        final var bound = binder
+                .bind(new InvocableRecord(new InvocableBinderTestCases.ValueCase01(),
+                        ReflectedType.reflect(InvocableBinderTestCases.ValueCase01.class)
+                                .findMethod("m01", Received.class)),
+                        new MockConsumerRecord());
+
+        Assertions.assertEquals(true, ((Completed) bound.invoke()).returned() == null);
+        Assertions.assertEquals(1, bound.arguments().length);
+        Assertions.assertEquals(null, bound.arguments()[0]);
+    }
+
+    @Test
+    void value_02() {
+        final var expected = new Account(UUID.randomUUID().toString(),
+                UUID.randomUUID().toString());
+        final var bound = binder.bind(
+                new InvocableRecord(new InvocableBinderTestCases.ValueCase01(),
+                        ReflectedType.reflect(InvocableBinderTestCases.ValueCase01.class)
+                                .findMethod("m01", Received.class)),
+                MockConsumerRecord.withValue(jackson.apply(expected)));
+
+        final var returned = (Received) (((Completed) bound.invoke()).returned());
+
+        Assertions.assertEquals(expected.id(), returned.getId());
+        Assertions.assertEquals(expected.password(), returned.getPassword());
+    }
+
+    @Test
+    void value_03() {
+        final var expected = new Account(UUID.randomUUID().toString(),
+                UUID.randomUUID().toString());
+        final var bound = binder.bind(
+                new InvocableRecord(new InvocableBinderTestCases.ValueCase01(),
+                        ReflectedType.reflect(InvocableBinderTestCases.ValueCase01.class)
+                                .findMethod("m02", Received.class)),
+                MockConsumerRecord.withValue(jackson.apply(expected)));
+
+        final var returned = (Received) (((Completed) bound.invoke()).returned());
+
+        Assertions.assertEquals(expected.id(), returned.getId());
+        Assertions.assertEquals(null, returned.getPassword());
+    }
+
+    @Test
+    void value_04() {
+        final var expected = new Account(UUID.randomUUID().toString(),
+                UUID.randomUUID().toString());
+        final var bound = binder.bind(
+                new InvocableRecord(new InvocableBinderTestCases.ValueCase01(),
+                        ReflectedType.reflect(InvocableBinderTestCases.ValueCase01.class)
+                                .findMethod("m03", Received.class)),
+                MockConsumerRecord.withValue(jackson.apply(expected)));
+
+        final var returned = (Received) (((Completed) bound.invoke()).returned());
+
+        Assertions.assertEquals(expected.id(), returned.getId());
+        Assertions.assertEquals(expected.password(), returned.getPassword());
+    }
 
     @Test
     void header_01() {
@@ -227,7 +286,7 @@ class DefaultInvocableBinderTest {
                         .findMethod("get", String.class, int.class));
         final var expected = UUID.randomUUID().toString();
         final var bound = binder.bind(invocable,
-                new MockConsumerRecord(toJson.apply(expected), "Id", "123"));
+                new MockConsumerRecord(jackson.apply(expected), "Id", "123"));
 
         Assertions.assertEquals(2, bound.log4jContext().size());
         Assertions.assertEquals(expected, bound.log4jContext().get("name"));
@@ -241,7 +300,7 @@ class DefaultInvocableBinderTest {
         final var invocable = new InvocableRecord(new InvocableBinderTestCases.Log4jContextCase(),
                 method);
         final var expected = UUID.randomUUID().toString();
-        final var bound = binder.bind(invocable, new MockConsumerRecord(toJson.apply(expected)));
+        final var bound = binder.bind(invocable, new MockConsumerRecord(jackson.apply(expected)));
 
         Assertions.assertEquals(2, bound.log4jContext().size());
         Assertions.assertEquals(expected, bound.log4jContext().get("name"));
@@ -256,7 +315,7 @@ class DefaultInvocableBinderTest {
                 method);
         final var expected = new InvocableBinderTestCases.Log4jContextCase.Name(
                 UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        final var bound = binder.bind(invocable, new MockConsumerRecord(toJson.apply(expected)));
+        final var bound = binder.bind(invocable, new MockConsumerRecord(jackson.apply(expected)));
 
         Assertions.assertEquals(1, bound.log4jContext().size());
         Assertions.assertEquals(expected.toString(), bound.log4jContext().get("name"),
@@ -269,7 +328,7 @@ class DefaultInvocableBinderTest {
                 .findMethod("getOnBody", InvocableBinderTestCases.Log4jContextCase.Name.class);
         final var invocable = new InvocableRecord(new InvocableBinderTestCases.Log4jContextCase(),
                 method);
-        final var bound = binder.bind(invocable, new MockConsumerRecord(toJson.apply(null)));
+        final var bound = binder.bind(invocable, new MockConsumerRecord(jackson.apply(null)));
 
         Assertions.assertEquals(1, bound.log4jContext().size());
         Assertions.assertEquals(null, bound.log4jContext().get("name"), "should tolerate null");
@@ -283,9 +342,10 @@ class DefaultInvocableBinderTest {
                 method);
         final var expected = new InvocableBinderTestCases.Log4jContextCase.Name(
                 UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        final var bound = binder.bind(invocable, new MockConsumerRecord(toJson.apply(expected)));
+        final var bound = binder.bind(invocable, new MockConsumerRecord(jackson.apply(expected)));
 
-        Assertions.assertEquals(0, bound.log4jContext().size());
+        Assertions.assertEquals(0, bound.log4jContext().size(),
+                "should not have any without annotation");
     }
 
     @Test
@@ -296,22 +356,21 @@ class DefaultInvocableBinderTest {
                 method);
         final var expected = new InvocableBinderTestCases.Log4jContextCase.Name(
                 UUID.randomUUID().toString(), null);
-        final var bound = binder.bind(invocable, new MockConsumerRecord(toJson.apply(expected)));
+        final var bound = binder.bind(invocable, new MockConsumerRecord(jackson.apply(expected)));
 
         Assertions.assertEquals(0, bound.log4jContext().size());
     }
 
     @Test
     void log4jContext_09() {
-        final var method = new ReflectedType<>(InvocableBinderTestCases.Log4jContextCase.class)
-                .findMethod("getOnBodyIntro", InvocableBinderTestCases.Log4jContextCase.Name.class);
         final var invocable = new InvocableRecord(new InvocableBinderTestCases.Log4jContextCase(),
-                method);
+                new ReflectedType<>(InvocableBinderTestCases.Log4jContextCase.class).findMethod(
+                        "getOnBodyIntro", InvocableBinderTestCases.Log4jContextCase.Name.class));
 
         final var name = new InvocableBinderTestCases.Log4jContextCase.Name(
                 UUID.randomUUID().toString(), UUID.randomUUID().toString());
 
-        final var log4jContext = binder.bind(invocable, new MockConsumerRecord(toJson.apply(name)))
+        final var log4jContext = binder.bind(invocable, new MockConsumerRecord(jackson.apply(name)))
                 .log4jContext();
 
         Assertions.assertEquals(3, log4jContext.size());
@@ -345,7 +404,7 @@ class DefaultInvocableBinderTest {
         final var name = new InvocableBinderTestCases.Log4jContextCase.Name(
                 UUID.randomUUID().toString(), null);
 
-        final var log4jContext = binder.bind(invocable, new MockConsumerRecord(toJson.apply(name)))
+        final var log4jContext = binder.bind(invocable, new MockConsumerRecord(jackson.apply(name)))
                 .log4jContext();
 
         Assertions.assertEquals(3, log4jContext.size());
@@ -365,7 +424,7 @@ class DefaultInvocableBinderTest {
         final var name = new InvocableBinderTestCases.Log4jContextCase.Name(
                 UUID.randomUUID().toString(), UUID.randomUUID().toString());
 
-        final var log4jContext = binder.bind(invocable, new MockConsumerRecord(toJson.apply(name)))
+        final var log4jContext = binder.bind(invocable, new MockConsumerRecord(jackson.apply(name)))
                 .log4jContext();
 
         Assertions.assertEquals(3, log4jContext.size());
@@ -386,7 +445,7 @@ class DefaultInvocableBinderTest {
         final var name = new InvocableBinderTestCases.Log4jContextCase.Name(
                 UUID.randomUUID().toString(), UUID.randomUUID().toString());
 
-        final var log4jContext = binder.bind(invocable, new MockConsumerRecord(toJson.apply(name)))
+        final var log4jContext = binder.bind(invocable, new MockConsumerRecord(jackson.apply(name)))
                 .log4jContext();
 
         Assertions.assertEquals(3, log4jContext.size());
@@ -409,7 +468,8 @@ class DefaultInvocableBinderTest {
                 method);
 
         final var log4jContext = binder
-                .bind(invocable, new MockConsumerRecord(toJson.apply(name), "FirstName", firstName))
+                .bind(invocable,
+                        new MockConsumerRecord(jackson.apply(name), "FirstName", firstName))
                 .log4jContext();
 
         Assertions.assertEquals(2, log4jContext.size());

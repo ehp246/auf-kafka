@@ -36,8 +36,8 @@ class HeaderTest {
 
         final var received = action.take();
 
-        Assertions.assertEquals(null, received.headers());
-        Assertions.assertEquals(null, received.headerList());
+        Assertions.assertEquals(0, received.headers().toArray().length);
+        Assertions.assertEquals(0, received.headerList().size());
         Assertions.assertEquals(null, received.header1());
     }
 
@@ -46,12 +46,12 @@ class HeaderTest {
         final var header1Value = UUID.randomUUID().toString();
         kafkaTemplate.send(
                 new ProducerRecord<String, String>("embedded", null, UUID.randomUUID().toString(),
-                        null, List.of(new StringHeader("header1", header1Value))));
+                        null, List.of(new StringHeader("Header1", header1Value))));
 
         final var received = action.take();
 
         Assertions.assertEquals(1, OneUtil.toList(received.headers()).size());
-        Assertions.assertEquals(1, received.headerList().size());
+        Assertions.assertEquals(0, received.headerList().size());
         Assertions.assertEquals(header1Value, received.header1());
     }
 }

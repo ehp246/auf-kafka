@@ -7,14 +7,47 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.protocol.Message;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import me.ehp246.aufkafka.api.annotation.OfCorrelationId;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfLog4jContext;
 import me.ehp246.aufkafka.api.annotation.OfLog4jContext.Op;
+import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.serializer.json.FromJson;
+import me.ehp246.aufkafka.api.spi.ValueView;
 
 interface InvocableBinderTestCases {
+    static class ValueCase01 {
+        record Account(String id, String password) {
+        }
+
+        public interface Received {
+            @JsonView({ ValueView.class, String.class })
+            String getId();
+
+            @JsonView({ String.class })
+            String getPassword();
+        }
+
+        public Received m01(@OfValue final Received payload) {
+            return payload;
+        }
+
+        public Received m02(@OfValue @JsonView(ValueView.class) final Received payload) {
+            return payload;
+        }
+
+        public Received m03(@OfValue @JsonView(String.class) final Received payload) {
+            return payload;
+        }
+
+        public Received m04(@OfValue @JsonView(Integer.class) final Received payload) {
+            return payload;
+        }
+    }
+
     static class ArgCase01 {
         public void m01() {
 
@@ -134,33 +167,33 @@ interface InvocableBinderTestCases {
                 @OfLog4jContext("name") @OfHeader final String lastName) {
         }
 
-        public void get(@OfLog4jContext final String name,
+        public void get(@OfLog4jContext @OfValue final String name,
                 @OfLog4jContext("SSN") @OfHeader final int id) {
         }
 
-        public void get(@OfLog4jContext final String name,
+        public void get(@OfLog4jContext @OfValue final String name,
                 @OfLog4jContext("SSN") @OfHeader final Integer id) {
         }
 
-        public void getOnBody(@OfLog4jContext final Name name) {
+        public void getOnBody(@OfLog4jContext @OfValue final Name name) {
         }
 
-        public void getOnBodyPrec(@OfLog4jContext(op = Op.Introspect) final Name name,
+        public void getOnBodyPrec(@OfLog4jContext(op = Op.Introspect) @OfValue final Name name,
                 @OfLog4jContext("firstName") @OfHeader("firstName") final String nameProperty) {
         }
 
-        public void getOnBodyNamed(@OfLog4jContext("newName") final Name name,
+        public void getOnBodyNamed(@OfLog4jContext("newName") @OfValue final Name name,
                 @OfHeader @OfLog4jContext final String firstName) {
         }
 
-        public void getOnBodyIntro(@OfLog4jContext(op = Op.Introspect) final Name name) {
+        public void getOnBodyIntro(@OfLog4jContext(op = Op.Introspect) @OfValue Name name) {
         }
 
         public void getOnBodyIntroNamed(
-                @OfLog4jContext(value = "Name.", op = Op.Introspect) final Name name) {
+                @OfLog4jContext(value = "Name.", op = Op.Introspect) @OfValue final Name name) {
         }
 
-        public void getInBody(final Name name) {
+        public void getInBody(@OfValue final Name name) {
         }
 
         record Name(@OfLog4jContext String firstName, @OfLog4jContext String lastName) {

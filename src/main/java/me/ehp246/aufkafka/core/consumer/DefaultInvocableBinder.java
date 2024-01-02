@@ -28,6 +28,7 @@ import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfLog4jContext;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
+import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocableBinder;
@@ -242,14 +243,20 @@ public final class DefaultInvocableBinder implements InvocableBinder {
             /*
              * Value
              */
-            final var bodyOf = JacksonObjectOfBuilder.ofView(
-                    Optional.ofNullable(parameter.getAnnotation(JsonView.class))
-                            .map(JsonView::value).map(OneUtil::firstOrNull).orElse(null),
-                    parameter.getType());
+            final var ofValueAnnotation = Stream.of(annotations).filter(OfValue.class::isInstance)
+                    .findAny();
+            if (ofValueAnnotation.isPresent()) {
+                final var bodyOf = JacksonObjectOfBuilder.ofView(
+                        Optional.ofNullable(parameter.getAnnotation(JsonView.class))
+                                .map(JsonView::value).map(OneUtil::firstOrNull).orElse(null),
+                        parameter.getType());
 
-            paramBinders.put(i,
-                    msg -> msg.value() == null ? null : fromJson.apply(msg.value(), bodyOf));
-            valueParamRef[0] = new ReflectedParameter(parameters[i], i);
+                paramBinders.put(i,
+                        msg -> msg.value() == null ? null : fromJson.apply(msg.value(), bodyOf));
+                valueParamRef[0] = new ReflectedParameter(parameters[i], i);
+
+                continue;
+            }
         }
 
         /*
@@ -280,7 +287,7 @@ public final class DefaultInvocableBinder implements InvocableBinder {
         }
 
         /*
-         * Work on the value.
+         * Work on the context from the value.
          */
         final var valueParam = valueReflectedParam.parameter();
         final var valueParamIndex = valueReflectedParam.index();
