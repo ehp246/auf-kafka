@@ -13,7 +13,7 @@ public interface InboundEndpoint {
         return null;
     }
 
-    default String consumerName() {
+    default String consumerConfigName() {
         return null;
     }
 

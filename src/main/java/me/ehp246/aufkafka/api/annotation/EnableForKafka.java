@@ -12,7 +12,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Import;
 
-import me.ehp246.aufkafka.api.consumer.ConsumerProvider;
+import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
@@ -71,10 +71,10 @@ public @interface EnableForKafka {
         From value();
 
         /**
-         * Specifies the name to pass to {@linkplain ConsumerProvider} to retrieve a
-         * {@linkplain Consumer} for this endpoint.
+         * Specifies the name to pass to {@linkplain ConsumerConfigProvider} to retrieve
+         * consumer configuration with which to create a {@linkplain Consumer}.
          */
-        String consumerName() default "";
+        String consumerConfigName() default "";
 
         /**
          * Specifies the packages to scan for {@linkplain ForKey} classes for this

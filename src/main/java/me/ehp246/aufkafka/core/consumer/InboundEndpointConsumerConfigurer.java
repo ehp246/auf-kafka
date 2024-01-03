@@ -10,7 +10,6 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
-import me.ehp246.aufkafka.api.consumer.ConsumerProvider;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableBinder;
@@ -48,7 +47,7 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
                     () -> endpoint.from().topic());
 
             final var executor = this.executorProvider.get();
-            final var consumer = this.consumerProvider.get(endpoint.consumerName());
+            final var consumer = this.consumerProvider.get(endpoint.consumerConfigName());
             final var dispatcher = new DefaultInvocableDispatcher(this.binder,
                     endpoint.invocationListener() == null ? null
                             : List.of(endpoint.invocationListener()),

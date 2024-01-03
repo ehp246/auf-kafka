@@ -3,8 +3,6 @@ package me.ehp246.test.mock;
 import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -20,8 +18,8 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
-import me.ehp246.aufkafka.api.consumer.ConsumerProvider;
-import me.ehp246.aufkafka.api.producer.ProducerProvider;
+import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
+import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
 
 /**
  * @author Lei Yang
@@ -53,25 +51,18 @@ public final class EmbeddedKafkaConfig {
     }
 
     @Bean
-    ProducerProvider defaultProducerProvider() {
+    ProducerConfigProvider producerConfigProvider() {
         final Map<String, Object> configMap = KafkaTestUtils.producerProps(embeddedKafka);
-        configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                StringSerializer.class.getName());
 
-        return name -> new KafkaProducer<String, String>(configMap);
+        return name -> configMap;
     }
 
     @Bean
-    ConsumerProvider defaultConsumerProvider() {
+    ConsumerConfigProvider consumerConfigProvider() {
         final Map<String, Object> configMap = KafkaTestUtils.consumerProps("test", "true",
                 embeddedKafka);
-        configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
-        configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
 
-        return name -> new KafkaConsumer<String, String>(configMap);
+        return name -> configMap;
     }
 
     @Bean
