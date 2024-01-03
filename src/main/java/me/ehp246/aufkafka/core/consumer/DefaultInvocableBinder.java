@@ -32,6 +32,7 @@ import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocableBinder;
+import me.ehp246.aufkafka.api.exception.UnboundParameterException;
 import me.ehp246.aufkafka.api.serializer.json.FromJson;
 import me.ehp246.aufkafka.api.serializer.json.JacksonObjectOfBuilder;
 import me.ehp246.aufkafka.core.reflection.ReflectedMethod;
@@ -257,6 +258,8 @@ public final class DefaultInvocableBinder implements InvocableBinder {
 
                 continue;
             }
+
+            throw new UnboundParameterException(parameter, method);
         }
 
         /*

@@ -5,11 +5,9 @@ import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Headers;
-import org.apache.kafka.common.protocol.Message;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import me.ehp246.aufkafka.api.annotation.OfCorrelationId;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfLog4jContext;
@@ -50,7 +48,9 @@ interface InvocableBinderTestCases {
 
     static class ArgCase01 {
         public void m01() {
+        }
 
+        public void m01(final String value) {
         }
 
         public ConsumerRecord<String, String> m01(final ConsumerRecord<String, String> msg) {
@@ -62,33 +62,10 @@ interface InvocableBinderTestCases {
             return msg;
         }
 
-        public Object[] m01(final List<Integer> integers,
+        public Object[] m01(@OfValue final List<Integer> integers,
                 final ConsumerRecord<String, String> msg) {
             return new Object[] { integers, msg };
         }
-    }
-
-    static class MethodCase01 {
-        public void m01() {
-
-        }
-
-        public ConsumerRecord<String, String> m01(final ConsumerRecord<String, String> msg) {
-            return msg;
-        }
-
-        public Object[] m01(final ConsumerRecord<String, String> msg, final FromJson fromJson) {
-            return new Object[] { msg, fromJson };
-        }
-
-        public Object[] m01(final List<Integer> integers, final Message message) {
-            return new Object[] { integers, message };
-        }
-
-        public Void m02() {
-            return null;
-        }
-
     }
 
     static class ExceptionCase01 {
@@ -98,33 +75,9 @@ interface InvocableBinderTestCases {
     }
 
     static class KeyCase01 {
-        public Object[] m01(final ConsumerRecord<String, String> msg, @OfKey final String type,
-                final String payload) {
-            return new Object[] { msg, type, payload };
-        }
-    }
-
-    static class PartitionCase01 {
-        public Object[] m01(final Integer partition) {
-            return new Object[] { partition };
-        }
-    }
-
-    static class CorrelationIdCase01 {
-        private String field;
-        public String setter;
-        public String method;
-
-        public String get() {
-            return this.field;
-        }
-
-        public void set(final String id) {
-            setter = id;
-        }
-
-        public String[] m01(@OfCorrelationId final String id1, @OfCorrelationId final String id2) {
-            return new String[] { id1, id2 };
+        public Object[] m01(final ConsumerRecord<String, String> msg, @OfKey final String key,
+                @OfValue final String payload) {
+            return new Object[] { msg, key, payload };
         }
     }
 
