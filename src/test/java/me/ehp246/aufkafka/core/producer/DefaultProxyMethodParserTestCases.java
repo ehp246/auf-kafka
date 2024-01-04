@@ -63,6 +63,8 @@ interface DefaultProxyMethodParserTestCases {
         void m02(@OfValue Instant value);
 
         void m03(UUID uuid);
+
+        void m04(UUID uuid, @OfValue UUID value);
     }
 
     @ByKafka(value = "topic",
