@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 import org.springframework.context.annotation.Import;
 
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;

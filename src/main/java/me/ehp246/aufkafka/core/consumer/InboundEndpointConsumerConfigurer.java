@@ -4,8 +4,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
@@ -14,14 +14,15 @@ import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableBinder;
 import me.ehp246.aufkafka.api.exception.UnknownKeyException;
-import me.ehp246.aufkafka.api.spi.Log4jContext;
+import me.ehp246.aufkafka.api.spi.MsgMDCContext;
 
 /**
  * @author Lei Yang
  *
  */
 public final class InboundEndpointConsumerConfigurer implements SmartInitializingSingleton {
-    private final static Logger LOGGER = LogManager.getLogger();
+    private final static Logger LOGGER = LoggerFactory
+            .getLogger(InboundEndpointConsumerConfigurer.class);
 
     private final Set<InboundEndpoint> endpoints;
     private final InboundConsumerExecutorProvider executorProvider;
@@ -43,8 +44,8 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
 
     public void afterSingletonsInstantiated() {
         for (final var endpoint : this.endpoints) {
-            LOGGER.atTrace().log("Registering '{}' on '{}'", endpoint::name,
-                    () -> endpoint.from().topic());
+            LOGGER.atTrace().setMessage("Registering '{}' on '{}'").addArgument(endpoint::name)
+                    .addArgument(() -> endpoint.from().topic()).log();
 
             final var executor = this.executorProvider.get();
             final var consumer = this.consumerProvider.get(endpoint.consumerConfigName());
@@ -61,13 +62,14 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
 
                 while (true) {
                     for (final var msg : consumer.poll(Duration.ofMillis(100))) {
-                        LOGGER.atTrace().log("Received {}", msg::key);
+                        LOGGER.atTrace().setMessage("Received {}").addArgument(msg::key).log();
 
-                        try (final var closeble = Log4jContext.set(msg);) {
-                            LOGGER.atDebug().withMarker(AufKafkaConstant.HEADERS).log("{}, {}",
-                                    msg::topic, msg::key);
-                            LOGGER.atTrace().withMarker(AufKafkaConstant.VALUE).log("{}",
-                                    msg::value);
+                        try (final var closeble = MsgMDCContext.set(msg);) {
+                            LOGGER.atDebug().addMarker(AufKafkaConstant.HEADERS)
+                                    .setMessage("{}, {}").addArgument(msg::topic)
+                                    .addArgument(msg::key).log();
+                            LOGGER.atTrace().addMarker(AufKafkaConstant.VALUE).setMessage("{}")
+                                    .addArgument(msg::value).log();
 
                             final var invocable = invocableFactory.get(msg);
 
@@ -84,8 +86,8 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
 
                             consumer.commitSync();
                         } catch (Exception e) {
-                            LOGGER.atError().withMarker(AufKafkaConstant.EXCEPTION).withThrowable(e)
-                                    .log("Ignored: ", e);
+                            LOGGER.atError().addMarker(AufKafkaConstant.EXCEPTION).setCause(e)
+                                    .setMessage("Ignored: {}").addArgument(e).log();
                         }
                     }
                 }

@@ -3,8 +3,8 @@ package me.ehp246.aufkafka.core.producer;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.support.BeanDefinitionOverrideException;
@@ -18,15 +18,16 @@ import me.ehp246.aufkafka.api.annotation.EnableByKafka;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 public final class ProducerProxyRegistrar implements ImportBeanDefinitionRegistrar {
-    private final static Logger LOGGER = LogManager.getLogger();
+    private final static Logger LOGGER = LoggerFactory.getLogger(ProducerProxyRegistrar.class);
 
     @Override
-    public void registerBeanDefinitions(final AnnotationMetadata metadata, final BeanDefinitionRegistry registry) {
-        LOGGER.atTrace().log("Scanning for {}", ByKafka.class::getCanonicalName);
+    public void registerBeanDefinitions(final AnnotationMetadata metadata,
+            final BeanDefinitionRegistry registry) {
+        LOGGER.atTrace().setMessage("Scanning for {}").addArgument(ByKafka.class::getCanonicalName)
+                .log();
 
-        for (final var found : new ProducerInterfaceScanner(EnableByKafka.class, ByKafka.class, metadata)
-                .perform()
-                .collect(Collectors.toList())) {
+        for (final var found : new ProducerInterfaceScanner(EnableByKafka.class, ByKafka.class,
+                metadata).perform().collect(Collectors.toList())) {
 
             final Class<?> producerInterface;
             try {
@@ -38,7 +39,8 @@ public final class ProducerProxyRegistrar implements ImportBeanDefinitionRegistr
 
             final var beanName = OneUtil.producerInterfaceBeanName(producerInterface);
             final var proxyBeanDefinition = this.getProxyBeanDefinition(
-                    metadata.getAnnotationAttributes(EnableByKafka.class.getCanonicalName()), producerInterface);
+                    metadata.getAnnotationAttributes(EnableByKafka.class.getCanonicalName()),
+                    producerInterface);
 
             if (registry.containsBeanDefinition(beanName)) {
                 throw new BeanDefinitionOverrideException(beanName, proxyBeanDefinition,
@@ -49,7 +51,8 @@ public final class ProducerProxyRegistrar implements ImportBeanDefinitionRegistr
         }
     }
 
-    private BeanDefinition getProxyBeanDefinition(final Map<String, Object> map, final Class<?> byKafkaInterface) {
+    private BeanDefinition getProxyBeanDefinition(final Map<String, Object> map,
+            final Class<?> byKafkaInterface) {
         final var args = new ConstructorArgumentValues();
 
         args.addGenericArgumentValue(byKafkaInterface);

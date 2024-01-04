@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
-import me.ehp246.aufkafka.api.annotation.OfLog4jContext;
+import me.ehp246.aufkafka.api.annotation.OfMDC;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
@@ -78,14 +78,14 @@ public final class DefaultInvocableBinder implements InvocableBinder {
         }
 
         /*
-         * Bind the Log4j Context
+         * Bind the MDC map
          */
-        final var log4jContextBinders = argBinders.log4jContextBinders();
-        final Map<String, String> log4jContext = new HashMap<>();
-        if (log4jContextBinders != null && log4jContextBinders.size() > 0) {
-            log4jContextBinders.entrySet().stream().forEach(entry -> {
-                log4jContext.put(entry.getKey(),
-                        log4jContextBinders.get(entry.getKey()).apply(arguments));
+        final var mdcMapBinders = argBinders.mdcMapBinders();
+        final Map<String, String> mdcMap = new HashMap<>();
+        if (mdcMapBinders != null && mdcMapBinders.size() > 0) {
+            mdcMapBinders.entrySet().stream().forEach(entry -> {
+                mdcMap.put(entry.getKey(),
+                        mdcMapBinders.get(entry.getKey()).apply(arguments));
             });
         }
 
@@ -107,8 +107,8 @@ public final class DefaultInvocableBinder implements InvocableBinder {
             }
 
             @Override
-            public Map<String, String> log4jContext() {
-                return log4jContext;
+            public Map<String, String> mdcMap() {
+                return mdcMap;
             }
 
         };
@@ -265,13 +265,13 @@ public final class DefaultInvocableBinder implements InvocableBinder {
         /*
          * Parameters, then the value.
          */
-        final var log4jContextBinders = new HashMap<String, Function<Object[], String>>();
+        final var mdcMapBinders = new HashMap<String, Function<Object[], String>>();
 
-        log4jContextBinders.putAll(new ReflectedMethod(method)
-                .allParametersWith(OfLog4jContext.class).stream().filter(p -> p.parameter()
-                        .getAnnotation(OfLog4jContext.class).op() == OfLog4jContext.Op.Default)
+        mdcMapBinders.putAll(new ReflectedMethod(method).allParametersWith(OfMDC.class)
+                .stream()
+                .filter(p -> p.parameter().getAnnotation(OfMDC.class).op() == OfMDC.Op.Default)
                 .collect(Collectors.toMap(p -> {
-                    final var name = p.parameter().getAnnotation(OfLog4jContext.class).value();
+                    final var name = p.parameter().getAnnotation(OfMDC.class).value();
                     return OneUtil.hasValue(name) ? name : p.parameter().getName();
                 }, p -> {
                     final var index = p.index();
@@ -285,8 +285,8 @@ public final class DefaultInvocableBinder implements InvocableBinder {
         final var valueReflectedParam = valueParamRef[0];
 
         if (valueReflectedParam == null
-                || valueReflectedParam.parameter().getAnnotation(OfLog4jContext.class) == null) {
-            return new ConsumerRecordBinders(paramBinders, log4jContextBinders);
+                || valueReflectedParam.parameter().getAnnotation(OfMDC.class) == null) {
+            return new ConsumerRecordBinders(paramBinders, mdcMapBinders);
         }
 
         /*
@@ -294,55 +294,56 @@ public final class DefaultInvocableBinder implements InvocableBinder {
          */
         final var valueParam = valueReflectedParam.parameter();
         final var valueParamIndex = valueReflectedParam.index();
-        final var ofLog4jContext = valueParam.getAnnotation(OfLog4jContext.class);
+        final var ofMDC = valueParam.getAnnotation(OfMDC.class);
 
-        switch (ofLog4jContext.op()) {
+        switch (ofMDC.op()) {
             case Introspect:
                 /*
                  * Duplicated names will overwrite each other un-deterministically.
                  */
-                final var bodyParamContextName = ofLog4jContext.value();
-                final var bodyFieldBinders = new ReflectedType<>(valueParam.getType())
-                        .streamSuppliersWith(OfLog4jContext.class).filter(
-                                m -> m.getAnnotation(OfLog4jContext.class)
-                                        .op() == OfLog4jContext.Op.Default)
-                        .collect(Collectors.toMap(
-                                m -> bodyParamContextName
-                                        + Optional.of(m.getAnnotation(OfLog4jContext.class).value())
+                final var bodyParamContextName = ofMDC.value();
+                final var bodyFieldBinders = new ReflectedType<>(
+                        valueParam.getType())
+                                .streamSuppliersWith(OfMDC.class)
+                                .filter(m -> m.getAnnotation(OfMDC.class)
+                                        .op() == OfMDC.Op.Default)
+                                .collect(Collectors.toMap(
+                                        m -> bodyParamContextName + Optional
+                                                .of(m.getAnnotation(OfMDC.class).value())
                                                 .filter(OneUtil::hasValue).orElseGet(m::getName),
-                                Function.identity(), (l, r) -> r))
-                        .entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
-                            final var m = entry.getValue();
-                            return (Function<Object[], String>) args -> {
-                                final var body = args[valueParamIndex];
-                                if (body == null) {
-                                    return null;
-                                }
-                                try {
-                                    final var returned = m.invoke(body);
-                                    return returned == null ? null : returned + "";
-                                } catch (IllegalAccessException | IllegalArgumentException
-                                        | InvocationTargetException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            };
-                        }));
-                log4jContextBinders.putAll(bodyFieldBinders);
+                                        Function.identity(), (l, r) -> r))
+                                .entrySet().stream()
+                                .collect(Collectors.toMap(Entry::getKey, entry -> {
+                                    final var m = entry.getValue();
+                                    return (Function<Object[], String>) args -> {
+                                        final var body = args[valueParamIndex];
+                                        if (body == null) {
+                                            return null;
+                                        }
+                                        try {
+                                            final var returned = m.invoke(body);
+                                            return returned == null ? null : returned + "";
+                                        } catch (IllegalAccessException | IllegalArgumentException
+                                                | InvocationTargetException e) {
+                                            throw new RuntimeException(e);
+                                        }
+                                    };
+                                }));
+                mdcMapBinders.putAll(bodyFieldBinders);
                 break;
             default:
-                log4jContextBinders.put(Optional
-                        .ofNullable(valueParam.getAnnotation(OfLog4jContext.class))
-                        .map(OfLog4jContext::value).filter(OneUtil::hasValue)
-                        .orElseGet(valueParam::getName),
+                mdcMapBinders.put(
+                        Optional.ofNullable(valueParam.getAnnotation(OfMDC.class)).map(OfMDC::value)
+                                .filter(OneUtil::hasValue).orElseGet(valueParam::getName),
                         args -> args[valueParamIndex] == null ? null : args[valueParamIndex] + "");
                 break;
         }
 
-        return new ConsumerRecordBinders(paramBinders, log4jContextBinders);
+        return new ConsumerRecordBinders(paramBinders, mdcMapBinders);
     }
 
     record ConsumerRecordBinders(
             Map<Integer, Function<ConsumerRecord<String, String>, Object>> recordBinders,
-            Map<String, Function<Object[], String>> log4jContextBinders) {
+            Map<String, Function<Object[], String>> mdcMapBinders) {
     };
 }
