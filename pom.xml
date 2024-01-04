@@ -42,7 +42,7 @@
 		<spring-framework.version>6.0.12</spring-framework.version>
 		<spring-boot.version>3.1.4</spring-boot.version>
 
-		<log4j.version>2.19.0</log4j.version>
+		<slf4j.version>2.0.10</slf4j.version>
 
 		<jackson.version>2.14.1</jackson.version>
 
@@ -68,9 +68,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-api</artifactId>
-			<version>${log4j.version}</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
 		</dependency>
 
 		<dependency>
@@ -109,10 +109,17 @@
 			<version>${bytebuddy.version}</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.21.0</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>${log4j.version}</version>
+			<version>2.21.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

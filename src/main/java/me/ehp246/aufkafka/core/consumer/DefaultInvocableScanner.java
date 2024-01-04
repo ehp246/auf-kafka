@@ -12,8 +12,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
@@ -32,7 +32,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  *
  */
 public final class DefaultInvocableScanner implements InvocableScanner {
-    private final static Logger LOGGER = LogManager.getLogger();
+    private final static Logger LOGGER = LoggerFactory.getLogger(DefaultInvocableScanner.class);
 
     private final PropertyResolver propertyResolver;
 
@@ -61,8 +61,8 @@ public final class DefaultInvocableScanner implements InvocableScanner {
                             try {
                                 return Class.forName(bean.getBeanClassName());
                             } catch (final ClassNotFoundException e) {
-                                LOGGER.atError().withThrowable(e).log("This should not happen: {}",
-                                        e::getMessage);
+                                LOGGER.atError().setMessage("This should not happen: {}")
+                                        .setCause(e).addArgument(e::getMessage).log();
                             }
                             return null;
                         }))

@@ -4,12 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.ThreadContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.lang.Nullable;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
@@ -22,14 +23,14 @@ import me.ehp246.aufkafka.api.consumer.InvocationModel;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 import me.ehp246.aufkafka.api.exception.BoundInvocationFailedException;
-import me.ehp246.aufkafka.api.spi.Log4jContext;
+import me.ehp246.aufkafka.api.spi.MsgMDCContext;
 
 /**
  * @author Lei Yang
  * @since 1.0
  */
 final class DefaultInvocableDispatcher implements InvocableDispatcher {
-    private final static Logger LOGGER = LogManager.getLogger(InvocableDispatcher.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(InvocableDispatcher.class);
 
     private final Executor executor;
     private final InvocableBinder binder;
@@ -69,8 +70,9 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
 
                 final var bound = boundRef[0];
 
-                ThreadContext
-                        .putAll(bound.log4jContext() == null ? Map.of() : bound.log4jContext());
+                Optional.ofNullable(bound.mdcMap()).map(Map::entrySet)
+                        .filter(set -> !set.isEmpty()).ifPresent(set -> set.stream()
+                                .forEach(entry -> MDC.put(entry.getKey(), entry.getValue())));
 
                 DefaultInvocableDispatcher.this.invoking
                         .forEach(listener -> listener.onInvoking(bound));
@@ -99,11 +101,11 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
             } finally {
                 try (invocable) {
                 } catch (final Exception e) {
-                    LOGGER.atWarn().withThrowable(e).withMarker(AufKafkaConstant.EXCEPTION)
-                            .log("Ignored: {}", e::getMessage);
+                    LOGGER.atWarn().setCause(e).addMarker(AufKafkaConstant.EXCEPTION)
+                            .setMessage("Ignored: {}").addArgument(e::getMessage).log();
                 }
-                Optional.ofNullable(boundRef[0]).map(BoundInvocable::log4jContext).map(Map::keySet)
-                        .ifPresent(ThreadContext::removeAll);
+                Optional.ofNullable(boundRef[0]).map(BoundInvocable::mdcMap).map(Map::keySet)
+                        .map(Set::stream).ifPresent(s -> s.forEach(MDC::remove));
             }
         };
 
@@ -113,11 +115,11 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
 
         } else {
             executor.execute(() -> {
-                try (final var closeable = Log4jContext.set(msg)) {
+                try (final var closeable = MsgMDCContext.set(msg)) {
                     runnable.run();
                 } catch (final Exception e) {
-                    LOGGER.atWarn().withThrowable(e).withMarker(AufKafkaConstant.EXCEPTION)
-                            .log("Ignored: {}", e::getMessage);
+                    LOGGER.atWarn().setCause(e).addMarker(AufKafkaConstant.EXCEPTION)
+                            .setMessage("Ignored: {}").addArgument(e::getMessage).log();
                 }
             });
         }

@@ -298,7 +298,20 @@ class DefaultProxyMethodParserTest {
         final var message = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
-        Assertions.assertEquals(null, message.value());
+        Assertions.assertEquals(null, message.value(), "should ignore un-annotated");
+    }
+
+    @Test
+    void value_05() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.ValueCase01.class);
+
+        captor.proxy().m04(UUID.randomUUID(), UUID.randomUUID());
+
+        final var message = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args()).message();
+
+        Assertions.assertEquals(captor.invocation().args()[1], message.value(),
+                "should ignore un-annotated");
     }
 
     @Test

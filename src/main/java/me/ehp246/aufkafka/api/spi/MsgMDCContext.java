@@ -3,21 +3,21 @@ package me.ehp246.aufkafka.api.spi;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.logging.log4j.ThreadContext;
+import org.slf4j.MDC;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
  * @author Lei Yang
- *
+ * @since 1.0
  */
-public final class Log4jContext {
-    private Log4jContext() {
+public final class MsgMDCContext {
+    private MsgMDCContext() {
     }
 
     private enum InboundContextName {
-        AufKafkaFrom, AufKafkaCorrelationId, AufKafkaKey, AufKafkaLog4jThreadContext;
+        AufKafkaFrom, AufKafkaCorrelationId, AufKafkaKey, AufKafkaMsgMDC;
     }
 
     public static AutoCloseable set(final ConsumerRecord<String, String> msg) {
@@ -25,10 +25,10 @@ public final class Log4jContext {
             return () -> {
             };
         }
-        final AutoCloseable closeable = () -> Log4jContext.clear(msg);
+        final AutoCloseable closeable = () -> MsgMDCContext.clear(msg);
 
-        ThreadContext.put(InboundContextName.AufKafkaFrom.name(), OneUtil.toString(msg.topic()));
-        ThreadContext.put(InboundContextName.AufKafkaKey.name(), msg.key());
+        MDC.put(InboundContextName.AufKafkaFrom.name(), OneUtil.toString(msg.topic()));
+        MDC.put(InboundContextName.AufKafkaKey.name(), msg.key());
 
         final var propertyNames = OneUtil.toList(msg.headers());
         if (propertyNames == null) {
@@ -36,9 +36,9 @@ public final class Log4jContext {
         }
 
         propertyNames.stream()
-                .filter(name -> name.key().startsWith(AufKafkaConstant.LOG4J_CONTEXT_HEADER_PREFIX))
-                .forEach(name -> ThreadContext.put(
-                        name.key().replaceFirst(AufKafkaConstant.LOG4J_CONTEXT_HEADER_PREFIX, ""),
+                .filter(name -> name.key().startsWith(AufKafkaConstant.MSG_MDC_HEADER_PREFIX))
+                .forEach(name -> MDC.put(
+                        name.key().replaceFirst(AufKafkaConstant.MSG_MDC_HEADER_PREFIX, ""),
                         new String(name.value(), StandardCharsets.UTF_8)));
 
         return closeable;
@@ -50,7 +50,7 @@ public final class Log4jContext {
         }
 
         for (final var value : InboundContextName.values()) {
-            ThreadContext.remove(value.name());
+            MDC.remove(value.name());
         }
 
         final var propertyNames = OneUtil.toList(msg.headers());
@@ -58,8 +58,8 @@ public final class Log4jContext {
             return;
         }
         propertyNames.stream()
-                .filter(name -> name.key().startsWith(AufKafkaConstant.LOG4J_CONTEXT_HEADER_PREFIX))
-                .forEach(name -> ThreadContext.remove(
-                        name.key().replaceFirst(AufKafkaConstant.LOG4J_CONTEXT_HEADER_PREFIX, "")));
+                .filter(name -> name.key().startsWith(AufKafkaConstant.MSG_MDC_HEADER_PREFIX))
+                .forEach(name -> MDC.remove(
+                        name.key().replaceFirst(AufKafkaConstant.MSG_MDC_HEADER_PREFIX, "")));
     }
 }
