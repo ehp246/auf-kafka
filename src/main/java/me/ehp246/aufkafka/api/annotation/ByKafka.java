@@ -9,15 +9,13 @@ import java.lang.annotation.Target;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.fasterxml.jackson.annotation.JsonView;
-
 import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
 import me.ehp246.aufkafka.api.producer.PartitionMap;
 import me.ehp246.aufkafka.api.producer.SerializedPartitionMap;
 
 /**
- * Serializing by {@linkplain JsonView} is supported on the body.
- *
+ * 
+ * 
  * @author Lei Yang
  * @since 1.0
  */
