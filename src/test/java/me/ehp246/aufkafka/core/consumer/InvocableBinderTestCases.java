@@ -8,7 +8,6 @@ import org.apache.kafka.common.header.Headers;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import me.ehp246.aufkafka.api.annotation.OfCorrelationId;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfMDC;
@@ -163,7 +162,7 @@ interface InvocableBinderTestCases {
     }
 
     static class PerfCase {
-        public Object[] m01(@OfKey final String type, @OfCorrelationId final String id,
+        public Object[] m01(@OfKey final String type, @OfHeader final String id,
                 @OfHeader("prop1") final String prop1, final Integer body,
                 final ConsumerRecord<String, String> msg, final FromJson fromJson) {
             return new Object[] { type, id, prop1, body };
