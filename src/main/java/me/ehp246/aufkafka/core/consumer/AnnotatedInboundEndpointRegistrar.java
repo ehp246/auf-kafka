@@ -22,7 +22,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * @author Lei Yang
  * @since 1.0
  */
-public final class AnnotatedInboundConsumerRegistrar implements ImportBeanDefinitionRegistrar {
+public final class AnnotatedInboundEndpointRegistrar implements ImportBeanDefinitionRegistrar {
     @SuppressWarnings("unchecked")
     @Override
     public void registerBeanDefinitions(final AnnotationMetadata importingClassMetadata,

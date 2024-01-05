@@ -20,7 +20,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
 /**
  * @author Lei Yang
  * @since 1.0
- * @see AnnotatedInboundConsumerRegistrar
+ * @see AnnotatedInboundEndpointRegistrar
  * @see EnableForKafka
  */
 public final class InboundEndpointFactory {

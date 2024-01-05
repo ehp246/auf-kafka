@@ -61,7 +61,11 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
                 consumer.subscribe(Set.of(endpoint.from().topic()));
 
                 while (true) {
-                    for (final var msg : consumer.poll(Duration.ofMillis(100))) {
+                    final var polled = consumer.poll(Duration.ofMillis(100));
+                    LOGGER.atTrace().setMessage("Polled count: {}").addArgument(polled::count)
+                            .log();
+
+                    for (final var msg : polled) {
                         LOGGER.atTrace().setMessage("Received {}").addArgument(msg::key).log();
 
                         try (final var closeble = MsgMDCContext.set(msg);) {

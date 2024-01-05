@@ -22,7 +22,7 @@ import me.ehp246.aufkafka.api.consumer.MsgConsumer;
 import me.ehp246.aufkafka.api.exception.UnknownKeyException;
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
 import me.ehp246.aufkafka.core.configuration.ConsumerConfiguration;
-import me.ehp246.aufkafka.core.consumer.AnnotatedInboundConsumerRegistrar;
+import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointRegistrar;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableBinder;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableScanner;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointConsumerConfigurer;
@@ -36,7 +36,7 @@ import me.ehp246.aufkafka.core.consumer.InboundEndpointFactory;
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
 @Import({ AufKafkaConfiguration.class, ConsumerConfiguration.class,
-        AnnotatedInboundConsumerRegistrar.class, InboundEndpointFactory.class,
+        AnnotatedInboundEndpointRegistrar.class, InboundEndpointFactory.class,
         InboundEndpointConsumerConfigurer.class, DefaultInvocableScanner.class,
         DefaultInvocableBinder.class })
 public @interface EnableForKafka {
@@ -140,24 +140,6 @@ public @interface EnableForKafka {
          * Supports Spring property placeholder.
          */
         String invocationListener() default "";
-
-        /**
-         * Specifies the bean name of {@linkplain MsgConsumer} type to receive any
-         * inbound message that no matching {@linkplain Invocable} can be found for its
-         * {@linkplain ConsumerRecord#key()}.
-         * <p>
-         * The default value specifies a no-operation bean that logs the un-matched
-         * message by {@linkplain Logger#atTrace()}. This means un-matched messages are
-         * to be expected and acknowledged to the broker.
-         * <p>
-         * If the value is an empty string, an un-matched message will result an
-         * {@linkplain UnknownKeyException}.
-         * <p>
-         * The setting applies to all {@linkplain InboundEndpoint}'s.
-         * <p>
-         * Supports Spring property placeholder.
-         */
-        String defaultConsumer() default "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
 
         @Target({})
         @interface From {
