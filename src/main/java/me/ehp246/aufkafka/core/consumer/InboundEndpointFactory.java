@@ -13,7 +13,7 @@ import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableKeyRegistry;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
-import me.ehp246.aufkafka.api.consumer.MsgConsumer;
+import me.ehp246.aufkafka.api.consumer.MsgFunction;
 import me.ehp246.aufkafka.api.spi.PropertyResolver;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
@@ -38,12 +38,12 @@ public final class InboundEndpointFactory {
 
     @SuppressWarnings("unchecked")
     public InboundEndpoint newInstance(final Map<String, Object> inboundAttributes,
-            final Set<String> scanPackages, final String beanName,
-            final String defaultConsumerName) {
+            final Set<String> scanPackages, final String beanName) {
         final var consumerConfigName = inboundAttributes.get("consumerConfigName").toString();
-        final var defaultConsumer = Optional.ofNullable(defaultConsumerName)
+        final var defaultConsumer = Optional
+                .ofNullable(inboundAttributes.get("defaultMsgFunction").toString())
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
-                .map(name -> autowireCapableBeanFactory.getBean(name, MsgConsumer.class))
+                .map(name -> autowireCapableBeanFactory.getBean(name, MsgFunction.class))
                 .orElse(null);
 
         final var fromAttribute = (Map<String, Object>) inboundAttributes.get("value");
@@ -102,7 +102,7 @@ public final class InboundEndpointFactory {
             }
 
             @Override
-            public MsgConsumer defaultConsumer() {
+            public MsgFunction defaultConsumer() {
                 return defaultConsumer;
             }
 

@@ -8,12 +8,12 @@ import org.slf4j.LoggerFactory;
  * @author Lei Yang
  * @since 1.0
  */
-public final class NoopConsumer implements MsgConsumer {
-    private final static Logger LOGGER = LoggerFactory.getLogger(NoopConsumer.class);
+public final class NoOpMsgFunction implements MsgFunction {
+    private final static Logger LOGGER = LoggerFactory.getLogger(NoOpMsgFunction.class);
 
     @Override
     public void apply(final ConsumerRecord<String, String> msg) {
-        LOGGER.atTrace().setMessage("Noop on: key '{}', topic '{}'").addArgument(msg::key)
+        LOGGER.atTrace().setMessage("No op on: key '{}', topic '{}'").addArgument(msg::key)
                 .addArgument(msg::topic).log();
     }
 }

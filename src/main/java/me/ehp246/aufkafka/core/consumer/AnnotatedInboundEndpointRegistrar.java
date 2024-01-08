@@ -33,8 +33,6 @@ public final class AnnotatedInboundEndpointRegistrar implements ImportBeanDefini
             return;
         }
 
-        final var defaultConsumer = (String) enablerAttributes.get("defaultConsumer");
-
         final var inbounds = Arrays
                 .asList(((Map<String, Object>[]) enablerAttributes.get("value")));
         for (int i = 0; i < inbounds.size(); i++) {
@@ -59,7 +57,6 @@ public final class AnnotatedInboundEndpointRegistrar implements ImportBeanDefini
             constructorArgumentValues.addGenericArgumentValue(inbound);
             constructorArgumentValues.addGenericArgumentValue(scanPackages);
             constructorArgumentValues.addGenericArgumentValue(beanName);
-            constructorArgumentValues.addGenericArgumentValue(defaultConsumer);
 
             beanDefinition.setConstructorArgumentValues(constructorArgumentValues);
 

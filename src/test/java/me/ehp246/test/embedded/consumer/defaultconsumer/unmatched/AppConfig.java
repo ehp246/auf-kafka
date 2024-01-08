@@ -12,8 +12,8 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
  *
  */
 @EnableByKafka
-@EnableForKafka(value = { @Inbound(value = @From("embedded")) },
-        defaultConsumer = "${default.consumer.name:}")
+@EnableForKafka(value = {
+        @Inbound(value = @From("embedded"), defaultMsgFunction = "${default.consumer.name:}") })
 class AppConfig {
     @Bean
     Unmatched unmatched() {

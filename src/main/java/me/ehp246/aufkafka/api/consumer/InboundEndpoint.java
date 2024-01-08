@@ -25,7 +25,7 @@ public interface InboundEndpoint {
         return null;
     }
 
-    default MsgConsumer defaultConsumer() {
+    default MsgFunction defaultConsumer() {
         return null;
     }
 
