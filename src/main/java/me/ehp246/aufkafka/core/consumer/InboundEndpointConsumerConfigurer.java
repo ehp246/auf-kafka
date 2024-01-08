@@ -62,16 +62,16 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
 
                 while (true) {
                     final var polled = consumer.poll(Duration.ofMillis(100));
-                    LOGGER.atTrace().setMessage("Polled count: {}").addArgument(polled::count)
-                            .log();
+                    if (polled.count() > 1) {
+                        LOGGER.atDebug().setMessage("Polled count: {}").addArgument(polled::count)
+                                .log();
+                    }
 
                     for (final var msg : polled) {
-                        LOGGER.atTrace().setMessage("Received {}").addArgument(msg::key).log();
-
                         try (final var closeble = MsgMDCContext.set(msg);) {
-                            LOGGER.atDebug().addMarker(AufKafkaConstant.HEADERS)
-                                    .setMessage("{}, {}").addArgument(msg::topic)
+                            LOGGER.atWarn().setMessage("{}, {}").addArgument(msg::topic)
                                     .addArgument(msg::key).log();
+
                             LOGGER.atTrace().addMarker(AufKafkaConstant.VALUE).setMessage("{}")
                                     .addArgument(msg::value).log();
 
@@ -82,18 +82,17 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
                                     throw new UnknownKeyException(msg);
                                 } else {
                                     defaultConsumer.apply(msg);
-                                    return;
                                 }
+                            } else {
+                                dispatcher.dispatch(invocable, msg);
                             }
-
-                            dispatcher.dispatch(invocable, msg);
-
-                            consumer.commitSync();
                         } catch (Exception e) {
                             LOGGER.atError().addMarker(AufKafkaConstant.EXCEPTION).setCause(e)
                                     .setMessage("Ignored: {}").addArgument(e).log();
                         }
                     }
+
+                    consumer.commitSync();
                 }
             });
         }
