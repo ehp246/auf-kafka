@@ -7,6 +7,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
  * @sine 1.0
  */
 @FunctionalInterface
-public interface MsgListener {
-    void apply(ConsumerRecord<String, String> msgRecord);
+public interface ReceivedListener {
+    void apply(ConsumerRecord<String, String> received);
 }

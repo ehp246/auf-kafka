@@ -7,17 +7,18 @@ import org.slf4j.LoggerFactory;
  * @author Lei Yang
  * @since 1.0
  */
-public final class IgnoringConsumerExceptionListener implements ConsumerExceptionListener {
+public final class IgnoringConsumerExceptionListener implements ConsumptionExceptionListener {
     private final static Logger LOGGER = LoggerFactory
             .getLogger(IgnoringConsumerExceptionListener.class);
 
     @Override
-    public void apply(final ConsumerExceptionContext context) {
-        LOGGER.atError().setCause(context.exception())
+    public void apply(final Context context) {
+        LOGGER.atError().setCause(context.thrown())
                 .setMessage("Failed to consume: {}, {}, {} because of {}")
-                .addArgument(() -> context.msg().topic()).addArgument(() -> context.msg().key())
-                .addArgument(() -> context.msg().offset())
-                .addArgument(() -> context.exception().getMessage()).log();
+                .addArgument(() -> context.received().topic())
+                .addArgument(() -> context.received().key())
+                .addArgument(() -> context.received().offset())
+                .addArgument(() -> context.thrown().getMessage()).log();
     }
 
 }

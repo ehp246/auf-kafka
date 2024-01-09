@@ -13,7 +13,7 @@ import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableKeyRegistry;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
-import me.ehp246.aufkafka.api.consumer.MsgListener;
+import me.ehp246.aufkafka.api.consumer.ReceivedListener;
 import me.ehp246.aufkafka.api.spi.PropertyResolver;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
@@ -41,16 +41,16 @@ public final class InboundEndpointFactory {
     public InboundEndpoint newInstance(final Map<String, Object> inboundAttributes,
             final Set<String> scanPackages, final String beanName) {
         final var consumerConfigName = inboundAttributes.get("consumerConfigName").toString();
-        final var defaultMsgListener = Optional
-                .ofNullable(inboundAttributes.get("defaultMsgListener").toString())
+        final var defaultReceivedListener = Optional
+                .ofNullable(inboundAttributes.get("defaultReceivedListener").toString())
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
-                .map(name -> autowireCapableBeanFactory.getBean(name, MsgListener.class))
+                .map(name -> autowireCapableBeanFactory.getBean(name, ReceivedListener.class))
                 .orElse(null);
         final var exceptionListener = Optional
-                .ofNullable(inboundAttributes.get("consumerExceptionListener").toString())
+                .ofNullable(inboundAttributes.get("consumptionExceptionListener").toString())
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
                 .map(name -> autowireCapableBeanFactory.getBean(name,
-                        ConsumerExceptionListener.class))
+                        ConsumptionExceptionListener.class))
                 .orElse(null);
         final var fromAttribute = (Map<String, Object>) inboundAttributes.get("value");
         final boolean autoStartup = Boolean.parseBoolean(
@@ -106,12 +106,12 @@ public final class InboundEndpointFactory {
             }
 
             @Override
-            public MsgListener defaultMsgListener() {
-                return defaultMsgListener;
+            public ReceivedListener defaultReceivedListener() {
+                return defaultReceivedListener;
             }
 
             @Override
-            public ConsumerExceptionListener consumerExceptionListener() {
+            public ConsumptionExceptionListener consumerExceptionListener() {
                 return exceptionListener;
             }
 

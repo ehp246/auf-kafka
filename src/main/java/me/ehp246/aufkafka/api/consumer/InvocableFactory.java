@@ -11,5 +11,5 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
  */
 @FunctionalInterface
 public interface InvocableFactory {
-    Invocable get(ConsumerRecord<String, String> msg);
+    Invocable get(ConsumerRecord<String, String> received);
 }

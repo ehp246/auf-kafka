@@ -15,11 +15,11 @@ import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
-import me.ehp246.aufkafka.api.consumer.MsgListener;
+import me.ehp246.aufkafka.api.consumer.ReceivedListener;
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
 import me.ehp246.aufkafka.core.configuration.ConsumerConfiguration;
 import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointRegistrar;
-import me.ehp246.aufkafka.core.consumer.ConsumerExceptionListener;
+import me.ehp246.aufkafka.core.consumer.ConsumptionExceptionListener;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableBinder;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableScanner;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointConsumerConfigurer;
@@ -110,7 +110,7 @@ public @interface EnableForKafka {
          * {@linkplain ForKey} objects. It applies only after a matching
          * {@linkplain ForKey} class has been found. It will not be invoked if there is
          * no matching {@linkplain Invocable}, e.g.,
-         * {@linkplain EnableForKafka.Inbound#defaultMsgListener()} invocation.
+         * {@linkplain EnableForKafka.Inbound#defaultReceivedListener()} invocation.
          * <p>
          * If a {@linkplain RuntimeException} happens from the bean during execution,
          * the {@linkplain ConsumerRecord} will follow broker's default failed-message
@@ -121,7 +121,7 @@ public @interface EnableForKafka {
         String invocationListener() default "";
 
         /**
-         * Specifies the bean name of {@linkplain MsgListener} type to receive any
+         * Specifies the bean name of {@linkplain ReceivedListener} type to receive any
          * message that no matching {@linkplain Invocable} can be found for its
          * {@linkplain ConsumerRecord#key()}.
          * <p>
@@ -131,17 +131,17 @@ public @interface EnableForKafka {
          * <p>
          * Supports Spring property placeholder.
          */
-        String defaultMsgListener() default "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
+        String defaultReceivedListener() default "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
 
         /**
-         * Specifies the bean name of {@linkplain ConsumerExceptionListener} type to
+         * Specifies the bean name of {@linkplain ConsumptionExceptionListener} type to
          * receive any exception that happened when consuming a message.
          * <p>
          * The default is to log and ignore.
          * <p>
          * Supports Spring property placeholder.
          */
-        String consumerExceptionListener() default "";
+        String consumptionExceptionListener() default "";
 
         @Target({})
         @interface From {

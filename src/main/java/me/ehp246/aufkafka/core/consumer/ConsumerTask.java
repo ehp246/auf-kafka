@@ -3,16 +3,17 @@ package me.ehp246.aufkafka.core.consumer;
 import java.time.Duration;
 
 import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
-import me.ehp246.aufkafka.api.consumer.MsgListener;
+import me.ehp246.aufkafka.api.consumer.ReceivedListener;
 import me.ehp246.aufkafka.api.exception.UnknownKeyException;
 import me.ehp246.aufkafka.api.spi.MsgMDCContext;
-import me.ehp246.aufkafka.core.consumer.ConsumerExceptionListener.ConsumerExceptionContext;
+import me.ehp246.aufkafka.core.consumer.ConsumptionExceptionListener.Context;
 
 /**
  * @author Lei Yang
@@ -24,18 +25,18 @@ final class ConsumerTask implements Runnable {
     private final Consumer<String, String> consumer;
     private final InvocableDispatcher dispatcher;
     private final InvocableFactory invocableFactory;
-    private final MsgListener defaultMsgFn;
-    private final ConsumerExceptionListener exceptionListener;
+    private final ReceivedListener defaultReceivedListener;
+    private final ConsumptionExceptionListener consumerExceptionListener;
 
-    ConsumerTask(Consumer<String, String> consumer, InvocableDispatcher dispatcher,
-            InvocableFactory invocableFactory, MsgListener defaultMsgFn,
-            final ConsumerExceptionListener exceptionListener) {
+    ConsumerTask(final Consumer<String, String> consumer, final InvocableDispatcher dispatcher,
+            final InvocableFactory invocableFactory, final ReceivedListener defaultReceivedListener,
+            final ConsumptionExceptionListener consumerExceptionListener) {
         super();
         this.consumer = consumer;
         this.dispatcher = dispatcher;
         this.invocableFactory = invocableFactory;
-        this.defaultMsgFn = defaultMsgFn;
-        this.exceptionListener = exceptionListener;
+        this.defaultReceivedListener = defaultReceivedListener;
+        this.consumerExceptionListener = consumerExceptionListener;
     }
 
     @Override
@@ -57,29 +58,45 @@ final class ConsumerTask implements Runnable {
                     final var invocable = invocableFactory.get(msg);
 
                     if (invocable == null) {
-                        if (defaultMsgFn == null) {
+                        if (defaultReceivedListener == null) {
                             throw new UnknownKeyException(msg);
                         } else {
-                            defaultMsgFn.apply(msg);
+                            defaultReceivedListener.apply(msg);
                         }
                     } else {
                         dispatcher.dispatch(invocable, msg);
                     }
                 } catch (Exception e) {
                     try {
-                        this.exceptionListener
-                                .apply(new ConsumerExceptionContext(consumer, msg, e));
+                        this.consumerExceptionListener.apply(new Context() {
+
+                            @Override
+                            public Consumer<String, String> consumer() {
+                                return consumer;
+                            }
+
+                            @Override
+                            public ConsumerRecord<String, String> received() {
+                                return msg;
+                            }
+
+                            @Override
+                            public Exception thrown() {
+                                return e;
+                            }
+                        });
                     } catch (Exception ex) {
                         LOGGER.atError().setCause(ex)
-                                .setMessage(this.exceptionListener.getClass().getSimpleName()
-                                        + " failed, ignored: {}, {}, {} because of {}")
+                                .setMessage(
+                                        this.consumerExceptionListener.getClass().getSimpleName()
+                                                + " failed, ignored: {}, {}, {} because of {}")
                                 .addArgument(msg::topic).addArgument(msg::key)
                                 .addArgument(msg::offset).addArgument(ex::getMessage).log();
                     }
                 }
-            }
 
-            consumer.commitSync();
+                consumer.commitSync();
+            }
         }
     }
 
