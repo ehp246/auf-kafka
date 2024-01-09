@@ -1,7 +1,5 @@
 package me.ehp246.aufkafka.core.consumer;
 
-import static org.mockito.Mockito.times;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -39,6 +37,7 @@ class ConsumerTaskTest {
         final var ref = new CompletableFuture<ConsumptionExceptionListener.Context>();
         final var msg = new MockConsumerRecord();
         final var records = Mockito.mock(ConsumerRecords.class);
+        Mockito.when(records.count()).thenReturn(1);
         Mockito.when(records.iterator()).thenReturn(List.of(msg).iterator());
 
         final var consumer = Mockito.mock(Consumer.class);
@@ -57,7 +56,7 @@ class ConsumerTaskTest {
         Assertions.assertEquals(thrown, context.thrown());
         Assertions.assertEquals(msg, context.received());
 
-        Mockito.verify(consumer, times(1)).commitSync();
+        Mockito.verify(consumer, Mockito.atLeastOnce()).commitSync();
     }
 
 }

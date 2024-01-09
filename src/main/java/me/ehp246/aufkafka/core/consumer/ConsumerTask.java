@@ -95,6 +95,9 @@ final class ConsumerTask implements Runnable {
                     }
                 }
 
+            }
+
+            if (polled.count() > 0) {
                 consumer.commitSync();
             }
         }
