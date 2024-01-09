@@ -13,7 +13,7 @@ import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableKeyRegistry;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
-import me.ehp246.aufkafka.api.consumer.MsgFunction;
+import me.ehp246.aufkafka.api.consumer.MsgListener;
 import me.ehp246.aufkafka.api.spi.PropertyResolver;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
@@ -21,6 +21,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * @author Lei Yang
  * @since 1.0
  * @see AnnotatedInboundEndpointRegistrar
+ * @see InboundEndpointConsumerConfigurer
  * @see EnableForKafka
  */
 public final class InboundEndpointFactory {
@@ -40,17 +41,20 @@ public final class InboundEndpointFactory {
     public InboundEndpoint newInstance(final Map<String, Object> inboundAttributes,
             final Set<String> scanPackages, final String beanName) {
         final var consumerConfigName = inboundAttributes.get("consumerConfigName").toString();
-        final var defaultConsumer = Optional
-                .ofNullable(inboundAttributes.get("defaultMsgFunction").toString())
+        final var defaultMsgListener = Optional
+                .ofNullable(inboundAttributes.get("defaultMsgListener").toString())
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
-                .map(name -> autowireCapableBeanFactory.getBean(name, MsgFunction.class))
+                .map(name -> autowireCapableBeanFactory.getBean(name, MsgListener.class))
                 .orElse(null);
-
+        final var exceptionListener = Optional
+                .ofNullable(inboundAttributes.get("consumerExceptionListener").toString())
+                .map(propertyResolver::apply).filter(OneUtil::hasValue)
+                .map(name -> autowireCapableBeanFactory.getBean(name,
+                        ConsumerExceptionListener.class))
+                .orElse(null);
         final var fromAttribute = (Map<String, Object>) inboundAttributes.get("value");
-
         final boolean autoStartup = Boolean.parseBoolean(
                 propertyResolver.apply(inboundAttributes.get("autoStartup").toString()));
-
         final InboundEndpoint.From from = new InboundEndpoint.From() {
             private final String topic = propertyResolver
                     .apply(fromAttribute.get("value").toString());
@@ -102,8 +106,13 @@ public final class InboundEndpointFactory {
             }
 
             @Override
-            public MsgFunction defaultConsumer() {
-                return defaultConsumer;
+            public MsgListener defaultMsgListener() {
+                return defaultMsgListener;
+            }
+
+            @Override
+            public ConsumerExceptionListener consumerExceptionListener() {
+                return exceptionListener;
             }
 
             @Override

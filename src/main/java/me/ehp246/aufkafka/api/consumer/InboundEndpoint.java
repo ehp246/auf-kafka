@@ -1,5 +1,7 @@
 package me.ehp246.aufkafka.api.consumer;
 
+import me.ehp246.aufkafka.core.consumer.ConsumerExceptionListener;
+
 /**
  * @author Lei Yang
  * @since 1.0
@@ -25,7 +27,11 @@ public interface InboundEndpoint {
         return null;
     }
 
-    default MsgFunction defaultConsumer() {
+    default MsgListener defaultMsgListener() {
+        return null;
+    }
+
+    default ConsumerExceptionListener consumerExceptionListener() {
         return null;
     }
 

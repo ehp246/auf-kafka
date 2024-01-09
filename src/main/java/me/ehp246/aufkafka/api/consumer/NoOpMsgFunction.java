@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
  * @author Lei Yang
  * @since 1.0
  */
-public final class NoOpMsgFunction implements MsgFunction {
+public final class NoOpMsgFunction implements MsgListener {
     private final static Logger LOGGER = LoggerFactory.getLogger(NoOpMsgFunction.class);
 
     @Override

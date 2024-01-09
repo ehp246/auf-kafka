@@ -16,6 +16,7 @@ import org.springframework.core.type.AnnotationMetadata;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
+import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
@@ -72,7 +73,7 @@ public final class AnnotatedInboundEndpointRegistrar implements ImportBeanDefini
     private GenericBeanDefinition newBeanDefinition(
             final Map<String, Object> annotationAttributes) {
         final var beanDefinition = new GenericBeanDefinition();
-        beanDefinition.setBeanClass(DefaultInboundConsumer.class);
+        beanDefinition.setBeanClass(InboundEndpoint.class);
         beanDefinition.setFactoryBeanName(InboundEndpointFactory.class.getName());
         beanDefinition.setFactoryMethodName("newInstance");
 

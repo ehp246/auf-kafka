@@ -12,14 +12,14 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.context.annotation.Import;
 
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
-import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
-import me.ehp246.aufkafka.api.consumer.MsgFunction;
+import me.ehp246.aufkafka.api.consumer.MsgListener;
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
 import me.ehp246.aufkafka.core.configuration.ConsumerConfiguration;
 import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointRegistrar;
+import me.ehp246.aufkafka.core.consumer.ConsumerExceptionListener;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableBinder;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableScanner;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointConsumerConfigurer;
@@ -110,7 +110,7 @@ public @interface EnableForKafka {
          * {@linkplain ForKey} objects. It applies only after a matching
          * {@linkplain ForKey} class has been found. It will not be invoked if there is
          * no matching {@linkplain Invocable}, e.g.,
-         * {@linkplain EnableForKafka.Inbound#defaultMsgFunction()} invocation.
+         * {@linkplain EnableForKafka.Inbound#defaultMsgListener()} invocation.
          * <p>
          * If a {@linkplain RuntimeException} happens from the bean during execution,
          * the {@linkplain ConsumerRecord} will follow broker's default failed-message
@@ -121,7 +121,7 @@ public @interface EnableForKafka {
         String invocationListener() default "";
 
         /**
-         * Specifies the bean name of {@linkplain MsgFunction} type to receive any
+         * Specifies the bean name of {@linkplain MsgListener} type to receive any
          * message that no matching {@linkplain Invocable} can be found for its
          * {@linkplain ConsumerRecord#key()}.
          * <p>
@@ -129,11 +129,19 @@ public @interface EnableForKafka {
          * message by {@linkplain Logger#atTrace()}. This means un-matched messages are
          * to be expected and acknowledged to the broker.
          * <p>
-         * The setting applies to all {@linkplain InboundEndpoint}'s.
+         * Supports Spring property placeholder.
+         */
+        String defaultMsgListener() default "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
+
+        /**
+         * Specifies the bean name of {@linkplain ConsumerExceptionListener} type to
+         * receive any exception that happened when consuming a message.
+         * <p>
+         * The default is to log and ignore.
          * <p>
          * Supports Spring property placeholder.
          */
-        String defaultMsgFunction() default "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
+        String consumerExceptionListener() default "";
 
         @Target({})
         @interface From {

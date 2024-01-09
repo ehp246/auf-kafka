@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
-import me.ehp246.aufkafka.api.consumer.MsgFunction;
+import me.ehp246.aufkafka.api.consumer.MsgListener;
 import me.ehp246.aufkafka.api.consumer.NoOpMsgFunction;
 import me.ehp246.aufkafka.core.consumer.ConsumerProvider;
 
@@ -23,7 +23,7 @@ import me.ehp246.aufkafka.core.consumer.ConsumerProvider;
 public final class ConsumerConfiguration {
 
     @Bean("e9c593e2-37c6-48e2-8a76-67540e44e3b1")
-    public MsgFunction noopConsumer() {
+    public MsgListener noopConsumer() {
         return new NoOpMsgFunction();
     }
 
