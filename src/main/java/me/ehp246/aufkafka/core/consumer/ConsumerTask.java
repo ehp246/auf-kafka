@@ -17,7 +17,7 @@ import me.ehp246.aufkafka.core.consumer.ConsumptionExceptionListener.Context;
 
 /**
  * @author Lei Yang
- *
+ * @since 1.0
  */
 final class ConsumerTask implements Runnable {
     private final static Logger LOGGER = LoggerFactory.getLogger(ConsumerTask.class);
@@ -25,7 +25,7 @@ final class ConsumerTask implements Runnable {
     private final Consumer<String, String> consumer;
     private final InvocableDispatcher dispatcher;
     private final InvocableFactory invocableFactory;
-    private final java.util.function.Consumer<ConsumerRecord<String, String>> defaultConsumer;
+    private final ConsumerFn defaultConsumer;
     private final ConsumptionExceptionListener consumerExceptionListener;
 
     ConsumerTask(final Consumer<String, String> consumer, final InvocableDispatcher dispatcher,
