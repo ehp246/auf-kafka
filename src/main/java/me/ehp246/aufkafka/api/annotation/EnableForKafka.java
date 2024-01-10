@@ -26,6 +26,11 @@ import me.ehp246.aufkafka.core.consumer.InboundEndpointConsumerConfigurer;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointFactory;
 
 /**
+ * Enables the consumer-side capabilities of Auf Kafka.
+ * <p>
+ * Mostly to declare {@linkplain Inbound} endpoints with scanning and
+ * registration of {@linkplain ForKey} classes for the endpoints.
+ *
  * @author Lei Yang
  * @since 1.0
  */
@@ -65,7 +70,8 @@ public @interface EnableForKafka {
         Class<?>[] scan() default {};
 
         /**
-         * Registers the specified {@linkplain ForKey} classes explicitly.
+         * Registers the specified {@linkplain ForKey} classes explicitly for this
+         * endpoint.
          */
         Class<?>[] register() default {};
 
@@ -87,8 +93,7 @@ public @interface EnableForKafka {
 
         /**
          * Specifies the bean name of the {@linkplain InvocationListener} type to
-         * receive either {@linkplain Completed} or {@linkplain Failed} invocations on
-         * this {@linkplain EnableForKafka.Inbound}.
+         * receive invocation events on this {@linkplain EnableForKafka.Inbound}.
          * <p>
          * If the execution of a {@linkplain ForKey} object on this
          * {@linkplain EnableForKafka.Inbound} completes normally, the
@@ -99,22 +104,13 @@ public @interface EnableForKafka {
          * {@linkplain EnableForKafka.Inbound} throws an exception, the
          * {@linkplain InvocationListener.OnFailed#onFailed(Failed)} will be invoked.
          * <p>
-         * If the invocation of the bean completes without an exception, the
-         * {@linkplain ConsumerRecord} will be <strong>acknowledged</strong> to the
-         * broker as a success.
-         * <p>
-         * {@linkplain InvocationListener.OnFailed} can throw {@linkplain Exception} in
-         * which case the message will fail.
+         * {@linkplain InvocationListener.OnFailed} can throw {@linkplain Exception}.
          * <p>
          * The listener bean is designed to support the invocation of
          * {@linkplain ForKey} objects. It applies only after a matching
          * {@linkplain ForKey} class has been found. It will not be invoked if there is
          * no matching {@linkplain Invocable}, e.g.,
          * {@linkplain EnableForKafka.Inbound#defaultReceivedListener()} invocation.
-         * <p>
-         * If a {@linkplain RuntimeException} happens from the bean during execution,
-         * the {@linkplain ConsumerRecord} will follow broker's default failed-message
-         * process.
          * <p>
          * Supports Spring property placeholder.
          */
@@ -138,6 +134,11 @@ public @interface EnableForKafka {
          * receive any exception that happened when consuming a message.
          * <p>
          * The default is to log and ignore.
+         * <p>
+         * This listener is more general purpose than {@linkplain InvocationListener}
+         * which is specific for {@linkplain ForKey} invocations. An exception from
+         * {@linkplain ForKey} invocation can trigger this listener on top of
+         * {@linkplain InvocationListener}.
          * <p>
          * Supports Spring property placeholder.
          */
