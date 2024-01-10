@@ -9,18 +9,19 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
+import me.ehp246.aufkafka.api.consumer.ConsumerFn;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableKeyRegistry;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
-import me.ehp246.aufkafka.api.consumer.MsgConsumer;
 import me.ehp246.aufkafka.api.spi.PropertyResolver;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
  * @author Lei Yang
  * @since 1.0
- * @see AnnotatedInboundConsumerRegistrar
+ * @see AnnotatedInboundEndpointRegistrar
+ * @see InboundEndpointConsumerConfigurer
  * @see EnableForKafka
  */
 public final class InboundEndpointFactory {
@@ -38,19 +39,22 @@ public final class InboundEndpointFactory {
 
     @SuppressWarnings("unchecked")
     public InboundEndpoint newInstance(final Map<String, Object> inboundAttributes,
-            final Set<String> scanPackages, final String beanName,
-            final String defaultConsumerName) {
+            final Set<String> scanPackages, final String beanName) {
         final var consumerConfigName = inboundAttributes.get("consumerConfigName").toString();
-        final var defaultConsumer = Optional.ofNullable(defaultConsumerName)
+        final var defaultConsumer = Optional
+                .ofNullable(inboundAttributes.get("defaultConsumer").toString())
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
-                .map(name -> autowireCapableBeanFactory.getBean(name, MsgConsumer.class))
+                .map(name -> autowireCapableBeanFactory.getBean(name, ConsumerFn.class))
                 .orElse(null);
-
+        final var exceptionListener = Optional
+                .ofNullable(inboundAttributes.get("consumptionExceptionListener").toString())
+                .map(propertyResolver::apply).filter(OneUtil::hasValue)
+                .map(name -> autowireCapableBeanFactory.getBean(name,
+                        ConsumptionExceptionListener.class))
+                .orElse(null);
         final var fromAttribute = (Map<String, Object>) inboundAttributes.get("value");
-
         final boolean autoStartup = Boolean.parseBoolean(
                 propertyResolver.apply(inboundAttributes.get("autoStartup").toString()));
-
         final InboundEndpoint.From from = new InboundEndpoint.From() {
             private final String topic = propertyResolver
                     .apply(fromAttribute.get("value").toString());
@@ -102,8 +106,13 @@ public final class InboundEndpointFactory {
             }
 
             @Override
-            public MsgConsumer defaultConsumer() {
+            public ConsumerFn defaultConsumer() {
                 return defaultConsumer;
+            }
+
+            @Override
+            public ConsumptionExceptionListener consumerExceptionListener() {
+                return exceptionListener;
             }
 
             @Override

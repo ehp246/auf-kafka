@@ -97,7 +97,7 @@ public final class DefaultInvocableBinder implements InvocableBinder {
             }
 
             @Override
-            public ConsumerRecord<String, String> msg() {
+            public ConsumerRecord<String, String> received() {
                 return msg;
             }
 

@@ -8,5 +8,5 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
  */
 @FunctionalInterface
 public interface InvocableDispatcher {
-    void dispatch(final Invocable invocable, final ConsumerRecord<String, String> msg);
+    void dispatch(Invocable invocable, ConsumerRecord<String, String> received);
 }

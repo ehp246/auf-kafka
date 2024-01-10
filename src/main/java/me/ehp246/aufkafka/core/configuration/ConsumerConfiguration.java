@@ -11,9 +11,9 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.context.annotation.Bean;
 
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
+import me.ehp246.aufkafka.api.consumer.ConsumerFn;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
-import me.ehp246.aufkafka.api.consumer.MsgConsumer;
-import me.ehp246.aufkafka.api.consumer.NoopConsumer;
+import me.ehp246.aufkafka.api.consumer.NoOpConsumer;
 import me.ehp246.aufkafka.core.consumer.ConsumerProvider;
 
 /**
@@ -23,8 +23,8 @@ import me.ehp246.aufkafka.core.consumer.ConsumerProvider;
 public final class ConsumerConfiguration {
 
     @Bean("e9c593e2-37c6-48e2-8a76-67540e44e3b1")
-    public MsgConsumer noopConsumer() {
-        return new NoopConsumer();
+    public ConsumerFn noOpConsumer() {
+        return new NoOpConsumer();
     }
 
     @Bean
@@ -40,6 +40,10 @@ public final class ConsumerConfiguration {
             return new KafkaConsumer<String, String>(cache.computeIfAbsent(name, n -> {
                 final var configMap = new HashMap<>(configProvider.get(n));
 
+                /*
+                 * Mandatory configuration.
+                 */
+                configMap.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
                 configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                         StringDeserializer.class.getName());
                 configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,

@@ -1,13 +1,11 @@
-package me.ehp246.test.embedded.consumer.mdc;
+package me.ehp246.test.embedded.consumer.listener.completed;
 
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
 
 import me.ehp246.aufkafka.api.annotation.EnableByKafka;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
-import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
 /**
  * @author Lei Yang
@@ -15,8 +13,6 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  */
 @ComponentScan
 @EnableByKafka
-@EnableForKafka({ @Inbound(value = @From("embedded"),
-        invocationListener = "log4jContextInvocationListener") })
-@Import(EmbeddedKafkaConfig.class)
+@EnableForKafka({ @Inbound(value = @From("embedded"), invocationListener = "${comp1.name:}") })
 class AppConfig {
 }

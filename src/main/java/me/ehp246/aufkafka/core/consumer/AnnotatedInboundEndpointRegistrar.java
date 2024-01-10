@@ -16,13 +16,14 @@ import org.springframework.core.type.AnnotationMetadata;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
+import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
  * @author Lei Yang
  * @since 1.0
  */
-public final class AnnotatedInboundConsumerRegistrar implements ImportBeanDefinitionRegistrar {
+public final class AnnotatedInboundEndpointRegistrar implements ImportBeanDefinitionRegistrar {
     @SuppressWarnings("unchecked")
     @Override
     public void registerBeanDefinitions(final AnnotationMetadata importingClassMetadata,
@@ -32,8 +33,6 @@ public final class AnnotatedInboundConsumerRegistrar implements ImportBeanDefini
         if (enablerAttributes == null) {
             return;
         }
-
-        final var defaultConsumer = (String) enablerAttributes.get("defaultConsumer");
 
         final var inbounds = Arrays
                 .asList(((Map<String, Object>[]) enablerAttributes.get("value")));
@@ -59,7 +58,6 @@ public final class AnnotatedInboundConsumerRegistrar implements ImportBeanDefini
             constructorArgumentValues.addGenericArgumentValue(inbound);
             constructorArgumentValues.addGenericArgumentValue(scanPackages);
             constructorArgumentValues.addGenericArgumentValue(beanName);
-            constructorArgumentValues.addGenericArgumentValue(defaultConsumer);
 
             beanDefinition.setConstructorArgumentValues(constructorArgumentValues);
 
@@ -75,7 +73,7 @@ public final class AnnotatedInboundConsumerRegistrar implements ImportBeanDefini
     private GenericBeanDefinition newBeanDefinition(
             final Map<String, Object> annotationAttributes) {
         final var beanDefinition = new GenericBeanDefinition();
-        beanDefinition.setBeanClass(DefaultInboundConsumer.class);
+        beanDefinition.setBeanClass(InboundEndpoint.class);
         beanDefinition.setFactoryBeanName(InboundEndpointFactory.class.getName());
         beanDefinition.setFactoryMethodName("newInstance");
 

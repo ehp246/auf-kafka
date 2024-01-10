@@ -120,8 +120,7 @@ interface InvocableBinderTestCases {
                 @OfMDC("name") @OfHeader final String lastName) {
         }
 
-        public void get(@OfMDC @OfValue final String name,
-                @OfMDC("SSN") @OfHeader final int id) {
+        public void get(@OfMDC @OfValue final String name, @OfMDC("SSN") @OfHeader final int id) {
         }
 
         public void get(@OfMDC @OfValue final String name,
@@ -160,5 +159,14 @@ interface InvocableBinderTestCases {
                 return null;
             }
         }
+    }
+
+    static class PerfCase {
+        public Object[] m01(@OfKey final String type, @OfHeader final String id,
+                @OfHeader("prop1") final String prop1, final Integer body,
+                final ConsumerRecord<String, String> msg, final FromJson fromJson) {
+            return new Object[] { type, id, prop1, body };
+        }
+
     }
 }

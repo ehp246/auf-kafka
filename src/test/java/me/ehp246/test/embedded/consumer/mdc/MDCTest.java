@@ -29,11 +29,14 @@ class MDCTest {
     private OnPing2 onPing2;
     @Autowired
     private OnPingOnBody onPingOnBody;
+    @Autowired
+    private Log4jContextInvocationListener invocationListener;
 
     @BeforeEach
     void clear() {
         MDC.clear();
         onPing.reset();
+        invocationListener.reset();
     }
 
     @Test
@@ -64,5 +67,16 @@ class MDCTest {
 
         Assertions.assertEquals(order.id() + "", remoteContext.get("Order_OrderId"));
         Assertions.assertEquals(order.amount() + "", remoteContext.get("Order_amount"));
+    }
+
+    @Test
+    void invocationListener_01() {
+        final var accountId = (int) (Math.random() * 100);
+
+        case1.ping2(accountId, new Order((int) (Math.random() * 100), (int) (Math.random() * 100)));
+
+        final var context = invocationListener.take();
+
+        Assertions.assertEquals(accountId + "", context.get("accountId"));
     }
 }

@@ -12,7 +12,7 @@ class NoopConsumerTest {
 
     @Test
     void test() {
-        new NoopConsumer().apply(new MockConsumerRecord());
+        new NoOpConsumer().accept(new MockConsumerRecord());
     }
 
 }
