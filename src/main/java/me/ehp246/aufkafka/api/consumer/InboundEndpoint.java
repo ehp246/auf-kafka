@@ -27,7 +27,7 @@ public interface InboundEndpoint {
         return null;
     }
 
-    default ReceivedListener defaultReceivedListener() {
+    default ConsumerFn defaultConsumer() {
         return null;
     }
 

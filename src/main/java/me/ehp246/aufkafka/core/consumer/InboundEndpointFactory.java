@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
+import me.ehp246.aufkafka.api.consumer.ConsumerFn;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableKeyRegistry;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
-import me.ehp246.aufkafka.api.consumer.ReceivedListener;
 import me.ehp246.aufkafka.api.spi.PropertyResolver;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
@@ -41,10 +41,10 @@ public final class InboundEndpointFactory {
     public InboundEndpoint newInstance(final Map<String, Object> inboundAttributes,
             final Set<String> scanPackages, final String beanName) {
         final var consumerConfigName = inboundAttributes.get("consumerConfigName").toString();
-        final var defaultReceivedListener = Optional
-                .ofNullable(inboundAttributes.get("defaultReceivedListener").toString())
+        final var defaultConsumer = Optional
+                .ofNullable(inboundAttributes.get("defaultConsumer").toString())
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
-                .map(name -> autowireCapableBeanFactory.getBean(name, ReceivedListener.class))
+                .map(name -> autowireCapableBeanFactory.getBean(name, ConsumerFn.class))
                 .orElse(null);
         final var exceptionListener = Optional
                 .ofNullable(inboundAttributes.get("consumptionExceptionListener").toString())
@@ -106,8 +106,8 @@ public final class InboundEndpointFactory {
             }
 
             @Override
-            public ReceivedListener defaultReceivedListener() {
-                return defaultReceivedListener;
+            public ConsumerFn defaultConsumer() {
+                return defaultConsumer;
             }
 
             @Override

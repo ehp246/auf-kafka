@@ -9,13 +9,15 @@ import java.lang.annotation.Target;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.slf4j.Logger;
 import org.springframework.context.annotation.Import;
 
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
+import me.ehp246.aufkafka.api.consumer.ConsumerFn;
+import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
-import me.ehp246.aufkafka.api.consumer.ReceivedListener;
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
 import me.ehp246.aufkafka.core.configuration.ConsumerConfiguration;
 import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointRegistrar;
@@ -110,15 +112,15 @@ public @interface EnableForKafka {
          * {@linkplain ForKey} objects. It applies only after a matching
          * {@linkplain ForKey} class has been found. It will not be invoked if there is
          * no matching {@linkplain Invocable}, e.g.,
-         * {@linkplain EnableForKafka.Inbound#defaultReceivedListener()} invocation.
+         * {@linkplain EnableForKafka.Inbound#defaultConsumer()} invocation.
          * <p>
          * Supports Spring property placeholder.
          */
         String invocationListener() default "";
 
         /**
-         * Specifies the bean name of {@linkplain ReceivedListener} type to receive any
-         * message that no matching {@linkplain Invocable} can be found for its
+         * Specifies the bean name of {@linkplain ConsumerFn} type to accept any message
+         * that no matching {@linkplain Invocable} can be found for its
          * {@linkplain ConsumerRecord#key()}.
          * <p>
          * The default value specifies a no-operation bean that logs the un-matched
@@ -127,7 +129,7 @@ public @interface EnableForKafka {
          * <p>
          * Supports Spring property placeholder.
          */
-        String defaultReceivedListener() default "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
+        String defaultConsumer() default "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
 
         /**
          * Specifies the bean name of {@linkplain ConsumptionExceptionListener} type to

@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import me.ehp246.aufkafka.api.consumer.ConsumerFn;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
-import me.ehp246.aufkafka.api.consumer.ReceivedListener;
 import me.ehp246.test.mock.MockConsumerRecord;
 
 /**
@@ -26,7 +26,7 @@ class ConsumerTaskTest {
     private final InvocableDispatcher dispatcher = (i, r) -> {
     };
     private final InvocableFactory factory = r -> null;
-    private final ReceivedListener listener = r -> {
+    private final ConsumerFn listener = r -> {
     };
     private final ConsumptionExceptionListener exceptionListener = c -> {
     };

@@ -6,18 +6,18 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import me.ehp246.aufkafka.api.consumer.ReceivedListener;
+import me.ehp246.aufkafka.api.consumer.ConsumerFn;
 
 /**
  * @author Lei Yang
  *
  */
-class Unmatched implements ReceivedListener {
+class Unmatched implements ConsumerFn {
     private final AtomicReference<CompletableFuture<ConsumerRecord<String, String>>> ref = new AtomicReference<CompletableFuture<ConsumerRecord<String, String>>>(
             new CompletableFuture<>());
 
     @Override
-    public void apply(final ConsumerRecord<String, String> msg) {
+    public void accept(final ConsumerRecord<String, String> msg) {
         ref.get().complete(msg);
     }
 

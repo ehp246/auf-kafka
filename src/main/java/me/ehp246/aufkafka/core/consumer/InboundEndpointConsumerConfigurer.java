@@ -53,7 +53,7 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
                             null),
                     new AutowireCapableInvocableFactory(autowireCapableBeanFactory,
                             endpoint.keyRegistry()),
-                    endpoint.defaultReceivedListener(), endpoint.consumerExceptionListener());
+                    endpoint.defaultConsumer(), endpoint.consumerExceptionListener());
 
             this.executorProvider.get().execute(consumerTask);
         }

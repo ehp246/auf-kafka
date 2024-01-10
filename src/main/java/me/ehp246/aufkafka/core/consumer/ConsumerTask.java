@@ -8,9 +8,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
+import me.ehp246.aufkafka.api.consumer.ConsumerFn;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
-import me.ehp246.aufkafka.api.consumer.ReceivedListener;
 import me.ehp246.aufkafka.api.exception.UnknownKeyException;
 import me.ehp246.aufkafka.api.spi.MsgMDCContext;
 import me.ehp246.aufkafka.core.consumer.ConsumptionExceptionListener.Context;
@@ -25,17 +25,17 @@ final class ConsumerTask implements Runnable {
     private final Consumer<String, String> consumer;
     private final InvocableDispatcher dispatcher;
     private final InvocableFactory invocableFactory;
-    private final ReceivedListener defaultReceivedListener;
+    private final java.util.function.Consumer<ConsumerRecord<String, String>> defaultConsumer;
     private final ConsumptionExceptionListener consumerExceptionListener;
 
     ConsumerTask(final Consumer<String, String> consumer, final InvocableDispatcher dispatcher,
-            final InvocableFactory invocableFactory, final ReceivedListener defaultReceivedListener,
+            final InvocableFactory invocableFactory, final ConsumerFn defaultConsumer,
             final ConsumptionExceptionListener consumerExceptionListener) {
         super();
         this.consumer = consumer;
         this.dispatcher = dispatcher;
         this.invocableFactory = invocableFactory;
-        this.defaultReceivedListener = defaultReceivedListener;
+        this.defaultConsumer = defaultConsumer;
         this.consumerExceptionListener = consumerExceptionListener;
     }
 
@@ -58,10 +58,10 @@ final class ConsumerTask implements Runnable {
                     final var invocable = invocableFactory.get(msg);
 
                     if (invocable == null) {
-                        if (defaultReceivedListener == null) {
+                        if (defaultConsumer == null) {
                             throw new UnknownKeyException(msg);
                         } else {
-                            defaultReceivedListener.apply(msg);
+                            defaultConsumer.accept(msg);
                         }
                     } else {
                         dispatcher.dispatch(invocable, msg);
