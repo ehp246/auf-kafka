@@ -10,7 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
+import me.ehp246.aufkafka.api.consumer.ConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.exception.UnknownKeyException;
@@ -26,31 +26,31 @@ final class ConsumerTask implements Runnable {
     private final Consumer<String, String> consumer;
     private final InvocableDispatcher dispatcher;
     private final InvocableFactory invocableFactory;
-    private final List<InboundEndpoint.EventListener.UnmatchedListener> onUnmatched;
-    private final List<InboundEndpoint.EventListener.ReceivedListener> onReceived;
-    private final List<InboundEndpoint.EventListener.ExceptionListener> onException;
+    private final List<ConsumerListener.UnmatchedListener> onUnmatched;
+    private final List<ConsumerListener.ReceivedListener> onReceived;
+    private final List<ConsumerListener.ExceptionListener> onException;
 
     ConsumerTask(final Consumer<String, String> consumer, final InvocableDispatcher dispatcher,
             final InvocableFactory invocableFactory,
-            final List<InboundEndpoint.EventListener> eventListeners) {
+            final List<ConsumerListener> eventListeners) {
         super();
         this.consumer = consumer;
         this.dispatcher = dispatcher;
         this.invocableFactory = invocableFactory;
 
-        final var onUnmatched = new ArrayList<InboundEndpoint.EventListener.UnmatchedListener>();
-        final var onReceived = new ArrayList<InboundEndpoint.EventListener.ReceivedListener>();
-        final var onException = new ArrayList<InboundEndpoint.EventListener.ExceptionListener>();
+        final var onUnmatched = new ArrayList<ConsumerListener.UnmatchedListener>();
+        final var onReceived = new ArrayList<ConsumerListener.ReceivedListener>();
+        final var onException = new ArrayList<ConsumerListener.ExceptionListener>();
 
         for (final var listener : eventListeners) {
             switch (listener) {
-                case InboundEndpoint.EventListener.UnmatchedListener l:
+                case ConsumerListener.UnmatchedListener l:
                     onUnmatched.add(l);
                     break;
-                case InboundEndpoint.EventListener.ReceivedListener l:
+                case ConsumerListener.ReceivedListener l:
                     onReceived.add(l);
                     break;
-                case InboundEndpoint.EventListener.ExceptionListener l:
+                case ConsumerListener.ExceptionListener l:
                     onException.add(l);
                     break;
             }
@@ -86,7 +86,7 @@ final class ConsumerTask implements Runnable {
                     }
                 } catch (Exception e) {
                     try {
-                        final var exceptionContext = new InboundEndpoint.EventListener.ExceptionListener.ExceptionContext() {
+                        final var exceptionContext = new ConsumerListener.ExceptionListener.ExceptionContext() {
 
                             @Override
                             public Consumer<String, String> consumer() {

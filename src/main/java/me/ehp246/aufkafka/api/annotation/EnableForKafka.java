@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.springframework.context.annotation.Import;
 
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
-import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
+import me.ehp246.aufkafka.api.consumer.ConsumerListener;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
@@ -119,7 +119,7 @@ public @interface EnableForKafka {
 
         /**
          * Specifies the bean name of
-         * {@linkplain InboundEndpoint.EventListener.UnmatchedListener} type to accept any
+         * {@linkplain ConsumerListener.UnmatchedListener} type to accept any
          * message that no matching {@linkplain Invocable} can be found for its
          * {@linkplain ConsumerRecord#key()}.
          * <p>
@@ -133,7 +133,7 @@ public @interface EnableForKafka {
 
         /**
          * Specifies the bean name of
-         * {@linkplain InboundEndpoint.EventListener.ExceptionListener} type to receive any
+         * {@linkplain ConsumerListener.ExceptionListener} type to receive any
          * exception that happened when consuming a message.
          * <p>
          * The default is to log and ignore.

@@ -1,8 +1,5 @@
 package me.ehp246.aufkafka.api.consumer;
 
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-
 /**
  * @author Lei Yang
  * @since 1.0
@@ -28,46 +25,15 @@ public interface InboundEndpoint {
         return null;
     }
 
-    default EventListener.UnmatchedListener defaultConsumer() {
+    default ConsumerListener.UnmatchedListener defaultConsumer() {
         return null;
     }
 
-    default EventListener.ExceptionListener consumerExceptionListener() {
+    default ConsumerListener.ExceptionListener consumerExceptionListener() {
         return null;
     }
 
     interface From {
         String topic();
-    }
-
-    /**
-     * Defines life-cycle events supported by {@linkplain InboundEndpoint}.
-     *
-     * @author Lei Yang
-     * @since 1.0
-     */
-    sealed interface EventListener {
-        @FunctionalInterface
-        non-sealed interface ReceivedListener extends EventListener {
-            void onReceived(ConsumerRecord<String, String> msg);
-        }
-
-        @FunctionalInterface
-        non-sealed interface UnmatchedListener extends EventListener {
-            void onUnmatched(ConsumerRecord<String, String> msg);
-        }
-
-        @FunctionalInterface
-        non-sealed interface ExceptionListener extends EventListener {
-            void onException(ExceptionContext context);
-
-            interface ExceptionContext {
-                Consumer<String, String> consumer();
-
-                ConsumerRecord<String, String> received();
-
-                java.lang.Exception thrown();
-            }
-        }
     }
 }

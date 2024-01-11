@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
+import me.ehp246.aufkafka.api.consumer.ConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableKeyRegistry;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
@@ -44,13 +45,13 @@ public final class InboundEndpointFactory {
                 .ofNullable(inboundAttributes.get("defaultConsumer").toString())
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
                 .map(name -> autowireCapableBeanFactory.getBean(name,
-                        InboundEndpoint.EventListener.UnmatchedListener.class))
+                        ConsumerListener.UnmatchedListener.class))
                 .orElse(null);
         final var exceptionListener = Optional
                 .ofNullable(inboundAttributes.get("consumptionExceptionListener").toString())
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
                 .map(name -> autowireCapableBeanFactory.getBean(name,
-                        InboundEndpoint.EventListener.ExceptionListener.class))
+                        ConsumerListener.ExceptionListener.class))
                 .orElse(null);
         final var fromAttribute = (Map<String, Object>) inboundAttributes.get("value");
         final boolean autoStartup = Boolean.parseBoolean(
@@ -106,12 +107,12 @@ public final class InboundEndpointFactory {
             }
 
             @Override
-            public EventListener.UnmatchedListener defaultConsumer() {
+            public ConsumerListener.UnmatchedListener defaultConsumer() {
                 return defaultConsumer;
             }
 
             @Override
-            public EventListener.ExceptionListener consumerExceptionListener() {
+            public ConsumerListener.ExceptionListener consumerExceptionListener() {
                 return exceptionListener;
             }
 

@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import me.ehp246.aufkafka.api.consumer.InboundEndpoint.EventListener.ExceptionListener;
-import me.ehp246.aufkafka.api.consumer.InboundEndpoint.EventListener.ExceptionListener.ExceptionContext;
-import me.ehp246.aufkafka.api.consumer.InboundEndpoint.EventListener.UnmatchedListener;
+import me.ehp246.aufkafka.api.consumer.ConsumerListener.ExceptionListener;
+import me.ehp246.aufkafka.api.consumer.ConsumerListener.ExceptionListener.ExceptionContext;
+import me.ehp246.aufkafka.api.consumer.ConsumerListener.UnmatchedListener;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.test.mock.MockConsumerRecord;
