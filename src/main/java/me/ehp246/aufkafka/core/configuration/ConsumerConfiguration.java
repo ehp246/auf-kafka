@@ -8,11 +8,13 @@ import java.util.concurrent.Executors;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 
+import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
-import me.ehp246.aufkafka.api.consumer.ConsumerFn;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
+import me.ehp246.aufkafka.api.consumer.LoggingConsumer;
 import me.ehp246.aufkafka.api.consumer.NoOpConsumer;
 import me.ehp246.aufkafka.core.consumer.ConsumerProvider;
 
@@ -23,8 +25,15 @@ import me.ehp246.aufkafka.core.consumer.ConsumerProvider;
 public final class ConsumerConfiguration {
 
     @Bean("e9c593e2-37c6-48e2-8a76-67540e44e3b1")
-    public ConsumerFn noOpConsumer() {
+    public NoOpConsumer noOpConsumer() {
         return new NoOpConsumer();
+    }
+
+    @Bean(AufKafkaConstant.BEAN_LOGING_CONSUMER)
+    public LoggingConsumer loggingConsumer(
+            @Value("${" + AufKafkaConstant.PROPERTY_CONSUMER_MESSAGE_LOGGING
+                    + ":false}") final boolean enabled) {
+        return enabled ? new LoggingConsumer() : null;
     }
 
     @Bean

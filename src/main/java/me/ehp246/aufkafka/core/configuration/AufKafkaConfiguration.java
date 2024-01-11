@@ -38,7 +38,7 @@ public final class AufKafkaConfiguration {
     @Bean
     JsonByObjectMapper jsonByObjectMapper(final ApplicationContext appCtx) {
         final var objectMapper = appCtx.getBeansOfType(ObjectMapper.class)
-                .get(AufKafkaConstant.AUFKAFKA_OBJECT_MAPPER);
+                .get(AufKafkaConstant.BEAN_AUFKAFKA_OBJECT_MAPPER);
         if (objectMapper != null) {
             return new JsonByObjectMapper(objectMapper);
         }
