@@ -14,7 +14,7 @@ public sealed interface InvocationListener {
     }
 
     @FunctionalInterface
-    public non-sealed interface OnCompleted extends InvocationListener {
+    public non-sealed interface CompletedListener extends InvocationListener {
         void onCompleted(final Completed completed);
     }
 

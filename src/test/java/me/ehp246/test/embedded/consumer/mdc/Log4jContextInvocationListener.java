@@ -18,7 +18,7 @@ import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
  *
  */
 @Service
-class Log4jContextInvocationListener implements InvocationListener.OnCompleted,
+class Log4jContextInvocationListener implements InvocationListener.CompletedListener,
         InvocationListener.FailedListener, InvocationListener.InvokingListener {
     private CompletableFuture<Map<String, String>> ref = new CompletableFuture<>();
     private final Map<String, String> map = new HashMap<String, String>();

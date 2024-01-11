@@ -98,7 +98,7 @@ public @interface EnableForKafka {
          * <p>
          * If the execution of a {@linkplain ForKey} object on this
          * {@linkplain EnableForKafka.Inbound} completes normally, the
-         * {@linkplain InvocationListener.OnCompleted#onCompleted(Completed)} will be
+         * {@linkplain InvocationListener.CompletedListener#onCompleted(Completed)} will be
          * invoked.
          * <p>
          * If the execution of a {@linkplain ForKey} object on this

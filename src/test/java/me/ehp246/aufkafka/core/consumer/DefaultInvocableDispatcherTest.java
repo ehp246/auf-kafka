@@ -24,7 +24,7 @@ import me.ehp246.aufkafka.api.consumer.BoundInvocable;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocableBinder;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
-import me.ehp246.aufkafka.api.consumer.InvocationListener.OnCompleted;
+import me.ehp246.aufkafka.api.consumer.InvocationListener.CompletedListener;
 import me.ehp246.aufkafka.api.consumer.InvocationListener.FailedListener;
 import me.ehp246.aufkafka.api.consumer.InvocationListener.InvokingListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
@@ -106,7 +106,7 @@ class DefaultInvocableDispatcherTest {
     void invoking_02() throws Throwable {
         final var expected = new RuntimeException();
         final var invoking = Mockito.mock(InvokingListener.class);
-        final var completed = Mockito.mock(OnCompleted.class);
+        final var completed = Mockito.mock(CompletedListener.class);
         final var failed = Mockito.mock(FailedListener.class);
         final var actual = Assertions.assertThrows(RuntimeException.class,
                 () -> new DefaultInvocableDispatcher(
@@ -239,7 +239,7 @@ class DefaultInvocableDispatcherTest {
             final var bound = Mockito.mock(BoundInvocable.class);
             Mockito.when(bound.invoke()).thenReturn(Mockito.mock(Completed.class));
             return bound;
-        }, List.of((InvocationListener.OnCompleted) m -> {
+        }, List.of((InvocationListener.CompletedListener) m -> {
             threadRef[2] = Thread.currentThread();
         }), executor).dispatch(invocable, new MockConsumerRecord());
 
@@ -262,7 +262,7 @@ class DefaultInvocableDispatcherTest {
         threadRef[0] = executor.submit(Thread::currentThread).get();
 
         new DefaultInvocableDispatcher(bindToComplete(completed),
-                List.of((InvocationListener.OnCompleted) c -> {
+                List.of((InvocationListener.CompletedListener) c -> {
                     completedRef[0] = c;
                     completedThread[0] = Thread.currentThread();
                 }), executor).dispatch(invocable, new MockConsumerRecord());
@@ -280,7 +280,7 @@ class DefaultInvocableDispatcherTest {
 
         final var actual = Assertions.assertThrows(RuntimeException.class,
                 () -> new DefaultInvocableDispatcher(bindToComplete(Mockito.mock(Completed.class)),
-                        List.of((InvocationListener.OnCompleted) c -> {
+                        List.of((InvocationListener.CompletedListener) c -> {
                             throw expected;
                         }), null).dispatch(invocable, new MockConsumerRecord()));
 
@@ -289,7 +289,7 @@ class DefaultInvocableDispatcherTest {
 
     @Test
     void completed_close_01() throws Exception {
-        final var completed = Mockito.mock(OnCompleted.class);
+        final var completed = Mockito.mock(CompletedListener.class);
 
         Mockito.doThrow(new IllegalStateException("Don't close me")).when(invocable).close();
 
