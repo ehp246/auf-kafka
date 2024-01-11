@@ -103,9 +103,9 @@ public @interface EnableForKafka {
          * <p>
          * If the execution of a {@linkplain ForKey} object on this
          * {@linkplain EnableForKafka.Inbound} throws an exception, the
-         * {@linkplain InvocationListener.OnFailed#onFailed(Failed)} will be invoked.
+         * {@linkplain InvocationListener.FailedListener#onFailed(Failed)} will be invoked.
          * <p>
-         * {@linkplain InvocationListener.OnFailed} can throw {@linkplain Exception}.
+         * {@linkplain InvocationListener.FailedListener} can throw {@linkplain Exception}.
          * <p>
          * The listener bean is designed to support the invocation of
          * {@linkplain ForKey} objects. It applies only after a matching

@@ -10,7 +10,7 @@ import me.ehp246.aufkafka.api.annotation.EnableByKafka;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
-import me.ehp246.aufkafka.api.consumer.InvocationListener.OnFailed;
+import me.ehp246.aufkafka.api.consumer.InvocationListener.FailedListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 import me.ehp246.test.embedded.consumer.listener.failed.invocation.FailMsg;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
@@ -28,7 +28,7 @@ class AppConfig {
     public CompletableFuture<Failed> consumer1Ref = new CompletableFuture<>();
 
     @Bean("consumer1")
-    OnFailed consumer1() {
+    FailedListener consumer1() {
         return failed -> consumer1Ref.complete(failed);
     }
 }

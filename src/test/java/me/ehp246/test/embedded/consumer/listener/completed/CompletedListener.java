@@ -6,14 +6,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
 import me.ehp246.aufkafka.api.consumer.InvocationListener.OnCompleted;
-import me.ehp246.aufkafka.api.consumer.InvocationListener.OnInvoking;
+import me.ehp246.aufkafka.api.consumer.InvocationListener.InvokingListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 
 /**
  * @author Lei Yang
  *
  */
-class CompletedListener implements OnInvoking, OnCompleted {
+class CompletedListener implements InvokingListener, OnCompleted {
     private final AtomicReference<CompletableFuture<BoundInvocable>> boundRef = new AtomicReference<>(
             new CompletableFuture<>());
 
