@@ -1,7 +1,5 @@
 package me.ehp246.aufkafka.core.configuration;
 
-import java.util.Optional;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -25,8 +23,8 @@ class ConsumerConfigurationTest {
                 .withProperty("me.ehp246.aufkafka.consumer.messagelogging.enabled", "true"));
         appCtx.refresh();
 
-        Assertions.assertEquals(LoggingConsumer.class, appCtx
-                .getBean(AufKafkaConstant.BEAN_LOGING_CONSUMER, Optional.class).get().getClass());
+        Assertions.assertEquals(true, appCtx.getBean(AufKafkaConstant.BEAN_LOGING_CONSUMER,
+                LoggingConsumer.class) != null);
 
         appCtx.close();
     }
@@ -37,8 +35,8 @@ class ConsumerConfigurationTest {
         appCtx.register(ConsumerConfiguration.class, MockConsumerConfigProvider.class);
         appCtx.refresh();
 
-        Assertions.assertEquals(true,
-                appCtx.getBean(AufKafkaConstant.BEAN_LOGING_CONSUMER, Optional.class).isEmpty());
+        Assertions.assertThrows(Exception.class,
+                () -> appCtx.getBean(AufKafkaConstant.BEAN_LOGING_CONSUMER, LoggingConsumer.class));
 
         appCtx.close();
     }
