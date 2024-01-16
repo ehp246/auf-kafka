@@ -10,11 +10,11 @@ import me.ehp246.aufkafka.api.AufKafkaConstant;
  * @author Lei Yang
  * @since 1.0
  */
-public final class LoggingConsumer implements ConsumerListener.ReceivedListener {
+public final class LoggingConsumer implements InboundListener.DispatchingListener {
     private final static Logger LOGGER = LoggerFactory.getLogger(LoggingConsumer.class);
 
     @Override
-    public void onReceived(final ConsumerRecord<String, String> msg) {
+    public void onDispatching(final ConsumerRecord<String, String> msg) {
         LOGGER.atDebug().setMessage("{}:{}, {}, {}").addArgument(msg::topic)
                 .addArgument(msg::partition).addArgument(msg::key).addArgument(msg::offset).log();
 

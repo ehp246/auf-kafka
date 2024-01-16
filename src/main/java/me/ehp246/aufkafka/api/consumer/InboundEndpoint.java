@@ -25,11 +25,11 @@ public interface InboundEndpoint {
         return null;
     }
 
-    default ConsumerListener.UnmatchedListener defaultConsumer() {
+    default InboundListener.UnmatchedListener defaultConsumer() {
         return null;
     }
 
-    default ConsumerListener.ExceptionListener consumerExceptionListener() {
+    default InboundListener.ExceptionListener consumerExceptionListener() {
         return null;
     }
 

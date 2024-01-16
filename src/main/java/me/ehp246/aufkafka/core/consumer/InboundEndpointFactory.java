@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
-import me.ehp246.aufkafka.api.consumer.ConsumerListener;
+import me.ehp246.aufkafka.api.consumer.InboundListener;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableKeyRegistry;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
@@ -45,13 +45,13 @@ public final class InboundEndpointFactory {
                 .ofNullable(inboundAttributes.get("defaultConsumer").toString())
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
                 .map(name -> autowireCapableBeanFactory.getBean(name,
-                        ConsumerListener.UnmatchedListener.class))
+                        InboundListener.UnmatchedListener.class))
                 .orElse(null);
         final var exceptionListener = Optional
                 .ofNullable(inboundAttributes.get("consumptionExceptionListener").toString())
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
                 .map(name -> autowireCapableBeanFactory.getBean(name,
-                        ConsumerListener.ExceptionListener.class))
+                        InboundListener.ExceptionListener.class))
                 .orElse(null);
         final var fromAttribute = (Map<String, Object>) inboundAttributes.get("value");
         final boolean autoStartup = Boolean.parseBoolean(
@@ -107,12 +107,12 @@ public final class InboundEndpointFactory {
             }
 
             @Override
-            public ConsumerListener.UnmatchedListener defaultConsumer() {
+            public InboundListener.UnmatchedListener defaultConsumer() {
                 return defaultConsumer;
             }
 
             @Override
-            public ConsumerListener.ExceptionListener consumerExceptionListener() {
+            public InboundListener.ExceptionListener consumerExceptionListener() {
                 return exceptionListener;
             }
 

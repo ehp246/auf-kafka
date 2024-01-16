@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
  * @author Lei Yang
  * @since 1.0
  */
-public final class NoOpConsumer implements ConsumerListener.UnmatchedListener {
+public final class NoOpConsumer implements InboundListener.UnmatchedListener {
     private final static Logger LOGGER = LoggerFactory.getLogger(NoOpConsumer.class);
 
     @Override

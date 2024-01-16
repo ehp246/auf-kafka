@@ -6,13 +6,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import me.ehp246.aufkafka.api.consumer.ConsumerListener;
+import me.ehp246.aufkafka.api.consumer.InboundListener;
 
 /**
  * @author Lei Yang
  *
  */
-class Unmatched implements ConsumerListener.UnmatchedListener {
+class Unmatched implements InboundListener.UnmatchedListener {
     private final AtomicReference<CompletableFuture<ConsumerRecord<String, String>>> ref = new AtomicReference<CompletableFuture<ConsumerRecord<String, String>>>(
             new CompletableFuture<>());
 

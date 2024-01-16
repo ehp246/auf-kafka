@@ -10,7 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import me.ehp246.aufkafka.api.consumer.ConsumerListener;
+import me.ehp246.aufkafka.api.consumer.InboundListener;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.exception.UnknownKeyException;
@@ -26,31 +26,31 @@ final class ConsumerTask implements Runnable {
     private final Consumer<String, String> consumer;
     private final InvocableDispatcher dispatcher;
     private final InvocableFactory invocableFactory;
-    private final List<ConsumerListener.UnmatchedListener> onUnmatched;
-    private final List<ConsumerListener.ReceivedListener> onReceived;
-    private final List<ConsumerListener.ExceptionListener> onException;
+    private final List<InboundListener.UnmatchedListener> onUnmatched;
+    private final List<InboundListener.DispatchingListener> onReceived;
+    private final List<InboundListener.ExceptionListener> onException;
 
     ConsumerTask(final Consumer<String, String> consumer, final InvocableDispatcher dispatcher,
             final InvocableFactory invocableFactory,
-            final List<ConsumerListener> eventListeners) {
+            final List<InboundListener> eventListeners) {
         super();
         this.consumer = consumer;
         this.dispatcher = dispatcher;
         this.invocableFactory = invocableFactory;
 
-        final var onUnmatched = new ArrayList<ConsumerListener.UnmatchedListener>();
-        final var onReceived = new ArrayList<ConsumerListener.ReceivedListener>();
-        final var onException = new ArrayList<ConsumerListener.ExceptionListener>();
+        final var onUnmatched = new ArrayList<InboundListener.UnmatchedListener>();
+        final var onReceived = new ArrayList<InboundListener.DispatchingListener>();
+        final var onException = new ArrayList<InboundListener.ExceptionListener>();
 
         for (final var listener : eventListeners) {
             switch (listener) {
-                case ConsumerListener.UnmatchedListener l:
+                case InboundListener.UnmatchedListener l:
                     onUnmatched.add(l);
                     break;
-                case ConsumerListener.ReceivedListener l:
+                case InboundListener.DispatchingListener l:
                     onReceived.add(l);
                     break;
-                case ConsumerListener.ExceptionListener l:
+                case InboundListener.ExceptionListener l:
                     onException.add(l);
                     break;
             }
@@ -71,7 +71,7 @@ final class ConsumerTask implements Runnable {
 
             for (final var msg : polled) {
                 try (final var closeble = MsgMDCContext.set(msg);) {
-                    this.onReceived.forEach(l -> l.onReceived(msg));
+                    this.onReceived.forEach(l -> l.onDispatching(msg));
 
                     final var invocable = invocableFactory.get(msg);
 
@@ -86,7 +86,7 @@ final class ConsumerTask implements Runnable {
                     }
                 } catch (Exception e) {
                     try {
-                        final var exceptionContext = new ConsumerListener.ExceptionListener.ExceptionContext() {
+                        final var exceptionContext = new InboundListener.ExceptionListener.Context() {
 
                             @Override
                             public Consumer<String, String> consumer() {
@@ -94,7 +94,7 @@ final class ConsumerTask implements Runnable {
                             }
 
                             @Override
-                            public ConsumerRecord<String, String> received() {
+                            public ConsumerRecord<String, String> message() {
                                 return msg;
                             }
 
