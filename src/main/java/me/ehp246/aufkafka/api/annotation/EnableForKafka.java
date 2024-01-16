@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.springframework.context.annotation.Import;
 
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
-import me.ehp246.aufkafka.api.consumer.ConsumerFn;
+import me.ehp246.aufkafka.api.consumer.ConsumerListener;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
@@ -21,7 +21,6 @@ import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
 import me.ehp246.aufkafka.core.configuration.ConsumerConfiguration;
 import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointRegistrar;
-import me.ehp246.aufkafka.core.consumer.ConsumptionExceptionListener;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableBinder;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableScanner;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointConsumerConfigurer;
@@ -99,14 +98,14 @@ public @interface EnableForKafka {
          * <p>
          * If the execution of a {@linkplain ForKey} object on this
          * {@linkplain EnableForKafka.Inbound} completes normally, the
-         * {@linkplain InvocationListener.OnCompleted#onCompleted(Completed)} will be
+         * {@linkplain InvocationListener.CompletedListener#onCompleted(Completed)} will be
          * invoked.
          * <p>
          * If the execution of a {@linkplain ForKey} object on this
          * {@linkplain EnableForKafka.Inbound} throws an exception, the
-         * {@linkplain InvocationListener.OnFailed#onFailed(Failed)} will be invoked.
+         * {@linkplain InvocationListener.FailedListener#onFailed(Failed)} will be invoked.
          * <p>
-         * {@linkplain InvocationListener.OnFailed} can throw {@linkplain Exception}.
+         * {@linkplain InvocationListener.FailedListener} can throw {@linkplain Exception}.
          * <p>
          * The listener bean is designed to support the invocation of
          * {@linkplain ForKey} objects. It applies only after a matching
@@ -119,8 +118,9 @@ public @interface EnableForKafka {
         String invocationListener() default "";
 
         /**
-         * Specifies the bean name of {@linkplain ConsumerFn} type to accept any message
-         * that no matching {@linkplain Invocable} can be found for its
+         * Specifies the bean name of
+         * {@linkplain ConsumerListener.UnmatchedListener} type to accept any
+         * message that no matching {@linkplain Invocable} can be found for its
          * {@linkplain ConsumerRecord#key()}.
          * <p>
          * The default value specifies a no-operation bean that logs the un-matched
@@ -132,8 +132,9 @@ public @interface EnableForKafka {
         String defaultConsumer() default "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
 
         /**
-         * Specifies the bean name of {@linkplain ConsumptionExceptionListener} type to
-         * receive any exception that happened when consuming a message.
+         * Specifies the bean name of
+         * {@linkplain ConsumerListener.ExceptionListener} type to receive any
+         * exception that happened when consuming a message.
          * <p>
          * The default is to log and ignore.
          * <p>

@@ -1,19 +1,20 @@
 package me.ehp246.aufkafka.core.consumer;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
-import me.ehp246.aufkafka.api.consumer.ConsumerFn;
+import me.ehp246.aufkafka.api.consumer.ConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.exception.UnknownKeyException;
 import me.ehp246.aufkafka.api.spi.MsgMDCContext;
-import me.ehp246.aufkafka.core.consumer.ConsumptionExceptionListener.Context;
 
 /**
  * @author Lei Yang
@@ -25,18 +26,39 @@ final class ConsumerTask implements Runnable {
     private final Consumer<String, String> consumer;
     private final InvocableDispatcher dispatcher;
     private final InvocableFactory invocableFactory;
-    private final ConsumerFn defaultConsumer;
-    private final ConsumptionExceptionListener consumerExceptionListener;
+    private final List<ConsumerListener.UnmatchedListener> onUnmatched;
+    private final List<ConsumerListener.ReceivedListener> onReceived;
+    private final List<ConsumerListener.ExceptionListener> onException;
 
     ConsumerTask(final Consumer<String, String> consumer, final InvocableDispatcher dispatcher,
-            final InvocableFactory invocableFactory, final ConsumerFn defaultConsumer,
-            final ConsumptionExceptionListener consumerExceptionListener) {
+            final InvocableFactory invocableFactory,
+            final List<ConsumerListener> eventListeners) {
         super();
         this.consumer = consumer;
         this.dispatcher = dispatcher;
         this.invocableFactory = invocableFactory;
-        this.defaultConsumer = defaultConsumer;
-        this.consumerExceptionListener = consumerExceptionListener;
+
+        final var onUnmatched = new ArrayList<ConsumerListener.UnmatchedListener>();
+        final var onReceived = new ArrayList<ConsumerListener.ReceivedListener>();
+        final var onException = new ArrayList<ConsumerListener.ExceptionListener>();
+
+        for (final var listener : eventListeners) {
+            switch (listener) {
+                case ConsumerListener.UnmatchedListener l:
+                    onUnmatched.add(l);
+                    break;
+                case ConsumerListener.ReceivedListener l:
+                    onReceived.add(l);
+                    break;
+                case ConsumerListener.ExceptionListener l:
+                    onException.add(l);
+                    break;
+            }
+        }
+
+        this.onUnmatched = Collections.unmodifiableList(onUnmatched);
+        this.onReceived = Collections.unmodifiableList(onReceived);
+        this.onException = Collections.unmodifiableList(onException);
     }
 
     @Override
@@ -49,26 +71,22 @@ final class ConsumerTask implements Runnable {
 
             for (final var msg : polled) {
                 try (final var closeble = MsgMDCContext.set(msg);) {
-                    LOGGER.atDebug().setMessage("{}, {}").addArgument(msg::topic)
-                            .addArgument(msg::key).log();
-
-                    LOGGER.atTrace().addMarker(AufKafkaConstant.VALUE).setMessage("{}")
-                            .addArgument(msg::value).log();
+                    this.onReceived.forEach(l -> l.onReceived(msg));
 
                     final var invocable = invocableFactory.get(msg);
 
                     if (invocable == null) {
-                        if (defaultConsumer == null) {
+                        if (onUnmatched == null) {
                             throw new UnknownKeyException(msg);
                         } else {
-                            defaultConsumer.accept(msg);
+                            onUnmatched.stream().forEach(l -> l.onUnmatched(msg));
                         }
                     } else {
                         dispatcher.dispatch(invocable, msg);
                     }
                 } catch (Exception e) {
                     try {
-                        this.consumerExceptionListener.apply(new Context() {
+                        final var exceptionContext = new ConsumerListener.ExceptionListener.ExceptionContext() {
 
                             @Override
                             public Consumer<String, String> consumer() {
@@ -84,17 +102,16 @@ final class ConsumerTask implements Runnable {
                             public Exception thrown() {
                                 return e;
                             }
-                        });
+                        };
+                        this.onException.stream().forEach(l -> l.onException(exceptionContext));
                     } catch (Exception ex) {
                         LOGGER.atError().setCause(ex)
-                                .setMessage(
-                                        this.consumerExceptionListener.getClass().getSimpleName()
-                                                + " failed, ignored: {}, {}, {} because of {}")
+                                .setMessage(this.onException.getClass().getSimpleName()
+                                        + " failed, ignored: {}, {}, {} because of {}")
                                 .addArgument(msg::topic).addArgument(msg::key)
                                 .addArgument(msg::offset).addArgument(ex::getMessage).log();
                     }
                 }
-
             }
 
             if (polled.count() > 0) {

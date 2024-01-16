@@ -11,7 +11,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import me.ehp246.aufkafka.api.consumer.ConsumerFn;
+import me.ehp246.aufkafka.api.consumer.ConsumerListener.ExceptionListener;
+import me.ehp246.aufkafka.api.consumer.ConsumerListener.ExceptionListener.ExceptionContext;
+import me.ehp246.aufkafka.api.consumer.ConsumerListener.UnmatchedListener;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.test.mock.MockConsumerRecord;
@@ -26,15 +28,15 @@ class ConsumerTaskTest {
     private final InvocableDispatcher dispatcher = (i, r) -> {
     };
     private final InvocableFactory factory = r -> null;
-    private final ConsumerFn listener = r -> {
+    private final UnmatchedListener listener = r -> {
     };
-    private final ConsumptionExceptionListener exceptionListener = c -> {
+    private final ExceptionListener exceptionListener = c -> {
     };
 
     @SuppressWarnings("unchecked")
     @Test
     void exception_01() throws InterruptedException, ExecutionException {
-        final var ref = new CompletableFuture<ConsumptionExceptionListener.Context>();
+        final var ref = new CompletableFuture<ExceptionContext>();
         final var msg = new MockConsumerRecord();
         final var records = Mockito.mock(ConsumerRecords.class);
         Mockito.when(records.count()).thenReturn(1);
@@ -44,9 +46,9 @@ class ConsumerTaskTest {
         Mockito.when(consumer.poll(Mockito.any())).thenReturn(records);
 
         final var thrown = new RuntimeException();
-        final var task = new ConsumerTask(consumer, dispatcher, r -> {
+        final var task = new ConsumerTask(consumer, dispatcher, (InvocableFactory) (r -> {
             throw thrown;
-        }, listener, c -> ref.complete(c));
+        }), List.of((ExceptionListener) (c -> ref.complete(c))));
 
         Executors.newVirtualThreadPerTaskExecutor().execute(task);
 

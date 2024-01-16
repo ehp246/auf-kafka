@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
-import me.ehp246.aufkafka.api.consumer.InvocationListener.OnFailed;
+import me.ehp246.aufkafka.api.consumer.InvocationListener.FailedListener;
 
 /**
  * @author Lei Yang
@@ -16,7 +16,7 @@ import me.ehp246.aufkafka.api.consumer.InvocationListener.OnFailed;
 class AppConfig {
 
     @Bean
-    OnFailed onFailed() {
+    FailedListener onFailed() {
         return failed -> {
             throw new NullPointerException(failed.thrown().getMessage());
         };

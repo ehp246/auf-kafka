@@ -34,9 +34,9 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
 
     private final Executor executor;
     private final InvocableBinder binder;
-    private final List<InvocationListener.OnInvoking> invoking = new ArrayList<>();
-    private final List<InvocationListener.OnCompleted> completed = new ArrayList<>();
-    private final List<InvocationListener.OnFailed> failed = new ArrayList<>();
+    private final List<InvocationListener.InvokingListener> invoking = new ArrayList<>();
+    private final List<InvocationListener.CompletedListener> completed = new ArrayList<>();
+    private final List<InvocationListener.FailedListener> failed = new ArrayList<>();
 
     public DefaultInvocableDispatcher(final InvocableBinder binder,
             @Nullable final List<InvocationListener> listeners, @Nullable final Executor executor) {
@@ -45,13 +45,13 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
         this.executor = executor;
         for (final var listener : listeners == null ? List.of() : listeners) {
             // null tolerating
-            if (listener instanceof final InvocationListener.OnInvoking invoking) {
+            if (listener instanceof final InvocationListener.InvokingListener invoking) {
                 this.invoking.add(invoking);
             }
-            if (listener instanceof final InvocationListener.OnCompleted completed) {
+            if (listener instanceof final InvocationListener.CompletedListener completed) {
                 this.completed.add(completed);
             }
-            if (listener instanceof final InvocationListener.OnFailed failed) {
+            if (listener instanceof final InvocationListener.FailedListener failed) {
                 this.failed.add(failed);
             }
         }
