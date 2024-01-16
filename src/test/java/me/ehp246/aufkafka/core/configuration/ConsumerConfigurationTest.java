@@ -20,7 +20,7 @@ class ConsumerConfigurationTest {
         final var appCtx = new AnnotationConfigApplicationContext();
         appCtx.register(ConsumerConfiguration.class, MockConsumerConfigProvider.class);
         appCtx.setEnvironment(new MockEnvironment()
-                .withProperty("me.ehp246.aufkafka.consumer.messagelogging.enabled", "true"));
+                .withProperty("me.ehp246.aufkafka.inbound.messagelogging.enabled", "true"));
         appCtx.refresh();
 
         Assertions.assertEquals(true, appCtx.getBean(AufKafkaConstant.BEAN_LOGING_CONSUMER,

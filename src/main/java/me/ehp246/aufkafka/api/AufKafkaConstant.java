@@ -5,17 +5,16 @@ import org.slf4j.MarkerFactory;
 
 /**
  * @author Lei Yang
- *
+ * @since 1.0
  */
 public final class AufKafkaConstant {
-    public static final String BEAN_AUFKAFKA_OBJECT_MAPPER = "aufKafkaObjectMapper";
     public static final String BEAN_NAME_PREFIX_INBOUND_ENDPOINT = "inboundEndpoint-";
-
+    public static final String BEAN_AUFKAFKA_OBJECT_MAPPER = "aufKafkaObjectMapper";
     public static final String BEAN_LOGING_CONSUMER = "d8e0d517-5121-43b2-8dc1-4d050fb64086";
 
     public static final String MSG_MDC_HEADER_PREFIX = "AufKafkaMsgMDC";
 
-    public static final String PROPERTY_CONSUMER_MESSAGE_LOGGING = "me.ehp246.aufkafka.consumer.messagelogging.enabled";
+    public static final String PROPERTY_INBOUND_MESSAGELOGGING_ENABLED = "me.ehp246.aufkafka.inbound.messagelogging.enabled";
 
     /**
      * MDC

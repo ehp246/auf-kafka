@@ -31,7 +31,7 @@ public final class ConsumerConfiguration {
 
     @Bean(AufKafkaConstant.BEAN_LOGING_CONSUMER)
     public LoggingConsumer loggingConsumer(
-            @Value("${" + AufKafkaConstant.PROPERTY_CONSUMER_MESSAGE_LOGGING
+            @Value("${" + AufKafkaConstant.PROPERTY_INBOUND_MESSAGELOGGING_ENABLED
                     + ":false}") final boolean enabled) {
         return enabled ? new LoggingConsumer() : null;
     }
