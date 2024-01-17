@@ -32,7 +32,7 @@ class ExceptionTest {
 
         final var context = onException.take();
 
-        Assertions.assertEquals(key, context.received().key());
+        Assertions.assertEquals(key, context.message().key());
         Assertions.assertEquals(IllegalArgumentException.class, context.thrown().getClass(),
                 "should be the exception from the action");
         Assertions.assertEquals(NullPointerException.class,

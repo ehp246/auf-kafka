@@ -11,11 +11,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import me.ehp246.aufkafka.api.consumer.ConsumerListener.ExceptionListener;
-import me.ehp246.aufkafka.api.consumer.ConsumerListener.ExceptionListener.ExceptionContext;
-import me.ehp246.aufkafka.api.consumer.ConsumerListener.UnmatchedListener;
+import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
+import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
 import me.ehp246.test.mock.MockConsumerRecord;
 
 /**
@@ -28,15 +27,15 @@ class ConsumerTaskTest {
     private final InvocableDispatcher dispatcher = (i, r) -> {
     };
     private final InvocableFactory factory = r -> null;
-    private final UnmatchedListener listener = r -> {
+    private final UnmatchedConsumer listener = r -> {
     };
-    private final ExceptionListener exceptionListener = c -> {
+    private final ConsumerExceptionListener consumerExceptionListener = c -> {
     };
 
     @SuppressWarnings("unchecked")
     @Test
     void exception_01() throws InterruptedException, ExecutionException {
-        final var ref = new CompletableFuture<ExceptionContext>();
+        final var ref = new CompletableFuture<ConsumerExceptionListener.Context>();
         final var msg = new MockConsumerRecord();
         final var records = Mockito.mock(ConsumerRecords.class);
         Mockito.when(records.count()).thenReturn(1);
@@ -48,7 +47,7 @@ class ConsumerTaskTest {
         final var thrown = new RuntimeException();
         final var task = new ConsumerTask(consumer, dispatcher, (InvocableFactory) (r -> {
             throw thrown;
-        }), List.of((ExceptionListener) (c -> ref.complete(c))));
+        }), null, null, (ConsumerExceptionListener) (c -> ref.complete(c)));
 
         Executors.newVirtualThreadPerTaskExecutor().execute(task);
 
@@ -56,7 +55,7 @@ class ConsumerTaskTest {
 
         Assertions.assertEquals(consumer, context.consumer());
         Assertions.assertEquals(thrown, context.thrown());
-        Assertions.assertEquals(msg, context.received());
+        Assertions.assertEquals(msg, context.message());
 
         Mockito.verify(consumer, Mockito.atLeastOnce()).commitSync();
     }

@@ -4,23 +4,23 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import me.ehp246.aufkafka.api.consumer.ConsumerListener;
+import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
 
 /**
  * @author Lei Yang
  *
  */
-class OnConsumerException implements ConsumerListener.ExceptionListener {
-    private final AtomicReference<CompletableFuture<ExceptionContext>> ref = new AtomicReference<>(
+class OnConsumerException implements ConsumerExceptionListener {
+    private final AtomicReference<CompletableFuture<Context>> ref = new AtomicReference<>(
             new CompletableFuture<>());
 
     @Override
-    public void onException(final ExceptionContext context) {
+    public void onException(final Context context) {
         ref.get().complete(context);
     }
 
-    ExceptionContext take() {
-        final ExceptionContext context;
+    Context take() {
+        final Context context;
         try {
             context = ref.get().get();
         } catch (InterruptedException | ExecutionException e) {
