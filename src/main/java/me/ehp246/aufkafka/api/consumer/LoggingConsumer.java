@@ -10,7 +10,7 @@ import me.ehp246.aufkafka.api.AufKafkaConstant;
  * @author Lei Yang
  * @since 1.0
  */
-public final class LoggingConsumer implements ConsumerListener.DispatchingListener {
+public final class LoggingConsumer implements InboundConsumerListener.DispatchingListener {
     private final static Logger LOGGER = LoggerFactory.getLogger(LoggingConsumer.class);
 
     @Override

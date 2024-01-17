@@ -9,9 +9,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
  * @author Lei Yang
  * @since 1.0
  */
-public sealed interface ConsumerListener {
+public sealed interface InboundConsumerListener {
     @FunctionalInterface
-    non-sealed interface DispatchingListener extends ConsumerListener {
+    non-sealed interface DispatchingListener extends InboundConsumerListener {
         void onDispatching(ConsumerRecord<String, String> message);
     }
 }

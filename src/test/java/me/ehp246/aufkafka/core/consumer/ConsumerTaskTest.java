@@ -35,7 +35,7 @@ class ConsumerTaskTest {
     @SuppressWarnings("unchecked")
     @Test
     void exception_01() throws InterruptedException, ExecutionException {
-        final var ref = new CompletableFuture<Context>();
+        final var ref = new CompletableFuture<ConsumerExceptionListener.Context>();
         final var msg = new MockConsumerRecord();
         final var records = Mockito.mock(ConsumerRecords.class);
         Mockito.when(records.count()).thenReturn(1);
@@ -47,7 +47,7 @@ class ConsumerTaskTest {
         final var thrown = new RuntimeException();
         final var task = new ConsumerTask(consumer, dispatcher, (InvocableFactory) (r -> {
             throw thrown;
-        }), List.of((ConsumerExceptionListener) (c -> ref.complete(c))));
+        }), null, null, (ConsumerExceptionListener) (c -> ref.complete(c)));
 
         Executors.newVirtualThreadPerTaskExecutor().execute(task);
 

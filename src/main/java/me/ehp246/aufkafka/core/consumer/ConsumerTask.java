@@ -1,6 +1,7 @@
 package me.ehp246.aufkafka.core.consumer;
 
 import java.time.Duration;
+import java.util.List;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -8,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
-import me.ehp246.aufkafka.api.consumer.ConsumerListener;
+import me.ehp246.aufkafka.api.consumer.InboundConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
@@ -25,20 +26,19 @@ final class ConsumerTask implements Runnable {
     private final Consumer<String, String> consumer;
     private final InvocableDispatcher dispatcher;
     private final InvocableFactory invocableFactory;
-    private final ConsumerListener.DispatchingListener onDispatching;
+    private final List<InboundConsumerListener.DispatchingListener> onDispatching;
     private final UnmatchedConsumer onUnmatched;
     private final ConsumerExceptionListener onException;
 
     ConsumerTask(final Consumer<String, String> consumer, final InvocableDispatcher dispatcher,
             final InvocableFactory invocableFactory,
-            final ConsumerListener.DispatchingListener onDispatching,
+            final List<InboundConsumerListener.DispatchingListener> onDispatching,
             final UnmatchedConsumer onUnmatched, final ConsumerExceptionListener onException) {
         super();
         this.consumer = consumer;
         this.dispatcher = dispatcher;
         this.invocableFactory = invocableFactory;
-
-        this.onDispatching = onDispatching;
+        this.onDispatching = onDispatching == null ? List.of() : onDispatching;
         this.onUnmatched = onUnmatched;
         this.onException = onException;
     }
@@ -53,7 +53,7 @@ final class ConsumerTask implements Runnable {
 
             for (final var msg : polled) {
                 try (final var closeble = MsgMDCContext.set(msg);) {
-                    this.onDispatching.onDispatching(msg);
+                    this.onDispatching.stream().forEach(l -> l.onDispatching(msg));
 
                     final var invocable = invocableFactory.get(msg);
 

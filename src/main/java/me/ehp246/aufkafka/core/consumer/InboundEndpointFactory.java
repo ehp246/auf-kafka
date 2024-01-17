@@ -48,7 +48,7 @@ public final class InboundEndpointFactory {
                 .map(name -> autowireCapableBeanFactory.getBean(name, UnmatchedConsumer.class))
                 .orElse(null);
         final var exceptionListener = Optional
-                .ofNullable(inboundAttributes.get("consumptionExceptionListener").toString())
+                .ofNullable(inboundAttributes.get("consumerExceptionListener").toString())
                 .map(propertyResolver::apply).filter(OneUtil::hasValue)
                 .map(name -> autowireCapableBeanFactory.getBean(name,
                         ConsumerExceptionListener.class))
