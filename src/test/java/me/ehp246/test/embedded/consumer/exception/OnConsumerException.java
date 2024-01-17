@@ -4,13 +4,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import me.ehp246.aufkafka.api.consumer.InboundListener;
+import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
 
 /**
  * @author Lei Yang
  *
  */
-class OnConsumerException implements InboundListener.ExceptionListener {
+class OnConsumerException implements ConsumerExceptionListener {
     private final AtomicReference<CompletableFuture<Context>> ref = new AtomicReference<>(
             new CompletableFuture<>());
 

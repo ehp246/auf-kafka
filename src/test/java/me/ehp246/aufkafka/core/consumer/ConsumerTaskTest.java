@@ -11,11 +11,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import me.ehp246.aufkafka.api.consumer.InboundListener.ExceptionListener;
-import me.ehp246.aufkafka.api.consumer.InboundListener.ExceptionListener.Context;
-import me.ehp246.aufkafka.api.consumer.InboundListener.UnmatchedListener;
+import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
+import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
 import me.ehp246.test.mock.MockConsumerRecord;
 
 /**
@@ -28,9 +27,9 @@ class ConsumerTaskTest {
     private final InvocableDispatcher dispatcher = (i, r) -> {
     };
     private final InvocableFactory factory = r -> null;
-    private final UnmatchedListener listener = r -> {
+    private final UnmatchedConsumer listener = r -> {
     };
-    private final ExceptionListener exceptionListener = c -> {
+    private final ConsumerExceptionListener consumerExceptionListener = c -> {
     };
 
     @SuppressWarnings("unchecked")
@@ -48,7 +47,7 @@ class ConsumerTaskTest {
         final var thrown = new RuntimeException();
         final var task = new ConsumerTask(consumer, dispatcher, (InvocableFactory) (r -> {
             throw thrown;
-        }), List.of((ExceptionListener) (c -> ref.complete(c))));
+        }), List.of((ConsumerExceptionListener) (c -> ref.complete(c))));
 
         Executors.newVirtualThreadPerTaskExecutor().execute(task);
 
