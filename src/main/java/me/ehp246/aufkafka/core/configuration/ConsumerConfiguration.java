@@ -14,9 +14,10 @@ import org.springframework.context.annotation.Bean;
 import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
-import me.ehp246.aufkafka.api.consumer.LoggingConsumer;
-import me.ehp246.aufkafka.api.consumer.NoOpConsumer;
+import me.ehp246.aufkafka.api.consumer.LoggingDispatchingListener;
+import me.ehp246.aufkafka.api.consumer.NoOpUnmatchedConsumer;
 import me.ehp246.aufkafka.core.consumer.ConsumerProvider;
+import me.ehp246.aufkafka.core.consumer.IgnoringConsumerExceptionListener;
 
 /**
  * @author Lei Yang
@@ -24,16 +25,21 @@ import me.ehp246.aufkafka.core.consumer.ConsumerProvider;
  */
 public final class ConsumerConfiguration {
 
-    @Bean("e9c593e2-37c6-48e2-8a76-67540e44e3b1")
-    public NoOpConsumer noOpConsumer() {
-        return new NoOpConsumer();
+    @Bean(AufKafkaConstant.BEAN_NOOP_UNMATCHED_CONSUMER)
+    public NoOpUnmatchedConsumer noOpUnmatchedConsumer() {
+        return new NoOpUnmatchedConsumer();
     }
 
-    @Bean(AufKafkaConstant.BEAN_LOGING_CONSUMER)
-    public LoggingConsumer loggingConsumer(
+    @Bean(AufKafkaConstant.BEAN_LOGGING_DISPATCHING_LISTENER)
+    public LoggingDispatchingListener loggingDispatchingListener(
             @Value("${" + AufKafkaConstant.PROPERTY_INBOUND_MESSAGELOGGING_ENABLED
                     + ":false}") final boolean enabled) {
-        return enabled ? new LoggingConsumer() : null;
+        return new LoggingDispatchingListener(enabled);
+    }
+
+    @Bean(AufKafkaConstant.BEAN_IGNORING_CONSUMEREXCEPTION_LISTENER)
+    public IgnoringConsumerExceptionListener ignoringConsumer() {
+        return new IgnoringConsumerExceptionListener();
     }
 
     @Bean

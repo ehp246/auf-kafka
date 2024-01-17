@@ -10,12 +10,22 @@ import me.ehp246.aufkafka.api.AufKafkaConstant;
  * @author Lei Yang
  * @since 1.0
  */
-public final class LoggingConsumer implements InboundConsumerListener.DispatchingListener {
-    private final static Logger LOGGER = LoggerFactory.getLogger(LoggingConsumer.class);
+public final class LoggingDispatchingListener implements InboundConsumerListener.DispatchingListener {
+    private final static Logger LOGGER = LoggerFactory.getLogger(LoggingDispatchingListener.class);
+
+    private final boolean enabled;
+
+    public LoggingDispatchingListener(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     @Override
     public void onDispatching(final ConsumerRecord<String, String> msg) {
-        LOGGER.atDebug().setMessage("{}:{}, {}, {}").addArgument(msg::topic)
+        if (!this.enabled) {
+            return;
+        }
+
+        LOGGER.atInfo().setMessage("{}:{}, {}, {}").addArgument(msg::topic)
                 .addArgument(msg::partition).addArgument(msg::key).addArgument(msg::offset).log();
 
         LOGGER.atTrace().addMarker(AufKafkaConstant.VALUE).setMessage("{}").addArgument(msg::value)

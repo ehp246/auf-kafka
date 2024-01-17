@@ -6,16 +6,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
-import me.ehp246.aufkafka.api.consumer.InboundConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
+import me.ehp246.aufkafka.api.consumer.InboundConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableBinder;
-import me.ehp246.aufkafka.api.consumer.LoggingConsumer;
+import me.ehp246.aufkafka.api.consumer.LoggingDispatchingListener;
 
 /**
  * @author Lei Yang
@@ -35,15 +32,14 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
     public InboundEndpointConsumerConfigurer(final List<InboundEndpoint> endpoints,
             final InboundConsumerExecutorProvider executorProvider,
             final ConsumerProvider consumerProvider, final InvocableBinder binder,
-            @Autowired(required = false)
-            @Qualifier(AufKafkaConstant.BEAN_LOGING_CONSUMER) final LoggingConsumer loggingConsumer,
+            final LoggingDispatchingListener loggingDispatchingListener,
             final AutowireCapableBeanFactory autowireCapableBeanFactory) {
         super();
         this.endpoints = endpoints;
         this.executorProvider = executorProvider;
         this.consumerProvider = consumerProvider;
         this.binder = binder;
-        this.onDispatching = loggingConsumer == null ? List.of() : List.of(loggingConsumer);
+        this.onDispatching = loggingDispatchingListener == null ? List.of() : List.of(loggingDispatchingListener);
         this.autowireCapableBeanFactory = autowireCapableBeanFactory;
     }
 

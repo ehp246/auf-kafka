@@ -12,6 +12,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Import;
 
+import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
 import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
 import me.ehp246.aufkafka.api.consumer.Invocable;
@@ -131,11 +132,11 @@ public @interface EnableForKafka {
          * <p>
          * Supports Spring property placeholder.
          */
-        String unmatchedConsumer() default "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
+        String unmatchedConsumer() default AufKafkaConstant.BEAN_NOOP_UNMATCHED_CONSUMER;
 
         /**
-         * Specifies the bean name of {@linkplain ConsumerExceptionListener}
-         * type to receive any exception that happened when consuming a message.
+         * Specifies the bean name of {@linkplain ConsumerExceptionListener} type to
+         * receive any exception that happened when consuming a message.
          * <p>
          * The default is to log and ignore.
          * <p>
@@ -146,7 +147,7 @@ public @interface EnableForKafka {
          * <p>
          * Supports Spring property placeholder.
          */
-        String consumerExceptionListener() default "";
+        String consumerExceptionListener() default AufKafkaConstant.BEAN_IGNORING_CONSUMEREXCEPTION_LISTENER;
 
         @Target({})
         @interface From {

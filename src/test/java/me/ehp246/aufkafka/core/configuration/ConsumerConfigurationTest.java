@@ -6,7 +6,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.mock.env.MockEnvironment;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
-import me.ehp246.aufkafka.api.consumer.LoggingConsumer;
+import me.ehp246.aufkafka.api.consumer.LoggingDispatchingListener;
 import me.ehp246.test.mock.MockConsumerConfigProvider;
 
 /**
@@ -23,8 +23,8 @@ class ConsumerConfigurationTest {
                 .withProperty("me.ehp246.aufkafka.inbound.messagelogging.enabled", "true"));
         appCtx.refresh();
 
-        Assertions.assertEquals(true, appCtx.getBean(AufKafkaConstant.BEAN_LOGING_CONSUMER,
-                LoggingConsumer.class) != null);
+        Assertions.assertEquals(true, appCtx.getBean(AufKafkaConstant.BEAN_LOGGING_DISPATCHING_LISTENER,
+                LoggingDispatchingListener.class) != null);
 
         appCtx.close();
     }
@@ -35,8 +35,8 @@ class ConsumerConfigurationTest {
         appCtx.register(ConsumerConfiguration.class, MockConsumerConfigProvider.class);
         appCtx.refresh();
 
-        Assertions.assertThrows(Exception.class,
-                () -> appCtx.getBean(AufKafkaConstant.BEAN_LOGING_CONSUMER, LoggingConsumer.class));
+        Assertions.assertEquals(true, appCtx.getBean(AufKafkaConstant.BEAN_LOGGING_DISPATCHING_LISTENER,
+                LoggingDispatchingListener.class) != null);
 
         appCtx.close();
     }
