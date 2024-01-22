@@ -1,13 +1,16 @@
 package me.ehp246.test.embedded.consumer.basic;
 
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
-import me.ehp246.aufkafka.core.util.OneUtil;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
 /**
@@ -15,25 +18,26 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  *
  */
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, ConsumerExecutor.class })
-@EmbeddedKafka(topics = { "embedded" }, partitions = 1)
+@EmbeddedKafka(topics = { "embedded" })
 @DirtiesContext
 class BasicTest {
     @Autowired
-    private TestCases.Case01 case01;
+    private KafkaTemplate<String, String> template;
 
     @Autowired
     private ConsumerExecutor executor;
 
     @Test
-    void basic_01() {
-        executor.poll();
+    void basic_01() throws InterruptedException, ExecutionException {
+        final var v1 = UUID.randomUUID().toString();
 
-        case01.newEvent();
+        template.send("embedded", v1, null).get();
 
-        final var polled = executor.take();
+        executor.startPolling();
 
-        Assertions.assertEquals(1, polled.count());
+        final var polled1 = executor.waitAndTake();
 
-        Assertions.assertEquals("NewEvent", OneUtil.toList(polled).getFirst().key());
+        Assertions.assertEquals(1, polled1.count());
     }
+
 }

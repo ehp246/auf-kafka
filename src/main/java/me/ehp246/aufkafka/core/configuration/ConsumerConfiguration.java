@@ -20,8 +20,11 @@ import me.ehp246.aufkafka.core.consumer.ConsumerProvider;
 import me.ehp246.aufkafka.core.consumer.IgnoringConsumerExceptionListener;
 
 /**
+ * Expects an application-provided {@linkplain ConsumerConfigProvider} bean.
+ * 
  * @author Lei Yang
- *
+ * @since 1.0
+ * @see ConsumerConfigProvider
  */
 public final class ConsumerConfiguration {
 
@@ -47,7 +50,7 @@ public final class ConsumerConfiguration {
         return Executors::newVirtualThreadPerTaskExecutor;
     }
 
-    @Bean
+    @Bean("6156055b-0334-48aa-a1c5-e42507128b33")
     public ConsumerProvider consumerProvider(final ConsumerConfigProvider configProvider) {
         final var cache = new ConcurrentHashMap<String, Map<String, Object>>();
 
@@ -58,6 +61,7 @@ public final class ConsumerConfiguration {
                 /*
                  * Mandatory configuration.
                  */
+                // configMap.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
                 configMap.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
                 configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                         StringDeserializer.class.getName());
