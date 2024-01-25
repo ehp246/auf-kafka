@@ -29,17 +29,17 @@ class ConsumerExecutor {
         this.consumerProvider = consumerProvider;
     }
 
-    void poll() {
+    void startPolling() {
         this.recRef.set(new CompletableFuture<ConsumerRecords<String, String>>());
         this.executor.execute(() -> {
             try (final var consumer = this.consumerProvider.get("")) {
                 consumer.subscribe(Set.of("embedded"));
-                this.recRef.get().complete(consumer.poll(Duration.ofSeconds(1)));
+                this.recRef.get().complete(consumer.poll(Duration.ofSeconds(100)));
             }
         });
     }
 
-    ConsumerRecords<String, String> take() {
+    ConsumerRecords<String, String> waitAndTake() {
         try {
             final var consumerRecords = this.recRef.get().get();
             this.recRef.set(new CompletableFuture<ConsumerRecords<String, String>>());

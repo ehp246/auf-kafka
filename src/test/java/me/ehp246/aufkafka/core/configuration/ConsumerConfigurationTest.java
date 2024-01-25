@@ -23,8 +23,9 @@ class ConsumerConfigurationTest {
                 .withProperty("me.ehp246.aufkafka.inbound.messagelogging.enabled", "true"));
         appCtx.refresh();
 
-        Assertions.assertEquals(true, appCtx.getBean(AufKafkaConstant.BEAN_LOGGING_DISPATCHING_LISTENER,
-                LoggingDispatchingListener.class) != null);
+        Assertions.assertEquals(true,
+                appCtx.getBean(AufKafkaConstant.BEAN_LOGGING_DISPATCHING_LISTENER,
+                        LoggingDispatchingListener.class) != null);
 
         appCtx.close();
     }
@@ -35,8 +36,9 @@ class ConsumerConfigurationTest {
         appCtx.register(ConsumerConfiguration.class, MockConsumerConfigProvider.class);
         appCtx.refresh();
 
-        Assertions.assertEquals(true, appCtx.getBean(AufKafkaConstant.BEAN_LOGGING_DISPATCHING_LISTENER,
-                LoggingDispatchingListener.class) != null);
+        Assertions.assertEquals(true,
+                appCtx.getBean(AufKafkaConstant.BEAN_LOGGING_DISPATCHING_LISTENER,
+                        LoggingDispatchingListener.class) != null);
 
         appCtx.close();
     }
