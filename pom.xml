@@ -242,6 +242,7 @@
 					<encoding>UTF-8</encoding>
 					<compilerArgs>
 						<arg>-parameters</arg>
+						<arg>-proc:full</arg>
 					</compilerArgs>
 				</configuration>
 			</plugin>
@@ -251,10 +252,11 @@
 				<version>${maven-surefire-plugin.version}</version>
 				<configuration>
 					<systemPropertyVariables>
-						<log4j.configurationFile>
-							test/main/resources/log4j2-surefire.xml</log4j.configurationFile>
+						<log4j2.configurationFile>
+							log4j2-surefire.xml</log4j2.configurationFile>
 						<spring.main.banner-mode>off</spring.main.banner-mode>
 					</systemPropertyVariables>
+					<argLine>-Xshare:off -XX:+EnableDynamicAgentLoading</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
