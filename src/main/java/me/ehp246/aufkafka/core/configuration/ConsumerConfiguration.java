@@ -1,8 +1,6 @@
 package me.ehp246.aufkafka.core.configuration;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -51,28 +49,24 @@ public final class ConsumerConfiguration {
 
 	@Bean("6156055b-0334-48aa-a1c5-e42507128b33")
 	public ConsumerProvider consumerProvider(final ConsumerConfigProvider configProvider) {
-		final var cache = new ConcurrentHashMap<String, Map<String, Object>>();
-
 		return (name, custom) -> {
-			return new KafkaConsumer<String, String>(cache.computeIfAbsent(name, n -> {
-				final var configMap = new HashMap<>(configProvider.get(n));
+			final var configMap = new HashMap<>(configProvider.get(name));
 
-				/*
-				 * Custom configuration first.
-				 */
-				if (custom != null) {
-					configMap.putAll(custom);
-				}
-				/*
-				 * Mandatory configuration overwriting any custom ones.
-				 */
-				// configMap.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-				configMap.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
-				configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-				configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+			/*
+			 * Custom configuration first.
+			 */
+			if (custom != null) {
+				configMap.putAll(custom);
+			}
+			/*
+			 * Mandatory configuration overwriting any custom ones.
+			 */
+			// configMap.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+			configMap.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
+			configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+			configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
 
-				return configMap;
-			}));
+			return new KafkaConsumer<String, String>(configMap);
 		};
 	}
 }
