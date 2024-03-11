@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Import;
 
@@ -62,6 +63,22 @@ public @interface EnableForKafka {
          * consumer configuration with which to create a {@linkplain Consumer}.
          */
         String consumerConfigName() default "";
+        
+        /**
+         * Defines {@linkplain KafkaConsumer} property names and values in pairs. E.g.,
+         * <p>
+         * <code>
+         *     { "auto.offset.reset", "latest", ... }
+         * </code>
+         * <p>
+         * These properties will be passed to {@linkplain KafkaConsumer#KafkaConsumer(java.util.Map)}.
+         * <p>
+         * Must be specified in pairs. Missing value will trigger an exception. 
+         * <p>
+         * Spring property placeholder is supported on values but not on names.
+         *
+         */
+        String[] consumerProperties() default {};
 
         /**
          * Specifies the packages to scan for {@linkplain ForKey} classes for this

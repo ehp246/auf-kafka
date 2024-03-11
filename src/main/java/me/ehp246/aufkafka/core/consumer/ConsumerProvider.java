@@ -1,5 +1,7 @@
 package me.ehp246.aufkafka.core.consumer;
 
+import java.util.Map;
+
 import org.apache.kafka.clients.consumer.Consumer;
 
 import me.ehp246.aufkafka.core.configuration.ConsumerConfiguration;
@@ -13,5 +15,5 @@ import me.ehp246.aufkafka.core.configuration.ConsumerConfiguration;
  */
 @FunctionalInterface
 public interface ConsumerProvider {
-    Consumer<String, String> get(String configName);
+    Consumer<String, String> get(String configName, Map<String, Object> custom);
 }

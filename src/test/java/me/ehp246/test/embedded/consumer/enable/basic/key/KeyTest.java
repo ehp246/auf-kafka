@@ -21,7 +21,7 @@ import me.ehp246.test.mock.WildcardAction;
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, WildcardAction.class })
 @EmbeddedKafka(topics = { "embedded" }, partitions = 1)
 @DirtiesContext
-class TopicTest {
+class KeyTest {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
     @Autowired

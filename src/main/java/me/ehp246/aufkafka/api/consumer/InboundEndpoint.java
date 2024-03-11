@@ -1,39 +1,46 @@
 package me.ehp246.aufkafka.api.consumer;
 
+import java.util.Map;
+import java.util.Properties;
+
 /**
  * @author Lei Yang
  * @since 1.0
  */
 public interface InboundEndpoint {
-    From from();
+	From from();
 
-    InvocableKeyRegistry keyRegistry();
+	InvocableKeyRegistry keyRegistry();
 
-    default String name() {
-        return null;
-    }
+	default String name() {
+		return null;
+	}
 
-    default String consumerConfigName() {
-        return null;
-    }
+	default String consumerConfigName() {
+		return null;
+	}
 
-    default boolean autoStartup() {
-        return true;
-    }
+	default Map<String, Object> consumerProperties() {
+		return null;
+	}
 
-    default InvocationListener invocationListener() {
-        return null;
-    }
+	default boolean autoStartup() {
+		return true;
+	}
 
-    default UnmatchedConsumer unmatchedConsumer() {
-        return null;
-    }
+	default InvocationListener invocationListener() {
+		return null;
+	}
 
-    default ConsumerExceptionListener consumerExceptionListener() {
-        return null;
-    }
+	default UnmatchedConsumer unmatchedConsumer() {
+		return null;
+	}
 
-    interface From {
-        String topic();
-    }
+	default ConsumerExceptionListener consumerExceptionListener() {
+		return null;
+	}
+
+	interface From {
+		String topic();
+	}
 }
