@@ -54,8 +54,8 @@ public final class InboundEndpointFactory {
 				.map(propertyResolver::apply).filter(OneUtil::hasValue)
 				.map(name -> autowireCapableBeanFactory.getBean(name, ConsumerExceptionListener.class)).orElse(null);
 
-		final var consumerProperties = headerStatic(Arrays.asList((String[]) inboundAttributes.get("consumerProperties")),
-				beanName);
+		final var consumerProperties = consumerProperties(
+				Arrays.asList((String[]) inboundAttributes.get("consumerProperties")), beanName);
 
 		final var fromAttribute = (Map<String, Object>) inboundAttributes.get("value");
 
@@ -128,7 +128,7 @@ public final class InboundEndpointFactory {
 		};
 	}
 
-	private Map<String, Object> headerStatic(final List<String> properties, final String beanName) {
+	private Map<String, Object> consumerProperties(final List<String> properties, final String beanName) {
 		if ((properties.size() & 1) != 0) {
 			throw new IllegalArgumentException(
 					"Consumer properties should be in name/value pair on '" + beanName + "'");

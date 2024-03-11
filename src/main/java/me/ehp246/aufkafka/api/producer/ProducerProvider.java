@@ -1,5 +1,7 @@
 package me.ehp246.aufkafka.api.producer;
 
+import java.util.Map;
+
 import org.apache.kafka.clients.producer.Producer;
 
 /**
@@ -8,5 +10,5 @@ import org.apache.kafka.clients.producer.Producer;
  */
 @FunctionalInterface
 public interface ProducerProvider {
-    Producer<String, String> get(String name);
+	Producer<String, String> get(String configName, Map<String, Object> custom);
 }
