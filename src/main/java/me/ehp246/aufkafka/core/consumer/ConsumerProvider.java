@@ -1,8 +1,8 @@
 package me.ehp246.aufkafka.core.consumer;
 
-import org.apache.kafka.clients.consumer.Consumer;
+import java.util.Map;
 
-import me.ehp246.aufkafka.core.configuration.ConsumerConfiguration;
+import org.apache.kafka.clients.consumer.Consumer;
 
 /**
  * Internal beans used by {@linkplain InboundEndpointConsumerConfigurer}.
@@ -13,5 +13,5 @@ import me.ehp246.aufkafka.core.configuration.ConsumerConfiguration;
  */
 @FunctionalInterface
 public interface ConsumerProvider {
-    Consumer<String, String> get(String configName);
+    Consumer<String, String> get(String configName, Map<String, Object> custom);
 }

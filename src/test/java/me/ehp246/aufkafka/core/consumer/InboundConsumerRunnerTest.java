@@ -21,7 +21,7 @@ import me.ehp246.test.mock.MockConsumerRecord;
  * @author Lei Yang
  *
  */
-class ConsumerTaskTest {
+class InboundConsumerRunnerTest {
     @SuppressWarnings("unchecked")
     private final Consumer<String, String> consumer = Mockito.mock(Consumer.class);
     private final InvocableDispatcher dispatcher = (i, r) -> {
@@ -45,7 +45,7 @@ class ConsumerTaskTest {
         Mockito.when(consumer.poll(Mockito.any())).thenReturn(records);
 
         final var thrown = new RuntimeException();
-        final var task = new ConsumerTask(consumer, dispatcher, (InvocableFactory) (r -> {
+        final var task = new InboundConsumerRunner(consumer, dispatcher, (InvocableFactory) (r -> {
             throw thrown;
         }), null, null, (ConsumerExceptionListener) (c -> ref.complete(c)));
 
