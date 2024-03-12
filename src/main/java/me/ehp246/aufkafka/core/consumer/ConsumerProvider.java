@@ -4,8 +4,6 @@ import java.util.Map;
 
 import org.apache.kafka.clients.consumer.Consumer;
 
-import me.ehp246.aufkafka.core.configuration.ConsumerConfiguration;
-
 /**
  * Internal beans used by {@linkplain InboundEndpointConsumerConfigurer}.
  * 

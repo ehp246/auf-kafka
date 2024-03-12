@@ -7,6 +7,7 @@ import org.springframework.mock.env.MockEnvironment;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.LoggingDispatchingListener;
+import me.ehp246.aufkafka.core.consumer.ConsumerConfiguration;
 import me.ehp246.test.mock.MockConsumerConfigProvider;
 
 /**
