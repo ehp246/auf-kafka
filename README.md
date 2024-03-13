@@ -10,6 +10,11 @@ Assuming you have a Spring Boot application ready, add dependency:
 
 * [Auf Kafka](https://mvnrepository.com/artifact/me.ehp246/auf-kafka)
 
+* Define Beans
+```java
+me.ehp246.aufkafka.api.producer.ProducerConfigProvider
+```
+
 
 Details can be found at the project's [Wiki](https://github.com/ehp246/auf-kafka/wiki).
 
