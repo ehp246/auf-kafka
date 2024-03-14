@@ -9,7 +9,6 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.annotation.Bean;
 
 import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
-import me.ehp246.aufkafka.api.producer.PartitionMap;
 import me.ehp246.aufkafka.api.producer.PartitionMapProvider;
 import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
 import me.ehp246.aufkafka.api.producer.ProducerProvider;
@@ -34,12 +33,12 @@ public final class ProducerConfiguration {
 	}
 
 	@Bean
-	PartitionMap serializPartitionKeyMap() {
+	SerializedPartitionMap serializPartitionKeyMap() {
 		return new SerializedPartitionMap();
 	}
 
 	@Bean
-	PartitionMap directPartitionMap() {
+	DirectPartitionMap directPartitionMap() {
 		return new DirectPartitionMap();
 	}
 
