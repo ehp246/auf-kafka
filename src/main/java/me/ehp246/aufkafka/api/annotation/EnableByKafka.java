@@ -9,9 +9,9 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Import;
 
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
-import me.ehp246.aufkafka.core.configuration.ProducerConfiguration;
 import me.ehp246.aufkafka.core.producer.DefaultProducerFnProvider;
 import me.ehp246.aufkafka.core.producer.DefaultProxyMethodParser;
+import me.ehp246.aufkafka.core.producer.ProducerConfiguration;
 import me.ehp246.aufkafka.core.producer.ProducerProxyFactory;
 import me.ehp246.aufkafka.core.producer.ProducerProxyRegistrar;
 
