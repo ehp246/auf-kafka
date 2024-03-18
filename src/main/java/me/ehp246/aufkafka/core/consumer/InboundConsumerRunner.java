@@ -104,9 +104,7 @@ final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
 	    }
 	}
 
-	if (this.closed) {
-	    this.consumer.close();
-	}
+	this.consumer.close();
 	this.closedFuture.complete(true);
     }
 
