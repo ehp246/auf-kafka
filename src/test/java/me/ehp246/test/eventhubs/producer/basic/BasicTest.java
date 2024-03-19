@@ -27,47 +27,46 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("local")
 @EnabledIfSystemProperty(named = "me.ehp246.test.eventhubs", matches = "enabled")
 class BasicTest {
-    @Autowired
-    private AppConfig appConfig;
-    @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
-    @Autowired
-    private Producer<String, String> producer;
+	@Autowired
+	private AppConfig appConfig;
+	@Autowired
+	private KafkaTemplate<String, String> kafkaTemplate;
+	@Autowired
+	private Producer<String, String> producer;
 
-    @Test
-    void template_01() throws InterruptedException, ExecutionException {
-        kafkaTemplate.send("basic-2", "NewEvent", Uuid.randomUuid().toString()).get();
-    }
+	@Test
+	void template_01() throws InterruptedException, ExecutionException {
+		kafkaTemplate.send("test", "NewEvent", Uuid.randomUuid().toString()).get();
+	}
 
-    @RepeatedTest(4)
-    void producer_01() throws InterruptedException, ExecutionException {
-        final var future = producer
-                .send(new ProducerRecord<String, String>("basic", "NewEvent", UUID.randomUUID().toString()));
+	@RepeatedTest(4)
+	void producer_01() throws InterruptedException, ExecutionException {
+		final var future = producer
+				.send(new ProducerRecord<String, String>("basic", "NewEvent", UUID.randomUUID().toString()));
 
-        final var recordMetadata = future.get();
+		final var recordMetadata = future.get();
 
-        Assertions.assertEquals(0, recordMetadata.partition());
-    }
+		Assertions.assertEquals(0, recordMetadata.partition());
+	}
 
-    @Test
-    void consumer_01() throws InterruptedException, ExecutionException {
-        final var consumer = appConfig.newConsumer();
+	@Test
+	void consumer_01() throws InterruptedException, ExecutionException {
+		final var consumer = appConfig.newConsumer();
 
-        consumer.subscribe(Set.of("basic"));
+		consumer.subscribe(Set.of("basic"));
 
+		final var polled = consumer.poll(Duration.ofSeconds(30));
 
-        final var polled = consumer.poll(Duration.ofSeconds(30));
+		consumer.position(new TopicPartition("basic", 0));
 
-        consumer.position(new TopicPartition("basic", 0));
+		consumer.commitSync();
 
-        consumer.commitSync();
+		Assertions.assertTrue(polled.count() >= 1, "should have the sent");
 
-        Assertions.assertTrue(polled.count() >= 1, "should have the sent");
+		for (final var rec : polled) {
+			Assertions.assertEquals(null, rec.key());
+			Assertions.assertEquals(null, rec.value());
+		}
 
-        for (final var rec : polled) {
-            Assertions.assertEquals(null, rec.key());
-            Assertions.assertEquals(null, rec.value());
-        }
-
-    }
+	}
 }

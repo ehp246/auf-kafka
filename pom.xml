@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.ehp246</groupId>
 	<artifactId>auf-kafka</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name>Auf Kafka</name>
 	<description>An annotation-driven declarative Kafka development
 		framework</description>

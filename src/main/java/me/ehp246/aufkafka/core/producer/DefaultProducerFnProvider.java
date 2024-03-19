@@ -14,39 +14,39 @@ import me.ehp246.aufkafka.api.producer.ProducerRecordBuilderProvider;
  *
  */
 public final class DefaultProducerFnProvider implements ProducerFnProvider {
-	private final ProducerProvider producerProvider;
-	private final ProducerRecordBuilderProvider recordBuilderProvider;
-	private final PartitionMapProvider partitionKeyMapProvider;
 
-	DefaultProducerFnProvider(final ProducerProvider producerProvider,
-			final PartitionMapProvider partitionKeyMapProvider,
-			final ProducerRecordBuilderProvider recordBuilderProvider) {
-		super();
-		this.producerProvider = producerProvider;
-		this.partitionKeyMapProvider = partitionKeyMapProvider;
-		this.recordBuilderProvider = recordBuilderProvider;
-	}
+    private final ProducerProvider producerProvider;
+    private final ProducerRecordBuilderProvider recordBuilderProvider;
+    private final PartitionMapProvider partitionKeyMapProvider;
 
-	@Override
-	public ProducerFn get(final ProducerFnConfig config) {
-		final var producer = producerProvider.get(config.producerConfigName(), config.producerProperties());
-		final var recordBuilder = recordBuilderProvider.apply(topic -> producer.partitionsFor(topic),
-				this.partitionKeyMapProvider.get(config.partitionMapType()));
+    DefaultProducerFnProvider(final ProducerProvider producerProvider,
+	    final PartitionMapProvider partitionKeyMapProvider,
+	    final ProducerRecordBuilderProvider recordBuilderProvider) {
+	super();
+	this.producerProvider = producerProvider;
+	this.partitionKeyMapProvider = partitionKeyMapProvider;
+	this.recordBuilderProvider = recordBuilderProvider;
+    }
 
-		return outboundRecord -> {
-			final var producerRecord = recordBuilder.apply(outboundRecord);
-			final var completeableFuture = new CompletableFuture<Sent>();
+    @Override
+    public ProducerFn get(final ProducerFnConfig config) {
+	final var producer = producerProvider.get(config.producerConfigName(), config.producerProperties());
+	final var recordBuilder = recordBuilderProvider.apply(topic -> producer.partitionsFor(topic),
+		this.partitionKeyMapProvider.get(config.partitionMapType()));
 
-			producer.send(producerRecord, (metadata, exception) -> {
-				if (exception == null) {
-					completeableFuture.complete(new Sent(producerRecord, metadata));
-				} else {
-					completeableFuture.completeExceptionally(exception);
-				}
-			});
+	return outboundRecord -> {
+	    final var producerRecord = recordBuilder.apply(outboundRecord);
+	    final var completeableFuture = new CompletableFuture<Sent>();
 
-			return completeableFuture;
-		};
-	}
+	    producer.send(producerRecord, (metadata, exception) -> {
+		if (exception == null) {
+		    completeableFuture.complete(new Sent(producerRecord, metadata));
+		} else {
+		    completeableFuture.completeExceptionally(exception);
+		}
+	    });
 
+	    return completeableFuture;
+	};
+    }
 }
