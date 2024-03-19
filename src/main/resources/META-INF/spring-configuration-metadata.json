@@ -2,6 +2,6 @@
   {
     "name": "me.ehp246.aufkafka.inbound.messagelogging.enabled",
     "type": "java.lang.String",
-    "description": "Set to 'true' to enable logging of in-bound messages fetched by consumers."
+    "description": "Set to 'true' to enable logging of in-bound messages fetched by consumers. See LoggingDispatchingListener for details."
   }
 ]}
