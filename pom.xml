@@ -6,8 +6,7 @@
 	<artifactId>auf-kafka</artifactId>
 	<version>1.0.1</version>
 	<name>Auf Kafka</name>
-	<description>An annotation-driven declarative Kafka development
-		framework</description>
+	<description>An annotation-driven declarative Kafka development framework</description>
 
 	<url>https://github.com/ehp246/auf-kafka</url>
 
@@ -42,7 +41,7 @@
 		<spring-framework.version>6.0.12</spring-framework.version>
 		<spring-boot.version>3.1.4</spring-boot.version>
 
-		<slf4j.version>2.0.10</slf4j.version>
+		<slf4j.version>2.0.17</slf4j.version>
 
 		<jackson.version>2.14.1</jackson.version>
 
