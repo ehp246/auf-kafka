@@ -35,18 +35,18 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<kafka-client.version>3.3.2</kafka-client.version>
+		<kafka-client.version>3.6.1</kafka-client.version>
 
-		<spring-kafka.version>3.0.12</spring-kafka.version>
-		<spring-framework.version>6.0.12</spring-framework.version>
-		<spring-boot.version>3.1.4</spring-boot.version>
+		<spring-boot.version>3.4.4</spring-boot.version>
+		<spring-framework.version>6.2.5</spring-framework.version>
+		<spring-kafka.version>3.1.5</spring-kafka.version>
 
 		<slf4j.version>2.0.17</slf4j.version>
 		
 		<jackson.version>2.18.3</jackson.version>
 
-		<junit-jupiter.version>5.8.2</junit-jupiter.version>
-		<junit-platform.version>1.9.2</junit-platform.version>
+		<junit-jupiter.version>5.12.1</junit-jupiter.version>
+		<junit-platform.version>1.12.1</junit-platform.version>
 
 		<mockito.version>5.16.1</mockito.version>
 		<bytebuddy.version>1.17.5</bytebuddy.version>
@@ -143,6 +143,11 @@
 			<artifactId>junit-platform-suite-engine</artifactId>
 			<version>${junit-platform.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<version>${junit-platform.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
@@ -154,15 +159,15 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka-test</artifactId>
 			<version>${spring-kafka.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+			</exclusions>
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot</artifactId>
-			<version>${spring-boot.version}</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-autoconfigure</artifactId>
