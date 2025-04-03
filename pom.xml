@@ -49,15 +49,15 @@
 		<junit-platform.version>1.9.2</junit-platform.version>
 
 		<mockito.version>5.16.1</mockito.version>
-		<bytebuddy.version>1.14.10</bytebuddy.version>
+		<bytebuddy.version>1.17.5</bytebuddy.version>
 
-		<maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-		<maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
-		<maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
-		<maven-source-plugin.version>3.2.0</maven-source-plugin.version>
-		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-		<maven-jacoco-plugin.version>0.8.11</maven-jacoco-plugin.version>
-		<nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+		<maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+		<maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+		<maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+		<maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+		<maven-jacoco-plugin.version>0.8.13</maven-jacoco-plugin.version>
+		<maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+		<nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
 
 		<gpg.keyname>0x94984720</gpg.keyname>
 	</properties>
