@@ -6,8 +6,7 @@
 	<artifactId>auf-kafka</artifactId>
 	<version>1.0.1</version>
 	<name>Auf Kafka</name>
-	<description>An annotation-driven declarative Kafka development
-		framework</description>
+	<description>An annotation-driven declarative Kafka development framework</description>
 
 	<url>https://github.com/ehp246/auf-kafka</url>
 
@@ -36,29 +35,29 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<kafka-client.version>3.3.2</kafka-client.version>
+		<kafka-client.version>3.6.1</kafka-client.version>
 
-		<spring-kafka.version>3.0.12</spring-kafka.version>
-		<spring-framework.version>6.0.12</spring-framework.version>
-		<spring-boot.version>3.1.4</spring-boot.version>
+		<spring-boot.version>3.4.4</spring-boot.version>
+		<spring-framework.version>6.2.5</spring-framework.version>
+		<spring-kafka.version>3.1.5</spring-kafka.version>
 
-		<slf4j.version>2.0.10</slf4j.version>
+		<slf4j.version>2.0.17</slf4j.version>
+		
+		<jackson.version>2.18.3</jackson.version>
 
-		<jackson.version>2.14.1</jackson.version>
+		<junit-jupiter.version>5.12.1</junit-jupiter.version>
+		<junit-platform.version>1.12.1</junit-platform.version>
 
-		<junit-jupiter.version>5.8.2</junit-jupiter.version>
-		<junit-platform.version>1.9.2</junit-platform.version>
+		<mockito.version>5.16.1</mockito.version>
+		<log4j.version>2.24.3</log4j.version>
 
-		<mockito.version>5.8.0</mockito.version>
-		<bytebuddy.version>1.14.10</bytebuddy.version>
-
-		<maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-		<maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
-		<maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
-		<maven-source-plugin.version>3.2.0</maven-source-plugin.version>
-		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-		<maven-jacoco-plugin.version>0.8.11</maven-jacoco-plugin.version>
-		<nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+		<maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+		<maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+		<maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+		<maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+		<maven-jacoco-plugin.version>0.8.13</maven-jacoco-plugin.version>
+		<maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+		<nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
 
 		<gpg.keyname>0x94984720</gpg.keyname>
 	</properties>
@@ -106,29 +105,23 @@
 		</dependency>
 
 		<!-- Test -->
-		<dependency>
-			<groupId>net.bytebuddy</groupId>
-			<artifactId>byte-buddy</artifactId>
-			<version>${bytebuddy.version}</version>
-			<scope>test</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
-			<version>2.21.0</version>
+			<version>${log4j.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
-			<version>2.21.0</version>
+			<version>${log4j.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>2.21.0</version>
+			<version>${log4j.version}</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -143,6 +136,11 @@
 			<artifactId>junit-platform-suite-engine</artifactId>
 			<version>${junit-platform.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-launcher</artifactId>
+			<version>${junit-platform.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>
@@ -154,15 +152,15 @@
 			<groupId>org.springframework.kafka</groupId>
 			<artifactId>spring-kafka-test</artifactId>
 			<version>${spring-kafka.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+			</exclusions>
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot</artifactId>
-			<version>${spring-boot.version}</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-autoconfigure</artifactId>
@@ -259,7 +257,10 @@
 							log4j2-surefire.xml</log4j2.configurationFile>
 						<spring.main.banner-mode>off</spring.main.banner-mode>
 					</systemPropertyVariables>
-					<argLine>-Xshare:off -XX:+EnableDynamicAgentLoading</argLine>
+					<argLine>
+						-javaagent:"${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar"
+						-Xshare:off
+					</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
