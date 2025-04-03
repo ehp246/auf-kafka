@@ -49,7 +49,6 @@
 		<junit-platform.version>1.12.1</junit-platform.version>
 
 		<mockito.version>5.16.1</mockito.version>
-		<bytebuddy.version>1.17.5</bytebuddy.version>
 		<log4j.version>2.24.3</log4j.version>
 
 		<maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
@@ -106,12 +105,6 @@
 		</dependency>
 
 		<!-- Test -->
-		<dependency>
-			<groupId>net.bytebuddy</groupId>
-			<artifactId>byte-buddy</artifactId>
-			<version>${bytebuddy.version}</version>
-			<scope>test</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
@@ -264,7 +257,10 @@
 							log4j2-surefire.xml</log4j2.configurationFile>
 						<spring.main.banner-mode>off</spring.main.banner-mode>
 					</systemPropertyVariables>
-					<argLine>-Xshare:off -XX:+EnableDynamicAgentLoading</argLine>
+					<argLine>
+						-javaagent:"${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar"
+						-Xshare:off
+					</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
