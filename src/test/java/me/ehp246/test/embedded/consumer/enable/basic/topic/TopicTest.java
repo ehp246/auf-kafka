@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
@@ -18,8 +19,8 @@ import me.ehp246.test.mock.WildcardAction;
  * @author Lei Yang
  *
  */
-@SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, WildcardAction.class },
-        properties = { "topic2=embedded.2" })
+@SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, WildcardAction.class }, properties = {
+        "topic2=embedded.2" }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { "embedded.1", "embedded.2" }, partitions = 1)
 @DirtiesContext
 class TopicTest {
