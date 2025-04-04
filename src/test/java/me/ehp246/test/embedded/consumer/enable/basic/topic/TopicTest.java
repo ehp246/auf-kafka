@@ -20,8 +20,8 @@ import me.ehp246.test.mock.WildcardAction;
  *
  */
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, WildcardAction.class }, properties = {
-        "topic2=embedded.2" }, webEnvironment = WebEnvironment.NONE)
-@EmbeddedKafka(topics = { "embedded.1", "embedded.2" }, partitions = 1)
+        "topic2=embedded.2", "kafka.Config.topic=embedded.3" }, webEnvironment = WebEnvironment.NONE)
+@EmbeddedKafka(topics = { "embedded.1", "embedded.2", "embedded.3" }, partitions = 1)
 @DirtiesContext
 class TopicTest {
     @Autowired
@@ -47,5 +47,15 @@ class TopicTest {
         final var msg = action.take();
 
         Assertions.assertEquals("embedded.2", msg.topic());
+    }
+
+    @Test
+    void topic_03() {
+        final var key = UUID.randomUUID().toString();
+        kafkaTemplate.send(new ProducerRecord<String, String>("embedded.3", key, null));
+
+        final var msg = action.take();
+
+        Assertions.assertEquals("embedded.3", msg.topic());
     }
 }
