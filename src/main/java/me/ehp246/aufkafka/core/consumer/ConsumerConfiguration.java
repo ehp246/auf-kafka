@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
-import me.ehp246.aufkafka.api.consumer.LoggingDispatchingListener;
+import me.ehp246.aufkafka.api.consumer.InboundDispatchingLogger;
 import me.ehp246.aufkafka.api.consumer.NoOpUnmatchedConsumer;
 
 /**
@@ -30,9 +30,9 @@ public final class ConsumerConfiguration {
     }
 
     @Bean(AufKafkaConstant.BEAN_LOGGING_DISPATCHING_LISTENER)
-    LoggingDispatchingListener loggingDispatchingListener(
+    InboundDispatchingLogger inboundDispatchingLogger(
 	    @Value("${" + AufKafkaConstant.PROPERTY_INBOUND_MESSAGELOGGING_ENABLED + ":false}") final boolean enabled) {
-	return new LoggingDispatchingListener(enabled);
+	return new InboundDispatchingLogger(enabled);
     }
 
     @Bean(AufKafkaConstant.BEAN_IGNORING_CONSUMEREXCEPTION_LISTENER)

@@ -14,7 +14,7 @@ import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableBinder;
-import me.ehp246.aufkafka.api.consumer.LoggingDispatchingListener;
+import me.ehp246.aufkafka.api.consumer.InboundDispatchingLogger;
 
 /**
  * @author Lei Yang
@@ -33,7 +33,7 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
 
     public InboundEndpointConsumerConfigurer(final List<InboundEndpoint> endpoints,
 	    final InboundConsumerExecutorProvider executorProvider, final ConsumerProvider consumerProvider,
-	    final InvocableBinder binder, final LoggingDispatchingListener loggingDispatchingListener,
+	    final InvocableBinder binder, final InboundDispatchingLogger inboundDispatchingLogger,
 	    final AutowireCapableBeanFactory autowireCapableBeanFactory,
 	    final DefaultInboundConsumerRegistry consumerRegistry) {
 	super();
@@ -41,7 +41,7 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
 	this.executorProvider = executorProvider;
 	this.consumerProvider = consumerProvider;
 	this.binder = binder;
-	this.onDispatching = loggingDispatchingListener == null ? List.of() : List.of(loggingDispatchingListener);
+	this.onDispatching = inboundDispatchingLogger == null ? List.of() : List.of(inboundDispatchingLogger);
 	this.autowireCapableBeanFactory = autowireCapableBeanFactory;
 	this.consumerRegistry = consumerRegistry;
     }
