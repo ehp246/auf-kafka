@@ -13,9 +13,8 @@ import me.ehp246.aufkafka.api.consumer.InstanceScope;
  *
  */
 @ForKey(value = ".*", scope = InstanceScope.BEAN)
-class KeyAction {
-    private final AtomicReference<CompletableFuture<String>> ref = new AtomicReference<>(
-            new CompletableFuture<>());
+public class KeyAction {
+    private final AtomicReference<CompletableFuture<String>> ref = new AtomicReference<>(new CompletableFuture<>());
 
     public void apply(@OfKey final String key) {
         ref.get().complete(key);
