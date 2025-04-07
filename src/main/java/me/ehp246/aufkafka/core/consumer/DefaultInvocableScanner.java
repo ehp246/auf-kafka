@@ -42,32 +42,28 @@ public final class DefaultInvocableScanner implements InvocableScanner {
     }
 
     @Override
-    public Set<InvocableKeyDefinition> apply(final Set<Class<?>> registering,
-            final Set<String> scanPackages) {
+    public Set<InvocableKeyDefinition> apply(final Set<Class<?>> registering, final Set<String> scanPackages) {
         final var scanner = new ClassPathScanningCandidateComponentProvider(false) {
             @Override
             protected boolean isCandidateComponent(final AnnotatedBeanDefinition beanDefinition) {
-                return beanDefinition.getMetadata().isIndependent()
-                        || beanDefinition.getMetadata().isInterface();
+                return beanDefinition.getMetadata().isIndependent() || beanDefinition.getMetadata().isInterface();
             }
         };
         scanner.addIncludeFilter(new AnnotationTypeFilter(ForKey.class));
 
-        return Stream.concat(
-                Optional.ofNullable(registering).map(Set::stream)
-                        .orElseGet(() -> Stream.of((Class<?>) null)),
-                OneUtil.streamOfNonNull(scanPackages).map(scanner::findCandidateComponents)
-                        .flatMap(Set::stream).map(bean -> {
-                            try {
-                                return Class.forName(bean.getBeanClassName());
-                            } catch (final ClassNotFoundException e) {
-                                LOGGER.atError().setMessage("This should not happen: {}")
-                                        .setCause(e).addArgument(e::getMessage).log();
-                            }
-                            return null;
-                        }))
-                .filter(Objects::nonNull).map(this::newDefinition).filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        return Stream
+                .concat(Optional.ofNullable(registering).map(Set::stream).orElseGet(() -> Stream.of((Class<?>) null)),
+                        OneUtil.streamOfNonNull(scanPackages).map(scanner::findCandidateComponents).flatMap(Set::stream)
+                                .map(bean -> {
+                                    try {
+                                        return Class.forName(bean.getBeanClassName());
+                                    } catch (final ClassNotFoundException e) {
+                                        LOGGER.atError().setMessage("This should not happen: {}").setCause(e)
+                                                .addArgument(e::getMessage).log();
+                                    }
+                                    return null;
+                                }))
+                .filter(Objects::nonNull).map(this::newDefinition).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     private InvocableKeyDefinition newDefinition(final Class<?> type) {
@@ -76,20 +72,19 @@ public final class DefaultInvocableScanner implements InvocableScanner {
             return null;
         }
 
-        if ((Modifier.isAbstract(type.getModifiers())
-                && annotation.scope().equals(InstanceScope.MESSAGE)) || type.isEnum()) {
+        if ((Modifier.isAbstract(type.getModifiers()) && annotation.scope().equals(InstanceScope.MESSAGE))
+                || type.isEnum()) {
             throw new IllegalArgumentException("Un-instantiable type " + type.getName());
         }
 
         final var msgTypes = Arrays
-                .asList(annotation.value().length == 0 ? new String[] { type.getSimpleName() }
-                        : annotation.value())
+                .asList(annotation.value().length == 0 ? new String[] { type.getSimpleName() } : annotation.value())
                 .stream().map(this.expressionResolver::apply)
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-                .entrySet().stream().map(entry -> {
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).entrySet().stream()
+                .map(entry -> {
                     if (entry.getValue() > 1) {
-                        throw new IllegalArgumentException("Duplicate type '" + entry.getKey()
-                                + "' on " + type.getCanonicalName());
+                        throw new IllegalArgumentException(
+                                "Duplicate type '" + entry.getKey() + "' on " + type.getCanonicalName());
                     }
                     return entry.getKey();
                 }).collect(Collectors.toSet());
@@ -104,7 +99,7 @@ public final class DefaultInvocableScanner implements InvocableScanner {
         }
 
         /*
-         * Look for 'apply'.
+         * Look for 'invoke', then 'apply'.
          */
         if (invokings.get("") == null) {
             final var invokes = reflected.findMethods("invoke");
