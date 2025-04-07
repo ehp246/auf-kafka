@@ -16,7 +16,7 @@ import me.ehp246.aufkafka.api.annotation.EnableByKafka;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider.ProducerFnConfig;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
-import me.ehp246.aufkafka.api.spi.PropertyResolver;
+import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 
 /**
  *
@@ -30,14 +30,14 @@ public final class ProducerProxyFactory {
 
 	private final ProxyMethodParser methodParser;
 	private final ProducerFnProvider producerFnProvider;
-	private final PropertyResolver propertyResolver;
+	private final ExpressionResolver expressionResolver;
 
 	public ProducerProxyFactory(final ProxyMethodParser methodParser, final ProducerFnProvider producerFnProvider,
-			final PropertyResolver propertyResolver) {
+			final ExpressionResolver expressionResolver) {
 		super();
 		this.methodParser = methodParser;
 		this.producerFnProvider = producerFnProvider;
-		this.propertyResolver = propertyResolver;
+		this.expressionResolver = expressionResolver;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -91,7 +91,7 @@ public final class ProducerProxyFactory {
 
 		final Map<String, Object> resolvedProperties = new HashMap<>();
 		for (int i = 0; i < properties.size(); i += 2) {
-			resolvedProperties.put(properties.get(i), propertyResolver.apply(properties.get(i + 1)));
+			resolvedProperties.put(properties.get(i), expressionResolver.apply(properties.get(i + 1)));
 		}
 		return resolvedProperties;
 	}

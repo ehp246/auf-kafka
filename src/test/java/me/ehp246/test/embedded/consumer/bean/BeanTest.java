@@ -13,7 +13,7 @@ import org.springframework.util.PlaceholderResolutionException;
 
 import me.ehp246.aufkafka.api.consumer.InboundConsumerRegistry;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
-import me.ehp246.aufkafka.api.spi.PropertyResolver;
+import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.test.embedded.consumer.bean.AppConfig.KafkaConfig;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
@@ -29,7 +29,7 @@ class BeanTest {
     @Autowired
     private ListableBeanFactory beanFactory;
     @Autowired
-    private PropertyResolver resolver;
+    private ExpressionResolver resolver;
     @Autowired
     private KafkaConfig config;
 

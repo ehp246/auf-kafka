@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
-import me.ehp246.aufkafka.api.spi.PropertyResolver;
+import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.aufkafka.core.provider.jackson.JsonByObjectMapper;
 
 /**
@@ -32,15 +32,15 @@ public final class AufKafkaConfiguration {
             "com.fasterxml.jackson.module.paramnames.ParameterNamesModule");
 
     @Bean
-    PropertyResolver propertyResolver(final org.springframework.core.env.PropertyResolver springResolver,
-            ConfigurableBeanFactory beanFactory) {
-        final var resolver = new StandardBeanExpressionResolver();
+    ExpressionResolver expressionResolver(final org.springframework.core.env.PropertyResolver springPropertyResolver,
+            final ConfigurableBeanFactory beanFactory) {
+        final var springSpelResolver = new StandardBeanExpressionResolver();
         final var context = new BeanExpressionContext(beanFactory, null);
-        return str -> {
-            if (str.startsWith("#{")) {
-                return resolver.evaluate(str, context).toString();
+        return exp -> {
+            if (exp.startsWith("#{")) {
+                return springSpelResolver.evaluate(exp, context).toString();
             }
-            return springResolver.resolveRequiredPlaceholders(str);
+            return springPropertyResolver.resolveRequiredPlaceholders(exp);
         };
     }
 
