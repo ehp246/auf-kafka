@@ -21,7 +21,8 @@ import me.ehp246.aufkafka.api.consumer.InvocationModel;
  * <ul>
  * <li>Only <code>public</code> methods declared directly on the class are
  * considered. No inherited.
- * <li>a method annotated by {@linkplain Applying}. Or...
+ * <li>a method annotated by {@linkplain Applying}, or...
+ * <li>a method named '<code>invoke</code>', or...
  * <li>a method named '<code>apply</code>'.
  * </ul>
  * The signature and the declaration order are not considered. The first found
