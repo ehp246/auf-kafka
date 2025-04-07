@@ -8,7 +8,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -31,7 +30,7 @@ public final class EmbeddedKafkaConfig {
     private EmbeddedKafkaBroker embeddedKafka;
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
+    ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
             final ConsumerFactory<String, String> consumerFactory) {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<String, String>();
         factory.setConsumerFactory(consumerFactory);
@@ -42,10 +41,8 @@ public final class EmbeddedKafkaConfig {
     @Bean
     ConsumerFactory<String, String> consumerFactory() {
         final var configMap = KafkaTestUtils.consumerProps("test", "true", embeddedKafka);
-        configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
-        configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class.getName());
+        configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         configMap.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
         return new DefaultKafkaConsumerFactory<>(configMap);
@@ -60,8 +57,7 @@ public final class EmbeddedKafkaConfig {
 
     @Bean
     ConsumerConfigProvider consumerConfigProvider() {
-        final Map<String, Object> configMap = KafkaTestUtils.consumerProps("test", "true",
-                embeddedKafka);
+        final Map<String, Object> configMap = KafkaTestUtils.consumerProps("test", "true", embeddedKafka);
 
         return name -> configMap;
     }
@@ -76,8 +72,7 @@ public final class EmbeddedKafkaConfig {
     }
 
     @Bean
-    KafkaTemplate<String, String> kafkaTemplate(
-            final ProducerFactory<String, String> producerFactory) {
+    KafkaTemplate<String, String> kafkaTemplate(final ProducerFactory<String, String> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 }

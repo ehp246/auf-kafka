@@ -17,7 +17,7 @@ import me.ehp246.aufkafka.api.consumer.InvocableKeyRegistry;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
-import me.ehp246.aufkafka.api.spi.PropertyResolver;
+import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
@@ -29,15 +29,15 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * 
  */
 public final class InboundEndpointFactory {
-    private final PropertyResolver propertyResolver;
+    private final ExpressionResolver expressionResolver;
     private final AutowireCapableBeanFactory autowireCapableBeanFactory;
     private final InvocableScanner invocableScanner;
 
     public InboundEndpointFactory(final AutowireCapableBeanFactory autowireCapableBeanFactory,
-	    final PropertyResolver propertyResolver, final InvocableScanner invocableScanner) {
+	    final ExpressionResolver expressionResolver, final InvocableScanner invocableScanner) {
 	super();
 	this.autowireCapableBeanFactory = autowireCapableBeanFactory;
-	this.propertyResolver = propertyResolver;
+	this.expressionResolver = expressionResolver;
 	this.invocableScanner = invocableScanner;
     }
 
@@ -49,21 +49,21 @@ public final class InboundEndpointFactory {
 	final var consumerConfigName = inboundAttributes.get("consumerConfigName").toString();
 
 	final var umatchedListener = Optional.ofNullable(inboundAttributes.get("unmatchedConsumer").toString())
-		.map(propertyResolver::apply).filter(OneUtil::hasValue)
+		.map(expressionResolver::apply).filter(OneUtil::hasValue)
 		.map(name -> autowireCapableBeanFactory.getBean(name, UnmatchedConsumer.class)).orElse(null);
 
 	final var exceptionListener = Optional.ofNullable(inboundAttributes.get("consumerExceptionListener").toString())
-		.map(propertyResolver::apply).filter(OneUtil::hasValue)
+		.map(expressionResolver::apply).filter(OneUtil::hasValue)
 		.map(name -> autowireCapableBeanFactory.getBean(name, ConsumerExceptionListener.class)).orElse(null);
 
 	final var consumerProperties = consumerProperties(
 		Arrays.asList((String[]) inboundAttributes.get("consumerProperties")), beanName);
 
 	final boolean autoStartup = Boolean
-		.parseBoolean(propertyResolver.apply(inboundAttributes.get("autoStartup").toString()));
+		.parseBoolean(expressionResolver.apply(inboundAttributes.get("autoStartup").toString()));
 
 	final InboundEndpoint.From from = new InboundEndpoint.From() {
-	    private final String topic = propertyResolver.apply(fromAttribute.get("value").toString());
+	    private final String topic = expressionResolver.apply(fromAttribute.get("value").toString());
 
 	    @Override
 	    public String topic() {
@@ -76,7 +76,7 @@ public final class InboundEndpointFactory {
 		scanPackages).stream());
 
 	final var invocationListener = Optional.ofNullable(inboundAttributes.get("invocationListener").toString())
-		.map(propertyResolver::apply).filter(OneUtil::hasValue)
+		.map(expressionResolver::apply).filter(OneUtil::hasValue)
 		.map(name -> autowireCapableBeanFactory.getBean(name, InvocationListener.class)).orElse(null);
 
 	return new InboundEndpoint() {
@@ -135,7 +135,7 @@ public final class InboundEndpointFactory {
 
 	final Map<String, Object> resolvedProperties = new HashMap<>();
 	for (int i = 0; i < properties.size(); i += 2) {
-	    resolvedProperties.put(properties.get(i), propertyResolver.apply(properties.get(i + 1)));
+	    resolvedProperties.put(properties.get(i), expressionResolver.apply(properties.get(i + 1)));
 	}
 	return resolvedProperties;
     }

@@ -23,7 +23,7 @@ import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
 import me.ehp246.aufkafka.api.consumer.InvocableKeyDefinition;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
-import me.ehp246.aufkafka.api.spi.PropertyResolver;
+import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.aufkafka.core.reflection.ReflectedType;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
@@ -34,11 +34,11 @@ import me.ehp246.aufkafka.core.util.OneUtil;
 public final class DefaultInvocableScanner implements InvocableScanner {
     private final static Logger LOGGER = LoggerFactory.getLogger(DefaultInvocableScanner.class);
 
-    private final PropertyResolver propertyResolver;
+    private final ExpressionResolver expressionResolver;
 
-    public DefaultInvocableScanner(final PropertyResolver propertyResolver) {
+    public DefaultInvocableScanner(final ExpressionResolver expressionResolver) {
         super();
-        this.propertyResolver = propertyResolver;
+        this.expressionResolver = expressionResolver;
     }
 
     @Override
@@ -84,7 +84,7 @@ public final class DefaultInvocableScanner implements InvocableScanner {
         final var msgTypes = Arrays
                 .asList(annotation.value().length == 0 ? new String[] { type.getSimpleName() }
                         : annotation.value())
-                .stream().map(this.propertyResolver::apply)
+                .stream().map(this.expressionResolver::apply)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet().stream().map(entry -> {
                     if (entry.getValue() > 1) {

@@ -1,5 +1,7 @@
 package me.ehp246.test.embedded.consumer.bean;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.kafka.annotation.EnableKafka;
 
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
@@ -12,5 +14,9 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
  */
 @EnableKafka
 @EnableForKafka({ @Inbound(value = @From("embedded")) })
+@EnableConfigurationProperties({ AppConfig.KafkaConfig.class })
 class AppConfig {
+    @ConfigurationProperties(prefix = "kafka.config")
+    static record KafkaConfig(String topic) {
+    }
 }

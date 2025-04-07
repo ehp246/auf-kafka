@@ -23,7 +23,7 @@ import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.HeaderParam;
 import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.ValueParam;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
 import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
-import me.ehp246.aufkafka.api.spi.PropertyResolver;
+import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.aufkafka.core.reflection.ReflectedMethod;
 import me.ehp246.aufkafka.core.reflection.ReflectedParameter;
 import me.ehp246.aufkafka.core.util.OneUtil;
@@ -33,10 +33,10 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  *
  */
 public final class DefaultProxyMethodParser implements ProxyMethodParser {
-    private final PropertyResolver propertyResolver;
+    private final ExpressionResolver expressionResolver;
 
-    DefaultProxyMethodParser(final PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
+    DefaultProxyMethodParser(final ExpressionResolver expressionResolver) {
+        this.expressionResolver = expressionResolver;
     }
 
     @Override
@@ -49,7 +49,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                     final Object value = args[p.index()];
                     return value == null ? null : value + "";
                 }).orElseGet(() -> {
-                    final var topic = propertyResolver.apply(byKafka.value());
+                    final var topic = expressionResolver.apply(byKafka.value());
                     return (Function<Object[], String>) args -> topic;
                 });
 
@@ -133,7 +133,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
         final List<OutboundRecord.Header> headerStatic = new ArrayList<>();
         for (int i = 0; i < headers.length; i += 2) {
             final var key = headers[i];
-            final var value = propertyResolver.apply(headers[i + 1]);
+            final var value = expressionResolver.apply(headers[i + 1]);
 
             headerStatic.add(new OutboundRecord.Header() {
 
