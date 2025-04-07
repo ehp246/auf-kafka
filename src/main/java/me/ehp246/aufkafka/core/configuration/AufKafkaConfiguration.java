@@ -39,9 +39,8 @@ public final class AufKafkaConfiguration {
         return str -> {
             if (str.startsWith("#{")) {
                 return resolver.evaluate(str, context).toString();
-            } else {
-                return springResolver.resolveRequiredPlaceholders(str);
             }
+            return springResolver.resolveRequiredPlaceholders(str);
         };
     }
 
