@@ -69,12 +69,15 @@ public final class DefaultInvocableScanner implements InvocableScanner {
     private InvocableKeyDefinition newDefinition(final Class<?> type) {
         final var annotation = type.getAnnotation(ForKey.class);
         if (annotation == null) {
-            return null;
+            throw new IllegalArgumentException(ForKey.class.getName() + " annotation required on " + type.getName());
         }
 
         if ((Modifier.isAbstract(type.getModifiers()) && annotation.scope().equals(InstanceScope.MESSAGE))
                 || type.isEnum()) {
             throw new IllegalArgumentException("Un-instantiable type " + type.getName());
+        }
+        if (!Modifier.isPublic(type.getModifiers())) {
+            throw new IllegalArgumentException("public modifier required on " + type.getName());
         }
 
         final var msgTypes = Arrays

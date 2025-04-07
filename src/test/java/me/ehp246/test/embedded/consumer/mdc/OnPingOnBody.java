@@ -20,7 +20,7 @@ import me.ehp246.aufkafka.api.consumer.InstanceScope;
  */
 @Service
 @ForKey(value = "PingOnBody", scope = InstanceScope.BEAN)
-class OnPingOnBody {
+public class OnPingOnBody {
     private final AtomicReference<CompletableFuture<Map<String, String>>> ref = new AtomicReference<>(
             new CompletableFuture<>());
 

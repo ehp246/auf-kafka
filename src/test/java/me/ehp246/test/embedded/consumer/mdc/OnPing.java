@@ -17,7 +17,7 @@ import me.ehp246.aufkafka.api.consumer.InstanceScope;
  */
 @Service
 @ForKey(value = "Ping", scope = InstanceScope.BEAN)
-class OnPing {
+public class OnPing {
     private CompletableFuture<Map<String, String>> ref = new CompletableFuture<>();
 
     void reset() {

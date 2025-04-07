@@ -8,7 +8,7 @@ import me.ehp246.aufkafka.api.annotation.OfKey;
  *
  */
 @ForKey(".*")
-class OnMsg {
+public class OnMsg {
 
     public void apply(@OfKey final String key) {
         throw new IllegalArgumentException(key);

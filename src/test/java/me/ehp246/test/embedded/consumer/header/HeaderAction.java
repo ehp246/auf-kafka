@@ -16,9 +16,8 @@ import me.ehp246.aufkafka.api.consumer.InstanceScope;
  *
  */
 @ForKey(value = ".*", scope = InstanceScope.BEAN)
-class HeaderAction {
-    private final AtomicReference<CompletableFuture<Received>> ref = new AtomicReference<>(
-            new CompletableFuture<>());
+public class HeaderAction {
+    private final AtomicReference<CompletableFuture<Received>> ref = new AtomicReference<>(new CompletableFuture<>());
 
     public void apply(@OfHeader final Headers headers, @OfHeader final List<String> headerList,
             @OfHeader final String header1) {

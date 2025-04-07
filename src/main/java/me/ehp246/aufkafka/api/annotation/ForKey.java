@@ -16,6 +16,8 @@ import me.ehp246.aufkafka.api.consumer.InvocationModel;
  * Indicates that the class defines methods that should be invoked on a message
  * by matching on message's key, i.e., {@linkplain ConsumerRecord#key()}.
  * <p>
+ * The annotated class must be <code>public</code>.
+ * <p>
  * The method that the record is to be applied to is determined by the following
  * lookup process:
  * <ul>

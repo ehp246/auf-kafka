@@ -10,7 +10,7 @@ import me.ehp246.aufkafka.api.annotation.OfValue;
  *
  */
 @ForKey(".*")
-class OnMsg {
+public class OnMsg {
     @Applying
     public String perform(@OfKey final String type, @OfValue String value) {
         if (type.equalsIgnoreCase("throw")) {

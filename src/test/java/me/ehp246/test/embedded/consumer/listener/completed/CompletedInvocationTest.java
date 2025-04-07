@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -18,8 +19,8 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  * @author Lei Yang
  *
  */
-@SpringBootTest(classes = { AppConfig.class, CompletedListener.class, EmbeddedKafkaConfig.class },
-        properties = { "comp1.name=completedListener" }, webEnvironment = WebEnvironment.NONE)
+@SpringBootTest(classes = { AppConfig.class, CompletedListener.class, EmbeddedKafkaConfig.class }, properties = {
+        "comp1.name=completedListener" }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { "embedded" }, partitions = 1)
 @DirtiesContext
 class CompletedInvocationTest {
@@ -34,6 +35,7 @@ class CompletedInvocationTest {
     }
 
     @Test
+    @Timeout(3)
     void completed_01() {
         final var id = UUID.randomUUID().toString();
 
