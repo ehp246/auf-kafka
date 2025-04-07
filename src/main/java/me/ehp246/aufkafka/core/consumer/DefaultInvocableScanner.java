@@ -69,7 +69,7 @@ public final class DefaultInvocableScanner implements InvocableScanner {
     private InvocableKeyDefinition newDefinition(final Class<?> type) {
         final var annotation = type.getAnnotation(ForKey.class);
         if (annotation == null) {
-            return null;
+            throw new IllegalArgumentException(ForKey.class.getName() + " annotation required on " + type.getName());
         }
 
         if ((Modifier.isAbstract(type.getModifiers()) && annotation.scope().equals(InstanceScope.MESSAGE))

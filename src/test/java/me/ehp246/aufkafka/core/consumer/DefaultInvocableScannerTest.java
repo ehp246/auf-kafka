@@ -21,8 +21,19 @@ class DefaultInvocableScannerTest {
                 .apply(null, Set.of("me.ehp246.aufkafka.core.consumer.case01")));
     }
 
+    @Test
+    void test_03() {
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new DefaultInvocableScanner(Object::toString).apply(Set.of(NoForKey.class), null));
+    }
+
     @ForKey("test")
     static class NonPublic {
+        public void invoke() {
+        }
+    }
+
+    static class NoForKey {
         public void invoke() {
         }
     }
