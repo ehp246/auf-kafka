@@ -76,6 +76,9 @@ public final class DefaultInvocableScanner implements InvocableScanner {
                 || type.isEnum()) {
             throw new IllegalArgumentException("Un-instantiable type " + type.getName());
         }
+        if (!Modifier.isPublic(type.getModifiers())) {
+            throw new IllegalArgumentException("public modifier required on " + type.getName());
+        }
 
         final var msgTypes = Arrays
                 .asList(annotation.value().length == 0 ? new String[] { type.getSimpleName() } : annotation.value())
