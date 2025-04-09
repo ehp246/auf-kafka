@@ -73,6 +73,18 @@ class ServerApplication {
 }
 ```
 
+**Define `ConsumerConfigProvider`**
+
+```java
+    @Bean
+    ConsumerConfigProvider consumerConfigProvider(final KafkaConfig config) {
+        final Map<String, Object> map = Map.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, config.bootStrapServers(),
+                ConsumerConfig.GROUP_ID_CONFIG, config.groupId());
+        return name -> map;
+    }
+```
+
+
 **Implement business logic by message key**
 
 ```java
@@ -87,10 +99,10 @@ class RunJob {
 Details can be found at the project's [Wiki](https://github.com/ehp246/auf-kafka/wiki).
 
 ## Runtime
-The latest version 5 requires the following to run:
+The latest version requires the following to run:
 * <a href='https://openjdk.org/projects/jdk/21/'>JDK 21</a>
 * <a href='https://mvnrepository.com/artifact/org.springframework'>Spring 6.2</a>: Bean and Context
-* <a href='https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients'>Apache Kafka client</a>
+* <a href='https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients'>Apache Kafka client</a>: Version 3.6
 * <a href='https://mvnrepository.com/artifact/com.fasterxml.jackson'>Jackson 2</a>: Core and Databind
 
 This library works with Apache Kafka client directly. It does not need <a href="https://mvnrepository.com/artifact/org.springframework.kafka/spring-kafka">Spring Kafka</a>.
