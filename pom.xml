@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.ehp246</groupId>
 	<artifactId>auf-kafka</artifactId>
-	<version>1.0.1</version>
+	<version>2.0.0</version>
 	<name>Auf Kafka</name>
 	<description>An annotation-driven declarative Kafka development framework</description>
 
@@ -57,9 +57,10 @@
 		<maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
 		<maven-jacoco-plugin.version>0.8.13</maven-jacoco-plugin.version>
 		<maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+		
 		<nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
-
-		<gpg.keyname>0x94984720</gpg.keyname>
+		<versions-plugin.version>2.18.0</versions-plugin.version>
+		<scm-plugin.version>2.1.0</scm-plugin.version>
 	</properties>
 
 	<dependencies>
@@ -254,7 +255,8 @@
 				<configuration>
 					<systemPropertyVariables>
 						<log4j2.configurationFile>
-							log4j2-surefire.xml</log4j2.configurationFile>
+							log4j2-surefire.xml
+						</log4j2.configurationFile>
 						<spring.main.banner-mode>off</spring.main.banner-mode>
 					</systemPropertyVariables>
 					<argLine>
@@ -327,8 +329,8 @@
 								<arg>--pinentry-mode</arg>
 								<arg>loopback</arg>
 							</gpgArguments>
-							<keyname>${gpg.keyname}</keyname>
-							<passphraseServerId>${gpg.keyname}</passphraseServerId>
+				            <keyname>${gpg.keyname}</keyname>
+				            <passphraseServerId>gpg-passphrase</passphraseServerId>
 						</configuration>
 					</execution>
 				</executions>
