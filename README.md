@@ -109,3 +109,20 @@ This library works with Apache Kafka client directly. It does not need <a href="
 
 ## Release
 The release binaries can be found on [Maven Central](https://mvnrepository.com/artifact/me.ehp246/auf-kafka).
+
+### To build a release
+
+Make sure GPG agent is running:
+
+```shell
+gpg-connect-agent /bye
+gpg --card-status
+```
+
+Build the release:
+
+```shell
+mvn clean deploy
+```
+
+Release the build from Sonatype web site.
