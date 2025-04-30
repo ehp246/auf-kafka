@@ -6,8 +6,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
-
 /**
  * Specifies the binding point of the value for event type header. The
  * annotation can be applied on both the producer side, i.e.,
@@ -21,12 +19,9 @@ import me.ehp246.aufkafka.api.AufKafkaConstant;
  * <p>
  * When applied to a parameter, the specified value is ignored.
  * <p>
- * When applied to a method, Spring property placeholder and SpEL expression are
- * supported.
  *
  * @author Lei Yang
  * @since 1.0
- * @see AufKafkaConstant#EVENT_TYPE_HEADER
  */
 @Retention(RUNTIME)
 @Target({ ElementType.METHOD, ElementType.PARAMETER })
