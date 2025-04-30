@@ -13,7 +13,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
+import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.serializer.json.ToJson;
+import me.ehp246.aufkafka.core.util.OneUtil;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
 /**
@@ -42,7 +44,7 @@ class BasicTest {
     }
 
     @Test
-    void producer_01() throws InterruptedException, ExecutionException {
+    void template_01() throws InterruptedException, ExecutionException {
         final var value = UUID.randomUUID().toString();
         template.send("embedded", "NewEvent", value);
 
@@ -53,13 +55,24 @@ class BasicTest {
     }
 
     @Test
-    void producer_key_02() throws InterruptedException, ExecutionException {
+    void producer_type_01() throws InterruptedException, ExecutionException {
         this.case01.newEvent();
 
         final var received = listener.take();
 
         Assertions.assertEquals(true, received.topic().equals("embedded"));
-        Assertions.assertEquals(true, received.key().equals("NewEvent"));
+        Assertions.assertEquals(true,
+                OneUtil.getLastHeaderAsString(received, AufKafkaConstant.EVENT_TYPE_HEADER).equals("NewEvent"));
+    }
+
+    @Test
+    void producer_key_01() throws InterruptedException, ExecutionException {
+        this.case01.newEvent();
+
+        final var received = listener.take();
+
+        Assertions.assertEquals(true, received.topic().equals("embedded"));
+        Assertions.assertEquals(null, received.key());
     }
 
     @Test

@@ -12,6 +12,7 @@ import java.util.function.Function;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
+import me.ehp246.aufkafka.api.annotation.OfEventType;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
@@ -53,6 +54,19 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                     return (Function<Object[], String>) args -> topic;
                 });
 
+        final var eventTypeBinder = reflected.allParametersWith(OfEventType.class).stream().findFirst()
+                .map(p -> (Function<Object[], String>) args -> {
+                    final var value = args[p.index()];
+                    return value == null ? null : value + "";
+                }).orElseGet(() -> reflected.findOnMethodUp(OfEventType.class).map(ofEventType -> {
+                    final var eventType = ofEventType.value();
+                    return eventType.isBlank() ? (Function<Object[], String>) args -> null
+                            : (Function<Object[], String>) args -> eventType;
+                }).orElseGet(() -> {
+                    final var eventType = OneUtil.firstUpper(reflected.method().getName());
+                    return args -> eventType;
+                }));
+
         final var keyBinder = reflected.allParametersWith(OfKey.class).stream().findFirst()
                 .map(p -> (Function<Object[], String>) args -> {
                     final var value = args[p.index()];
@@ -61,10 +75,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                     final var key = ofKey.value();
                     return key.isBlank() ? (Function<Object[], String>) args -> null
                             : (Function<Object[], String>) args -> key;
-                }).orElseGet(() -> {
-                    final var key = OneUtil.firstUpper(reflected.method().getName());
-                    return args -> key;
-                }));
+                }).orElseGet(() -> args -> null));
 
         final var partitionBinder = reflected.allParametersWith(OfPartition.class).stream().findFirst().map(p -> {
             final var index = p.index();
@@ -97,9 +108,9 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                         parameter.getType()))
                 .orElse(null);
 
-        return new Parsed(new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder,
-                null, valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, objectOf), headerBinder(reflected),
-                headerStatic(reflected, byKafka)));
+        return new Parsed(new DefaultProxyInvocationBinder(topicBinder, eventTypeBinder, keyBinder, partitionBinder,
+                timestampBinder, null, valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, objectOf),
+                headerBinder(reflected), headerStatic(reflected, byKafka)));
     }
 
     private Map<Integer, HeaderParam> headerBinder(final ReflectedMethod reflected) {

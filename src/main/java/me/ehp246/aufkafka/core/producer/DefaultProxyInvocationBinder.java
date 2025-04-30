@@ -16,23 +16,24 @@ import me.ehp246.aufkafka.api.serializer.ObjectOf;
  * @author Lei Yang
  *
  */
-record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder,
+record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Function<Object[], String> eventTypeBinder,
         Function<Object[], String> keyBinder, Function<Object[], Object> partitionBinder,
-        Function<Object[], Instant> timestampBinder, Function<Object[], String> correlIdBinder,
-        ValueParam valueParam, Map<Integer, HeaderParam> headerBinder,
-        List<OutboundRecord.Header> headerStatic) implements ProxyInvocationBinder {
+        Function<Object[], Instant> timestampBinder, Function<Object[], String> correlIdBinder, ValueParam valueParam,
+        Map<Integer, HeaderParam> headerBinder, List<OutboundRecord.Header> headerStatic)
+        implements ProxyInvocationBinder {
 
     @Override
     public Bound apply(final Object target, final Object[] args) throws Throwable {
         final var topic = topicBinder.apply(args);
+        final var eventType = eventTypeBinder.apply(args);
         final var key = keyBinder.apply(args);
         final var partition = partitionBinder.apply(args);
         final var timestamp = timestampBinder.apply(args);
         final var value = valueParam == null ? null : args[valueParam.index()];
         final var objectOf = valueParam == null ? null : valueParam.objectOf();
         final var headers = Stream.concat(
-                this.headerBinder.entrySet().stream().map(
-                        entry -> new Pair<Object>(entry.getValue().name(), args[entry.getKey()])),
+                this.headerBinder.entrySet().stream()
+                        .map(entry -> new Pair<Object>(entry.getValue().name(), args[entry.getKey()])),
                 this.headerStatic.stream()).collect(Collectors.toList());
 
         return new Bound(new OutboundRecord() {
@@ -40,6 +41,11 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder,
             @Override
             public String topic() {
                 return topic;
+            }
+
+            @Override
+            public String eventType() {
+                return eventType;
             }
 
             @Override

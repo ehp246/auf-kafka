@@ -2,14 +2,22 @@ package me.ehp246.aufkafka.api.producer;
 
 import java.time.Instant;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
+
 import me.ehp246.aufkafka.api.serializer.ObjectOf;
 
 /**
+ * The customized abstraction of a {@linkplain ProducerRecord}.
+ * 
  * @author Lei Yang
  * @since 1.0
  */
 public interface OutboundRecord {
     String topic();
+
+    default String eventType() {
+        return null;
+    }
 
     default String key() {
         return null;
