@@ -27,8 +27,7 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
     private final Function<String, List<PartitionInfo>> infoProvider;
     private final ToJson toJson;
 
-    public DefaultProducerRecordBuilder(
-            final Function<String, List<PartitionInfo>> partitionInfoProvider,
+    public DefaultProducerRecordBuilder(final Function<String, List<PartitionInfo>> partitionInfoProvider,
             final PartitionMap partitionMap, final ToJson toJson) {
         super();
         this.partitionMap = partitionMap;
@@ -39,18 +38,16 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
     @Override
     public ProducerRecord<String, String> apply(OutboundRecord outboundRecord) {
         return new ProducerRecord<String, String>(outboundRecord.topic(),
-                partitionMap.apply(this.infoProvider.apply(outboundRecord.topic()),
-                        outboundRecord.partitionKey()),
-                Optional.ofNullable(outboundRecord.timestamp()).map(Instant::toEpochMilli)
-                        .orElse(null),
-                outboundRecord.key(), this.toJson.apply(outboundRecord.value(),
-                        (JacksonObjectOf<?>) outboundRecord.objectOf()),
+                partitionMap.apply(this.infoProvider.apply(outboundRecord.topic()), outboundRecord.partitionKey()),
+                Optional.ofNullable(outboundRecord.timestamp()).map(Instant::toEpochMilli).orElse(null),
+                outboundRecord.key(),
+                this.toJson.apply(outboundRecord.value(), (JacksonObjectOf<?>) outboundRecord.objectOf()),
                 headers(outboundRecord));
     }
 
     private Iterable<Header> headers(final OutboundRecord outboundRecord) {
         final var pairs = outboundRecord.headers();
-        if (pairs == null) {
+        if (pairs == null || !pairs.iterator().hasNext()) {
             return null;
         }
 

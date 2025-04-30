@@ -62,51 +62,44 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                     return key.isBlank() ? (Function<Object[], String>) args -> null
                             : (Function<Object[], String>) args -> key;
                 }).orElseGet(() -> {
-                    String key = OneUtil.firstUpper(reflected.method().getName());
+                    final var key = OneUtil.firstUpper(reflected.method().getName());
                     return args -> key;
                 }));
 
-        final var partitionBinder = reflected.allParametersWith(OfPartition.class).stream()
-                .findFirst().map(p -> {
-                    final var index = p.index();
-                    return (Function<Object[], Object>) args -> args[index];
-                }).orElseGet(() -> args -> null);
+        final var partitionBinder = reflected.allParametersWith(OfPartition.class).stream().findFirst().map(p -> {
+            final var index = p.index();
+            return (Function<Object[], Object>) args -> args[index];
+        }).orElseGet(() -> args -> null);
 
-        final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream()
-                .findFirst().map(p -> {
-                    final var index = p.index();
-                    final var type = p.parameter().getType();
-                    if (type == Instant.class) {
-                        return (Function<Object[], Instant>) args -> (Instant) args[index];
-                    }
-                    if (type == Long.class) {
-                        return (Function<Object[], Instant>) args -> {
-                            final var value = args[index];
-                            return value == null ? null : Instant.ofEpochMilli((Long) value);
-                        };
-                    }
-                    if (type == long.class) {
-                        return (Function<Object[], Instant>) args -> Instant
-                                .ofEpochMilli((long) args[index]);
-                    }
-                    throw new IllegalArgumentException(
-                            "Un-supported type " + type + " on " + p.parameter());
-                }).orElseGet(() -> args -> null);
+        final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream().findFirst().map(p -> {
+            final var index = p.index();
+            final var type = p.parameter().getType();
+            if (type == Instant.class) {
+                return (Function<Object[], Instant>) args -> (Instant) args[index];
+            }
+            if (type == Long.class) {
+                return (Function<Object[], Instant>) args -> {
+                    final var value = args[index];
+                    return value == null ? null : Instant.ofEpochMilli((Long) value);
+                };
+            }
+            if (type == long.class) {
+                return (Function<Object[], Instant>) args -> Instant.ofEpochMilli((long) args[index]);
+            }
+            throw new IllegalArgumentException("Un-supported type " + type + " on " + p.parameter());
+        }).orElseGet(() -> args -> null);
 
         final var valueParamIndex = reflected.allParametersWith(OfValue.class).stream().findFirst()
                 .map(ReflectedParameter::index).orElse(-1);
-        final var objectOf = Optional
-                .ofNullable(valueParamIndex == -1 ? null : reflected.getParameter(valueParamIndex))
-                .map(parameter -> new JacksonObjectOf<>(Optional
-                        .ofNullable(parameter.getAnnotation(JsonView.class)).map(JsonView::value)
-                        .filter(OneUtil::hasValue).map(views -> views[0]).orElse(null),
+        final var objectOf = Optional.ofNullable(valueParamIndex == -1 ? null : reflected.getParameter(valueParamIndex))
+                .map(parameter -> new JacksonObjectOf<>(Optional.ofNullable(parameter.getAnnotation(JsonView.class))
+                        .map(JsonView::value).filter(OneUtil::hasValue).map(views -> views[0]).orElse(null),
                         parameter.getType()))
                 .orElse(null);
 
-        return new Parsed(new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder,
-                timestampBinder, null,
-                valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, objectOf),
-                headerBinder(reflected), headerStatic(reflected, byKafka)));
+        return new Parsed(new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder,
+                null, valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, objectOf), headerBinder(reflected),
+                headerStatic(reflected, byKafka)));
     }
 
     private Map<Integer, HeaderParam> headerBinder(final ReflectedMethod reflected) {
@@ -114,20 +107,17 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
         for (final var reflectedParam : reflected.allParametersWith(OfHeader.class)) {
             final var parameter = reflectedParam.parameter();
             headerBinder.put(reflectedParam.index(),
-                    new HeaderParam(
-                            OneUtil.getIfBlank(parameter.getAnnotation(OfHeader.class).value(),
-                                    () -> OneUtil.firstUpper(parameter.getName())),
-                            parameter.getType()));
+                    new HeaderParam(OneUtil.getIfBlank(parameter.getAnnotation(OfHeader.class).value(),
+                            () -> OneUtil.firstUpper(parameter.getName())), parameter.getType()));
         }
         return headerBinder;
     }
 
-    private List<OutboundRecord.Header> headerStatic(final ReflectedMethod reflected,
-            final ByKafka byKafka) {
+    private List<OutboundRecord.Header> headerStatic(final ReflectedMethod reflected, final ByKafka byKafka) {
         final var headers = byKafka.headers();
         if ((headers.length & 1) != 0) {
-            throw new IllegalArgumentException("Headers are not in name/value pairs on "
-                    + reflected.method().getDeclaringClass());
+            throw new IllegalArgumentException(
+                    "Headers are not in name/value pairs on " + reflected.method().getDeclaringClass());
         }
 
         final List<OutboundRecord.Header> headerStatic = new ArrayList<>();
