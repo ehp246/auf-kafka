@@ -12,7 +12,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.header.Header;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
+import me.ehp246.aufkafka.api.ReservedHeader;
 import me.ehp246.aufkafka.api.producer.OutboundRecord;
 import me.ehp246.aufkafka.api.producer.PartitionMap;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
@@ -76,6 +76,7 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
         final var eventType = outboundRecord.eventType();
         headers.add(new Header() {
             private final byte[] value = eventType == null ? null : eventType.getBytes(StandardCharsets.UTF_8);
+            private final String key = ReservedHeader.AufKafkaEventType.name();
 
             @Override
             public byte[] value() {
@@ -84,7 +85,7 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
 
             @Override
             public String key() {
-                return AufKafkaConstant.EVENT_TYPE_HEADER;
+                return key;
             }
         });
 

@@ -16,8 +16,6 @@ public final class AufKafkaConstant {
 
     public static final String MSG_MDC_HEADER_PREFIX = "AufKafkaMsgMDC";
 
-    public static final String EVENT_TYPE_HEADER = "AufKafkaEventType";
-
     public static final String PROPERTY_INBOUND_MESSAGELOGGING_ENABLED = "me.ehp246.aufkafka.inbound.messagelogging.enabled";
 
     /**
