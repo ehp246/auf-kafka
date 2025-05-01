@@ -7,6 +7,6 @@ import java.util.Set;
  * @since 1.0
  */
 public interface InvocableScanner {
-    Set<InvocableKeyDefinition> apply(final Set<Class<?>> registering,
+    Set<EventInvocableDefinition> apply(final Set<Class<?>> registering,
             final Set<String> scanPackages);
 }

@@ -21,7 +21,7 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import me.ehp246.aufkafka.api.annotation.Applying;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
-import me.ehp246.aufkafka.api.consumer.InvocableKeyDefinition;
+import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.aufkafka.core.reflection.ReflectedType;
@@ -42,7 +42,7 @@ public final class DefaultInvocableScanner implements InvocableScanner {
     }
 
     @Override
-    public Set<InvocableKeyDefinition> apply(final Set<Class<?>> registering, final Set<String> scanPackages) {
+    public Set<EventInvocableDefinition> apply(final Set<Class<?>> registering, final Set<String> scanPackages) {
         final var scanner = new ClassPathScanningCandidateComponentProvider(false) {
             @Override
             protected boolean isCandidateComponent(final AnnotatedBeanDefinition beanDefinition) {
@@ -66,7 +66,7 @@ public final class DefaultInvocableScanner implements InvocableScanner {
                 .filter(Objects::nonNull).map(this::newDefinition).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
-    private InvocableKeyDefinition newDefinition(final Class<?> type) {
+    private EventInvocableDefinition newDefinition(final Class<?> type) {
         final var annotation = type.getAnnotation(ForKey.class);
         if (annotation == null) {
             throw new IllegalArgumentException(ForKey.class.getName() + " annotation required on " + type.getName());
@@ -121,7 +121,7 @@ public final class DefaultInvocableScanner implements InvocableScanner {
             throw new IllegalArgumentException("No invocation method defined by " + type.getName());
         }
 
-        return new InvocableKeyDefinition(msgTypes, type, Map.copyOf(invokings), annotation.scope(),
+        return new EventInvocableDefinition(msgTypes, type, Map.copyOf(invokings), annotation.scope(),
                 annotation.invocation());
     }
 }

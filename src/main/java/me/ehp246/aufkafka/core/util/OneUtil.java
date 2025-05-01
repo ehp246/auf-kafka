@@ -166,7 +166,7 @@ public final class OneUtil {
         return value == null ? null : parser.apply(value);
     }
 
-    public static String getLastHeaderAsString(final ConsumerRecord<String, String> msg, final String key) {
+    public static String getLastHeaderAsString(final ConsumerRecord<?, ?> msg, final String key) {
         final var header = msg.headers().lastHeader(key);
         return header != null ? new String(header.value(), StandardCharsets.UTF_8) : null;
     }

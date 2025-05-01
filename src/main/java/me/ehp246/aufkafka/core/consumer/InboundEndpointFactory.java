@@ -13,7 +13,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
-import me.ehp246.aufkafka.api.consumer.InvocableKeyRegistry;
+import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
@@ -71,7 +71,7 @@ public final class InboundEndpointFactory {
 	    }
 	};
 
-	final var registery = new DefaultInvocableKeyRegistry().register(this.invocableScanner.apply(
+	final var registery = new DefaultEventInvocableRegistry().register(this.invocableScanner.apply(
 		Arrays.asList((Class<?>[]) inboundAttributes.get("register")).stream().collect(Collectors.toSet()),
 		scanPackages).stream());
 
@@ -86,7 +86,7 @@ public final class InboundEndpointFactory {
 	    }
 
 	    @Override
-	    public InvocableKeyRegistry keyRegistry() {
+	    public EventInvocableRegistry keyRegistry() {
 		return registery;
 	    }
 
