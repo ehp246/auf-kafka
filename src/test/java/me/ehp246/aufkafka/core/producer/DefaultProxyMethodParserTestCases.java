@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
+import me.ehp246.aufkafka.api.annotation.OfEventType;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
@@ -39,6 +40,20 @@ interface DefaultProxyMethodParserTestCases {
     }
 
     @ByKafka("topic")
+    interface EventTypeCase01 {
+        void m01();
+
+        @OfEventType("aa143627-0e3f-4758-a7cf-e56db55c77c1")
+        void m02(@OfEventType Object key);
+
+        @OfEventType
+        void m03();
+
+        @OfEventType("887114e5-5770-4f7f-b0c6-e0803753eb58")
+        void m04();
+    }
+
+    @ByKafka("topic")
     interface PartitionCase01 {
         void m01();
 
@@ -67,8 +82,7 @@ interface DefaultProxyMethodParserTestCases {
         void m04(UUID uuid, @OfValue UUID value);
     }
 
-    @ByKafka(value = "topic",
-            headers = { "header1", "value1", "header2", "value2", "header1", "value2" })
+    @ByKafka(value = "topic", headers = { "header1", "value1", "header2", "value2", "header1", "value2" })
     interface HeaderCase01 {
         void m01();
 
