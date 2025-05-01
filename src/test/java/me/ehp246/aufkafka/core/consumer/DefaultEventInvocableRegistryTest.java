@@ -108,5 +108,8 @@ class DefaultEventInvocableRegistryTest {
         Assertions.assertEquals(headerMethod,
                 registry.resolve(MockConsumerRecord.withKeyAndHeaders(eventType, eventTypeHeader, eventType)).method(),
                 "should use the header instead of key");
+
+        Assertions.assertEquals(keyMethod, registry.resolve(MockConsumerRecord.withKey(eventType)).method(),
+                "should use the key instead of header");
     }
 }
