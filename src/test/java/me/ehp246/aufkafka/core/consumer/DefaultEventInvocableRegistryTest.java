@@ -112,4 +112,39 @@ class DefaultEventInvocableRegistryTest {
         Assertions.assertEquals(keyMethod, registry.resolve(MockConsumerRecord.withKey(eventType)).method(),
                 "should use the key instead of header");
     }
+
+    @Test
+    void error_01() {
+        final var registry = new DefaultEventInvocableRegistry("");
+        final var keyValue = UUID.randomUUID().toString();
+
+        registry.register(EventInvocableKeyType.KEY,
+                new EventInvocableDefinition(Set.of(keyValue), Map.class, Map.of("", Map.class.getMethods()[0])));
+
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> registry.register(EventInvocableKeyType.KEY, new EventInvocableDefinition(Set.of(keyValue),
+                        String.class, Map.of("", String.class.getMethods()[0]))));
+
+        Assertions
+                .assertDoesNotThrow(
+                        () -> registry.register(EventInvocableKeyType.EVENT_TYPE_HEADER,
+                                new EventInvocableDefinition(Set.of(keyValue), Map.class,
+                                        Map.of("", Map.class.getMethods()[0]))),
+                        "should be okay for different key type");
+    }
+
+    @Test
+    void error_02() {
+        final var registry = new DefaultEventInvocableRegistry("");
+        Assertions.assertEquals(null,
+                registry.resolve(MockConsumerRecord.withKeyAndHeaders(UUID.randomUUID().toString(),
+                        UUID.randomUUID().toString(), UUID.randomUUID().toString())));
+    }
+
+    @Test
+    void registered_01() {
+        final var registry = new DefaultEventInvocableRegistry("");
+
+        Assertions.assertEquals(true, registry.registered(EventInvocableKeyType.KEY).isEmpty());
+    }
 }

@@ -57,6 +57,9 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
                 throw new IllegalArgumentException("Duplicate type " + type + " from " + registered.type());
             }
 
+            /*
+             * For now, one applying method for each invokable type. No named method yet.
+             */
             registeredMethods.put(invokingDefinition.type(), invokingDefinition.methods());
         });
     }
@@ -95,12 +98,7 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
             return null;
         }
 
-        final var method = registeredMethods.get(definition.type()).get("");
-
-        if (method == null) {
-            return null;
-        }
-
-        return new InvocableType(definition.type(), method, definition.scope(), definition.model());
+        return new InvocableType(definition.type(), registeredMethods.get(definition.type()).get(""),
+                definition.scope(), definition.model());
     }
 }
