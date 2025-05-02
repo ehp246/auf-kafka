@@ -8,9 +8,6 @@ import java.lang.annotation.Target;
 
 import org.apache.kafka.common.protocol.Message;
 
-import me.ehp246.aufkafka.api.consumer.InstanceScope;
-import me.ehp246.aufkafka.api.consumer.InvocationModel;
-
 /**
  * Indicates that the class defines methods that should be invoked on a message
  * by matching on message's JMS type, i.e., {@linkplain Message#getJMSType()}.
@@ -66,15 +63,5 @@ public @interface ForEventType {
      */
     String[] value() default {};
 
-    /**
-     * Specifies how to instantiate an instance of the class.
-     *
-     * @see InstanceScope
-     */
-    InstanceScope scope() default InstanceScope.MESSAGE;
-
-    /**
-     * Not implemented.
-     */
-    InvocationModel invocation() default InvocationModel.DEFAULT;
+    Execution execution() default @Execution();
 }

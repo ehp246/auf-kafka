@@ -24,7 +24,8 @@ class DefaultInvocableScannerTest {
     @Test
     void test_03() {
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> new DefaultInvocableScanner(Object::toString).apply(Set.of(NoForKey.class), null));
+                () -> new DefaultInvocableScanner(Object::toString).apply(Set.of(NoAnnotation.class), null),
+                "should require annotations to register");
     }
 
     @ForKey("test")
@@ -33,7 +34,7 @@ class DefaultInvocableScannerTest {
         }
     }
 
-    static class NoForKey {
+    public static class NoAnnotation {
         public void invoke() {
         }
     }
