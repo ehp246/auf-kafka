@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,6 +24,7 @@ import me.ehp246.aufkafka.api.annotation.ForEventType;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
 import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
+import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
@@ -31,9 +33,13 @@ import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
  * Scans for {@linkplain ForKey} and {@linkplain ForEventType} classes.
+ * <p>
+ * Duplicate {@linkplain EventInvocableDefinition#lookupKeys()} are accepted.
+ * Collision detection on the lookup keys is implemented by
+ * {@linkplain EventInvocableRegistry}.
  * 
  * @author Lei Yang
- *
+ * @see DefaultEventInvocableRegistry
  */
 public final class DefaultInvocableScanner implements InvocableScanner {
     private final static Logger LOGGER = LoggerFactory.getLogger(DefaultInvocableScanner.class);
@@ -58,7 +64,8 @@ public final class DefaultInvocableScanner implements InvocableScanner {
                         Arrays.stream(type.getDeclaredAnnotations()).map(Annotation::annotationType).toList());
                 annos.retainAll(ANNO_KEYTYPE_MAP.keySet());
                 if (annos.isEmpty()) {
-                    throw new IllegalArgumentException();
+                    throw new IllegalArgumentException(
+                            "Missing required annotations from " + ANNO_KEYTYPE_MAP.keySet() + " on " + type.getName());
                 }
 
                 this.newDefinition(type).entrySet().stream().forEach(
@@ -85,7 +92,15 @@ public final class DefaultInvocableScanner implements InvocableScanner {
         }).map(this::newDefinition).map(Map::entrySet).flatMap(Set::stream)
                 .forEach(entry -> map.computeIfAbsent(entry.getKey(), key -> new HashSet<>()).add(entry.getValue()));
 
-        return map;
+        /**
+         * Locks down the set.
+         */
+        map.keySet().stream().forEach(key -> map.put(key, Collections.unmodifiableSet(map.get(key))));
+
+        /**
+         * Locks down the map.
+         */
+        return Collections.unmodifiableMap(map);
     }
 
     /**
