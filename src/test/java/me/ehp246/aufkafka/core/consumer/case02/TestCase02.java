@@ -9,20 +9,20 @@ import me.ehp246.aufkafka.api.consumer.InvocationModel;
 public class TestCase02 {
     @ForKey("key-test")
     public static class ForKey01 {
-        public void invoke() {
+        public void apply() {
         }
     }
 
     @ForEventType("event-type-test")
     public static class ForEventType01 {
-        public void invoke() {
+        public void apply() {
         }
     }
 
     @ForKey(value = "key-test", execution = @Execution(invocation = InvocationModel.INLINE, scope = InstanceScope.BEAN))
     @ForEventType("event-type-test")
     public static class ForCombined01 {
-        public void invoke() {
+        public void apply() {
         }
     }
 }

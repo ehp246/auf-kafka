@@ -1,5 +1,6 @@
 package me.ehp246.aufkafka.core.consumer;
 
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
@@ -34,9 +35,39 @@ class DefaultInvocableScannerTest {
     }
 
     @Test
+    void test_04() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultInvocableScanner(Object::toString)
+                .apply(Set.of(me.ehp246.aufkafka.core.consumer.case03.TestCase03.NotMsg.class), null));
+    }
+
+    @Test
     void test_05() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultInvocableScanner(Object::toString)
-                .apply(null, Set.of("me.ehp246.aufkafka.core.consumer.case03")));
+                .apply(Set.of(me.ehp246.aufkafka.core.consumer.case03.TestCase03.NoEnum.class), null));
+    }
+
+    @Test
+    void test_06() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultInvocableScanner(Object::toString)
+                .apply(Set.of(me.ehp246.aufkafka.core.consumer.case03.TestCase03.NoDup.class), null));
+    }
+
+    @Test
+    void test_07() {
+        Assertions.assertThrows(NoSuchElementException.class, () -> new DefaultInvocableScanner(Object::toString)
+                .apply(Set.of(me.ehp246.aufkafka.core.consumer.case03.TestCase03.NoApply.class), null));
+    }
+
+    @Test
+    void test_08() {
+        Assertions.assertThrows(IllegalStateException.class, () -> new DefaultInvocableScanner(Object::toString)
+                .apply(Set.of(me.ehp246.aufkafka.core.consumer.case03.TestCase03.ManyApply.class), null));
+    }
+
+    @Test
+    void test_09() {
+        Assertions.assertThrows(IllegalStateException.class, () -> new DefaultInvocableScanner(Object::toString)
+                .apply(Set.of(me.ehp246.aufkafka.core.consumer.case03.TestCase03.ManyApplying.class), null));
     }
 
     @Test
@@ -101,8 +132,7 @@ class DefaultInvocableScannerTest {
 
         Assertions.assertEquals(2, forKeyDefs.length);
         Assertions.assertEquals(true, forKeyDefs[0].lookupKeys().contains("key-test"));
-        Assertions.assertEquals(true, forKeyDefs[0].model() == InvocationModel.INLINE);
-        Assertions.assertEquals(true, forKeyDefs[0].scope() == InstanceScope.BEAN);
+        Assertions.assertEquals(true, forKeyDefs[1].lookupKeys().contains("key-test"));
 
         final var eventTypeSet = mapped.get(EventInvocableKeyType.EVENT_TYPE_HEADER);
 
@@ -112,8 +142,7 @@ class DefaultInvocableScannerTest {
 
         Assertions.assertEquals(2, eventTypeDefs.length);
         Assertions.assertEquals(true, eventTypeDefs[0].lookupKeys().contains("event-type-test"));
-        Assertions.assertEquals(true, eventTypeDefs[0].model() == InvocationModel.DEFAULT);
-        Assertions.assertEquals(true, eventTypeDefs[0].scope() == InstanceScope.MESSAGE);
+        Assertions.assertEquals(true, eventTypeDefs[1].lookupKeys().contains("event-type-test"));
     }
 
     @ForKey("test")

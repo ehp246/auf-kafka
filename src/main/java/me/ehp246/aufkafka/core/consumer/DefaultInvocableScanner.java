@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -92,12 +93,12 @@ public final class DefaultInvocableScanner implements InvocableScanner {
         }).map(this::newDefinition).map(Map::entrySet).flatMap(Set::stream)
                 .forEach(entry -> map.computeIfAbsent(entry.getKey(), key -> new HashSet<>()).add(entry.getValue()));
 
-        /**
+        /*
          * Locks down the set.
          */
         map.keySet().stream().forEach(key -> map.put(key, Collections.unmodifiableSet(map.get(key))));
 
-        /**
+        /*
          * Locks down the map.
          */
         return Collections.unmodifiableMap(map);
@@ -137,15 +138,15 @@ public final class DefaultInvocableScanner implements InvocableScanner {
                         + annoType.getCanonicalName());
             }
 
+            if (!Modifier.isPublic(type.getModifiers())) {
+                throw new IllegalArgumentException("public modifier required on " + type.getName());
+            }
             if ((Modifier.isAbstract(type.getModifiers()) && execution.scope().equals(InstanceScope.MESSAGE))
                     || type.isEnum()) {
                 throw new IllegalArgumentException("Un-instantiable type " + type.getName());
             }
-            if (!Modifier.isPublic(type.getModifiers())) {
-                throw new IllegalArgumentException("public modifier required on " + type.getName());
-            }
 
-            final var msgTypes = Arrays.asList(value.length == 0 ? new String[] { type.getSimpleName() } : value)
+            final var lookupKeys = Arrays.asList(value.length == 0 ? new String[] { type.getSimpleName() } : value)
                     .stream().map(this.expressionResolver::apply)
                     .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).entrySet().stream()
                     .map(entry -> {
@@ -159,34 +160,27 @@ public final class DefaultInvocableScanner implements InvocableScanner {
             final var invokings = new HashMap<String, Method>();
             final var reflected = new ReflectedType<>(type);
 
-            // TODO: No invoking name anymore. Need to fix.
-            // Search for the annotation first
-            for (final var method : reflected.findMethods(Applying.class)) {
-                invokings.put("", method);
+            /*
+             * No invoking name for now. Search for the annotation first.
+             */
+            invokings.put("", reflected.findSingleAnnotatedMethod(Applying.class));
+
+            /*
+             * Look for 'apply'.
+             */
+            if (invokings.get("") == null) {
+                invokings.put("", reflected.findSingleNamedMethod("apply"));
             }
 
             /*
-             * Look for 'invoke', then 'apply'.
+             * There should be at least one method.
              */
             if (invokings.get("") == null) {
-                final var invokes = reflected.findMethods("invoke");
-                if (invokes.size() == 1) {
-                    invokings.put("", invokes.get(0));
-                } else {
-                    final var applies = reflected.findMethods("apply");
-                    if (applies.size() == 1) {
-                        invokings.put("", applies.get(0));
-                    }
-                }
+                throw new NoSuchElementException("No invocation method defined by " + type.getName());
             }
 
-            // There should be at least one method.
-            if (invokings.get("") == null) {
-                throw new IllegalArgumentException("No invocation method defined by " + type.getName());
-            }
-
-            map.put(ANNO_KEYTYPE_MAP.get(annoType), new EventInvocableDefinition(msgTypes, type, Map.copyOf(invokings),
-                    execution.scope(), execution.invocation()));
+            map.put(ANNO_KEYTYPE_MAP.get(annoType), new EventInvocableDefinition(lookupKeys, type,
+                    Map.copyOf(invokings), execution.scope(), execution.invocation()));
         }
 
         return map;
