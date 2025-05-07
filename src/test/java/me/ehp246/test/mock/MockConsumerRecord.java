@@ -20,12 +20,6 @@ public class MockConsumerRecord extends ConsumerRecord<String, String> {
                 headers, leaderEpoch);
     }
 
-    public MockConsumerRecord(final String value, String... headers) {
-        this(UUID.randomUUID().toString(), 0, 0, Instant.now().toEpochMilli(), TimestampType.CREATE_TIME, 0,
-                value == null ? 0 : value.length() * 2, null, value, StringHeader.headers(headers),
-                Optional.ofNullable(null));
-    }
-
     public MockConsumerRecord(final String key, final String value, String... headers) {
         this(UUID.randomUUID().toString(), 0, 0, Instant.now().toEpochMilli(), TimestampType.CREATE_TIME, 0,
                 value == null ? 0 : value.length() * 2, key, value, StringHeader.headers(headers),

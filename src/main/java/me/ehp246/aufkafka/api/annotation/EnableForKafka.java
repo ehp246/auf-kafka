@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Import;
 import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
 import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
+import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
@@ -96,6 +97,11 @@ public @interface EnableForKafka {
          * endpoint.
          */
         Class<?>[] register() default {};
+
+        /**
+         * Specifies the name of {@linkplain EventInvocableKeyType#EVENT_TYPE_HEADER}.
+         */
+        String eventTypeHeader() default AufKafkaConstant.HEADER_NAME_EVENT_TYPE;
 
         /**
          * Specifies whether the listener should be started automatically.

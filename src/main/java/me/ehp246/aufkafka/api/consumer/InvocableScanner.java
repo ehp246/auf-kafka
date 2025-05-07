@@ -8,7 +8,7 @@ import me.ehp246.aufkafka.api.annotation.ForKey;
 
 /**
  * The abstraction of the functionality that scans the class path looking for
- * classes that are considered candidates of
+ * classes that are annotated and considered candidates of
  * {@linkplain EventInvocableDefinition}.
  * 
  * @author Lei Yang

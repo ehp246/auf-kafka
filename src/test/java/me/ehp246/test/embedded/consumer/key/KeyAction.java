@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import me.ehp246.aufkafka.api.annotation.Execution;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
@@ -12,7 +13,7 @@ import me.ehp246.aufkafka.api.consumer.InstanceScope;
  * @author Lei Yang
  *
  */
-@ForKey(value = ".*", scope = InstanceScope.BEAN)
+@ForKey(value = ".*", execution = @Execution(scope = InstanceScope.BEAN))
 public class KeyAction {
     private final AtomicReference<CompletableFuture<String>> ref = new AtomicReference<>(new CompletableFuture<>());
 

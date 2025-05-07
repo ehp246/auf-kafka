@@ -9,6 +9,8 @@ import java.lang.annotation.Target;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
+
 /**
  * Indicates that the class defines methods that should be invoked on a message
  * by matching on message's key, i.e., {@linkplain ConsumerRecord#key()}.
@@ -19,6 +21,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
  * @author Lei Yang
  * @since 1.0
  * @see Applying
+ * @see EventInvocableKeyType
  */
 @Documented
 @Retention(RUNTIME)

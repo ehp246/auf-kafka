@@ -12,11 +12,11 @@ public interface InboundEndpoint {
     EventInvocableRegistry keyRegistry();
 
     default String name() {
-	return null;
+        return null;
     }
 
     default String consumerConfigName() {
-	return null;
+        return null;
     }
 
     /**
@@ -25,26 +25,26 @@ public interface InboundEndpoint {
      * @return
      */
     default Map<String, Object> consumerProperties() {
-	return null;
+        return null;
     }
 
     default boolean autoStartup() {
-	return true;
+        return true;
     }
 
     default InvocationListener invocationListener() {
-	return null;
+        return null;
     }
 
     default UnmatchedConsumer unmatchedConsumer() {
-	return null;
+        return null;
     }
 
     default ConsumerExceptionListener consumerExceptionListener() {
-	return null;
+        return null;
     }
 
     interface From {
-	String topic();
+        String topic();
     }
 }

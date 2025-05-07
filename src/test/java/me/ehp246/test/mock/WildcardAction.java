@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import me.ehp246.aufkafka.api.annotation.Execution;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
 
@@ -13,7 +14,7 @@ import me.ehp246.aufkafka.api.consumer.InstanceScope;
  * @author Lei Yang
  *
  */
-@ForKey(value = ".*", scope = InstanceScope.BEAN)
+@ForKey(value = ".*", execution = @Execution(scope = InstanceScope.BEAN))
 public class WildcardAction {
     private final AtomicReference<CompletableFuture<ConsumerRecord<String, String>>> ref = new AtomicReference<>(
             new CompletableFuture<>());

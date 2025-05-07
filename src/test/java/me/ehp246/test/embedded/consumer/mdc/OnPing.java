@@ -8,6 +8,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.logging.log4j.ThreadContext;
 import org.springframework.stereotype.Service;
 
+import me.ehp246.aufkafka.api.annotation.Execution;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
 
@@ -16,7 +17,7 @@ import me.ehp246.aufkafka.api.consumer.InstanceScope;
  *
  */
 @Service
-@ForKey(value = "Ping", scope = InstanceScope.BEAN)
+@ForKey(value = "Ping", execution = @Execution(scope = InstanceScope.BEAN))
 public class OnPing {
     private CompletableFuture<Map<String, String>> ref = new CompletableFuture<>();
 
