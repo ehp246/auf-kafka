@@ -60,7 +60,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                         ? null
                         : new OutboundHeader(eventTypeHeaderKey, args[p.index()]))
                 .orElseGet(() -> reflected.findOnMethodUp(OfEventType.class).map(ofEventType -> {
-                    final var header = eventTypeHeaderKey.isEmpty() ? null
+                    final var header = eventTypeHeaderKey.isEmpty() || ofEventType.value().isEmpty() ? null
                             : new OutboundHeader(eventTypeHeaderKey, ofEventType.value());
                     return (Function<Object[], OutboundRecord.Header>) args -> header;
                 }).orElseGet(() -> {

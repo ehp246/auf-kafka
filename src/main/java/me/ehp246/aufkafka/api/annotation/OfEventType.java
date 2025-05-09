@@ -6,20 +6,20 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
-
 /**
  * Specifies the binding point of the value for event type header. The
  * annotation can be applied on both the producer side, i.e.,
  * {@linkplain ByKafka} interfaces, and the consumer side, i.e.,
- * {@linkplain EventInvocableDefinition} classes.
+ * {@linkplain ForEventType} and {@linkplain ForKey} classes.
  * <p>
- * Can be applied to a parameter or a method on a {@linkplain ByKafka}
- * interface.
+ * On a {@linkplain ByKafka} interface, can be applied to either a parameter or
+ * a method.
  * <p>
- * When applied to a parameter, only {@linkplain String} type is supported.
+ * When applied to a parameter, only {@linkplain String} type is supported and
+ * the specified value is ignored.
  * <p>
- * When applied to a parameter, the specified value is ignored.
+ * When applied to a method, the header will have the specified value if the
+ * value is not empty. An empty value suppresses the header.
  * <p>
  *
  * @author Lei Yang

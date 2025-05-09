@@ -139,7 +139,7 @@ class DefaultProxyMethodParserTest {
         final var message = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
-        Assertions.assertEquals("M01", message.eventType());
+        Assertions.assertEquals("M01", message.eventType().value().toString());
     }
 
     @Test
@@ -152,7 +152,7 @@ class DefaultProxyMethodParserTest {
         final var message = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
-        Assertions.assertEquals(expected.toString(), message.eventType());
+        Assertions.assertEquals(expected.toString(), message.eventType().value().toString());
     }
 
     @Test
@@ -164,7 +164,7 @@ class DefaultProxyMethodParserTest {
         final var message = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
-        Assertions.assertEquals(null, message.eventType());
+        Assertions.assertEquals(null, message.eventType().value());
     }
 
     @Test
@@ -176,7 +176,7 @@ class DefaultProxyMethodParserTest {
         final var message = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
-        Assertions.assertEquals(null, message.eventType(), "should supress");
+        Assertions.assertEquals(null, message.eventType(), "should supress the header altogether");
     }
 
     @Test
@@ -188,7 +188,7 @@ class DefaultProxyMethodParserTest {
         final var message = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
-        Assertions.assertEquals("887114e5-5770-4f7f-b0c6-e0803753eb58", message.eventType(),
+        Assertions.assertEquals("887114e5-5770-4f7f-b0c6-e0803753eb58", message.eventType().value().toString(),
                 "should follow annotation");
     }
 

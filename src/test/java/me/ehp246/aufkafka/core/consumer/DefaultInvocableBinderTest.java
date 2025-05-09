@@ -354,7 +354,7 @@ class DefaultInvocableBinderTest {
         final var invocable = new InvocableRecord(new InvocableBinderTestCases.MDCCase(),
                 new ReflectedType<>(InvocableBinderTestCases.MDCCase.class).findMethod("get", String.class, int.class));
         final var expected = UUID.randomUUID().toString();
-        final var bound = binder.bind(invocable, new MockConsumerRecord(jackson.apply(expected), "Id", "123"));
+        final var bound = binder.bind(invocable, new MockConsumerRecord(null, jackson.apply(expected), "Id", "123"));
 
         Assertions.assertEquals(2, bound.mdcMap().size());
         Assertions.assertEquals(expected, bound.mdcMap().get("name"));
@@ -513,8 +513,8 @@ class DefaultInvocableBinderTest {
 
         final var invocable = new InvocableRecord(new InvocableBinderTestCases.MDCCase(), method);
 
-        final var mdcMap = binder.bind(invocable, new MockConsumerRecord(jackson.apply(name), "FirstName", firstName))
-                .mdcMap();
+        final var mdcMap = binder
+                .bind(invocable, new MockConsumerRecord(null, jackson.apply(name), "FirstName", firstName)).mdcMap();
 
         Assertions.assertEquals(2, mdcMap.size());
 
