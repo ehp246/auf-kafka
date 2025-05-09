@@ -16,9 +16,9 @@ import org.apache.kafka.common.utils.Utils;
  * object to a byte array via {@linkplain Serializable}.
  * 
  * @author Lei Yang
- * @see PartitionMap
+ * @see PartitionFn
  */
-public final class SerializedPartitionMap implements PartitionMap {
+public final class SerializedPartitionFn implements PartitionFn {
 
     /**
      * <code>null</code> key is mapped to <code>null</code> value.

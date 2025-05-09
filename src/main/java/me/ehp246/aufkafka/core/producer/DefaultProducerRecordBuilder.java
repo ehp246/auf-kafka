@@ -12,9 +12,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.header.Header;
 
-import me.ehp246.aufkafka.api.ReservedHeader;
 import me.ehp246.aufkafka.api.producer.OutboundRecord;
-import me.ehp246.aufkafka.api.producer.PartitionMap;
+import me.ehp246.aufkafka.api.producer.PartitionFn;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
 import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
 import me.ehp246.aufkafka.api.serializer.json.ToJson;
@@ -24,14 +23,14 @@ import me.ehp246.aufkafka.api.serializer.json.ToJson;
  *
  */
 public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder {
-    private final PartitionMap partitionMap;
+    private final PartitionFn partitionFn;
     private final Function<String, List<PartitionInfo>> infoProvider;
     private final ToJson toJson;
 
     public DefaultProducerRecordBuilder(final Function<String, List<PartitionInfo>> partitionInfoProvider,
-            final PartitionMap partitionMap, final ToJson toJson) {
+            final PartitionFn partitionFn, final ToJson toJson) {
         super();
-        this.partitionMap = partitionMap;
+        this.partitionFn = partitionFn;
         this.infoProvider = partitionInfoProvider;
         this.toJson = toJson;
     }
@@ -39,7 +38,7 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
     @Override
     public ProducerRecord<String, String> apply(OutboundRecord outboundRecord) {
         return new ProducerRecord<String, String>(outboundRecord.topic(),
-                partitionMap.apply(this.infoProvider.apply(outboundRecord.topic()), outboundRecord.partitionKey()),
+                partitionFn.apply(this.infoProvider.apply(outboundRecord.topic()), outboundRecord.partitionKey()),
                 Optional.ofNullable(outboundRecord.timestamp()).map(Instant::toEpochMilli).orElse(null),
                 outboundRecord.key(),
                 this.toJson.apply(outboundRecord.value(), (JacksonObjectOf<?>) outboundRecord.objectOf()),
@@ -71,23 +70,26 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
         }
 
         /**
-         * Event type with higher priority
+         * Event type header, if there is one, with higher priority
          */
         final var eventType = outboundRecord.eventType();
-        headers.add(new Header() {
-            private final byte[] value = eventType == null ? null : eventType.getBytes(StandardCharsets.UTF_8);
-            private final String key = ReservedHeader.AufKafkaEventType.name();
+        if (eventType != null) {
+            headers.add(new Header() {
+                private final String key = eventType.key();
+                private final byte[] value = eventType.value() == null ? null
+                        : eventType.value().toString().getBytes(StandardCharsets.UTF_8);
 
-            @Override
-            public byte[] value() {
-                return value;
-            }
+                @Override
+                public byte[] value() {
+                    return value;
+                }
 
-            @Override
-            public String key() {
-                return key;
-            }
-        });
+                @Override
+                public String key() {
+                    return key;
+                }
+            });
+        }
 
         return headers;
     }

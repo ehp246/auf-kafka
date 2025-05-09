@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import me.ehp246.aufkafka.api.ReservedHeader;
+import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
 import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
@@ -21,7 +21,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * This implementation matches a {@linkplain ConsumerRecord} to a
  * {@linkplain InvocalType} in the following order:
  * <ul>
- * <li>{@linkplain ReservedHeader#AufKafkaEventType}.</li>
+ * <li>{@linkplain EventInvocableKeyType#EVENT_TYPE_HEADER}.</li>
  * <li>{@linkplain ConsumerRecord#key()}.</li>
  * </ul>
  * <p>
@@ -70,10 +70,11 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
     }
 
     /**
-     * If the incoming event has {@linkplain ReservedHeader#AufKafkaEventType}
-     * defined, the value will be used as the key for the event-type registry.
-     * Otherwise, {@linkplain ConsumerRecord#key()} will be used as the key to look
-     * up the key registry.
+     * If the incoming event has
+     * {@linkplain AufKafkaConstant#HEADER_KEY_EVENT_TYPE} defined, the value will
+     * be used as the key for the event-type registry. Otherwise,
+     * {@linkplain ConsumerRecord#key()} will be used as the key to look up the key
+     * registry.
      * <p>
      * No cross reference between the two registries.
      * 

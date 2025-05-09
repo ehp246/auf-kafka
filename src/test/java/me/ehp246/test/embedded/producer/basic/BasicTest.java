@@ -13,7 +13,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
-import me.ehp246.aufkafka.api.ReservedHeader;
+import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.serializer.json.ToJson;
 import me.ehp246.aufkafka.core.util.OneUtil;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
@@ -62,7 +62,7 @@ class BasicTest {
 
         Assertions.assertEquals(true, received.topic().equals("embedded"));
         Assertions.assertEquals(true,
-                OneUtil.getLastHeaderAsString(received, ReservedHeader.AufKafkaEventType.name()).equals("NewEvent"));
+                OneUtil.getLastHeaderAsString(received, AufKafkaConstant.HEADER_KEY_EVENT_TYPE).equals("NewEvent"));
     }
 
     @Test
@@ -72,7 +72,7 @@ class BasicTest {
         final var received = listener.take();
 
         Assertions.assertEquals(true, received.topic().equals("embedded"));
-        Assertions.assertEquals(true, OneUtil.getLastHeaderAsString(received, ReservedHeader.AufKafkaEventType.name())
+        Assertions.assertEquals(true, OneUtil.getLastHeaderAsString(received, AufKafkaConstant.HEADER_KEY_EVENT_TYPE)
                 .equals("bc130e00-97fa-475a-b36d-2cd99389b915"));
     }
 
@@ -85,7 +85,7 @@ class BasicTest {
 
         Assertions.assertEquals(true, received.topic().equals("embedded"));
         Assertions.assertEquals(true,
-                OneUtil.getLastHeaderAsString(received, ReservedHeader.AufKafkaEventType.name()).equals(eventType));
+                OneUtil.getLastHeaderAsString(received, AufKafkaConstant.HEADER_KEY_EVENT_TYPE).equals(eventType));
     }
 
     @Test
@@ -107,7 +107,7 @@ class BasicTest {
 
         Assertions.assertEquals(true, received.topic().equals("embedded"));
         Assertions.assertEquals(true,
-                OneUtil.getLastHeaderAsString(received, ReservedHeader.AufKafkaEventType.name()).equals("NewEvent"));
+                OneUtil.getLastHeaderAsString(received, AufKafkaConstant.HEADER_KEY_EVENT_TYPE).equals("NewEvent"));
         Assertions.assertEquals(true, received.key().equals(companyId));
     }
 

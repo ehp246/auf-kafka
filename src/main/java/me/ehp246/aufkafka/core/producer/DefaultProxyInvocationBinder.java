@@ -15,11 +15,11 @@ import me.ehp246.aufkafka.api.serializer.ObjectOf;
  * @author Lei Yang
  *
  */
-record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Function<Object[], String> eventTypeBinder,
-        Function<Object[], String> keyBinder, Function<Object[], Object> partitionBinder,
-        Function<Object[], Instant> timestampBinder, Function<Object[], String> correlIdBinder, ValueParam valueParam,
-        Map<Integer, HeaderParam> headerBinder, List<OutboundRecord.Header> headerStatic)
-        implements ProxyInvocationBinder {
+record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder,
+        Function<Object[], OutboundRecord.Header> eventTypeBinder, Function<Object[], String> keyBinder,
+        Function<Object[], Object> partitionBinder, Function<Object[], Instant> timestampBinder,
+        Function<Object[], String> correlIdBinder, ValueParam valueParam, Map<Integer, HeaderParam> headerBinder,
+        List<OutboundRecord.Header> headerStatic) implements ProxyInvocationBinder {
 
     @Override
     public Bound apply(final Object target, final Object[] args) throws Throwable {
@@ -54,7 +54,7 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Func
             }
 
             @Override
-            public String eventType() {
+            public Header eventType() {
                 return eventType;
             }
 

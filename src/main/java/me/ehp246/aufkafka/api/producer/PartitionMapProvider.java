@@ -6,5 +6,5 @@ package me.ehp246.aufkafka.api.producer;
  */
 @FunctionalInterface
 public interface PartitionMapProvider {
-    PartitionMap get(Class<? extends PartitionMap> mapType);
+    PartitionFn get(Class<? extends PartitionFn> mapType);
 }

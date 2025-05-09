@@ -45,7 +45,7 @@ public final class ProducerProxyFactory {
 		final var byKafka = proxyInterface.getAnnotation(ByKafka.class);
 
 		final var producerFn = producerFnProvider
-				.get(new ProducerFnConfig(byKafka.producerConfigName(), byKafka.partitionMap(),
+				.get(new ProducerFnConfig(byKafka.producerConfigName(), byKafka.partitionFn(),
 						producerProperties(Arrays.asList(byKafka.producerProperties()), byKafka.name())));
 
 		return (T) Proxy.newProxyInstance(proxyInterface.getClassLoader(), new Class[] { proxyInterface },

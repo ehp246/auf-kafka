@@ -15,7 +15,7 @@ import me.ehp246.aufkafka.api.serializer.ObjectOf;
 public interface OutboundRecord {
     String topic();
 
-    default String eventType() {
+    default Header eventType() {
         return null;
     }
 

@@ -10,9 +10,9 @@ import java.util.Map;
 public interface ProducerFnProvider {
 	ProducerFn get(ProducerFnConfig config);
 
-	record ProducerFnConfig(String producerConfigName, Class<? extends PartitionMap> partitionMapType,
+	record ProducerFnConfig(String producerConfigName, Class<? extends PartitionFn> partitionMapType,
 			Map<String, Object> producerProperties) {
-		public ProducerFnConfig(String producerConfigName, Class<? extends PartitionMap> partitionMapType) {
+		public ProducerFnConfig(String producerConfigName, Class<? extends PartitionFn> partitionMapType) {
 			this(producerConfigName, partitionMapType, Map.of());
 		}
 	}

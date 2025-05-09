@@ -40,6 +40,12 @@ public final class OneUtil {
                 : value.substring(0, 1).toUpperCase(Locale.US) + value.substring(1);
     }
 
+    /**
+     * Returns <code>null</code> if argument is <code>null</code>.
+     * 
+     * @param value
+     * @return
+     */
     public static String toString(final Object value) {
         return toString(value, null);
     }

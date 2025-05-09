@@ -54,17 +54,19 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                     return (Function<Object[], String>) args -> topic;
                 });
 
+        final var eventTypeHeaderKey = byKafka.eventTypeHeader();
         final var eventTypeBinder = reflected.allParametersWith(OfEventType.class).stream().findFirst()
-                .map(p -> (Function<Object[], String>) args -> {
-                    final var value = args[p.index()];
-                    return value == null ? null : value + "";
-                }).orElseGet(() -> reflected.findOnMethodUp(OfEventType.class).map(ofEventType -> {
-                    final var eventType = ofEventType.value();
-                    return eventType.isBlank() ? (Function<Object[], String>) args -> null
-                            : (Function<Object[], String>) args -> eventType;
+                .map(p -> (Function<Object[], OutboundRecord.Header>) args -> eventTypeHeaderKey.isEmpty() == true
+                        ? null
+                        : new OutboundHeader(eventTypeHeaderKey, args[p.index()]))
+                .orElseGet(() -> reflected.findOnMethodUp(OfEventType.class).map(ofEventType -> {
+                    final var header = eventTypeHeaderKey.isEmpty() ? null
+                            : new OutboundHeader(eventTypeHeaderKey, ofEventType.value());
+                    return (Function<Object[], OutboundRecord.Header>) args -> header;
                 }).orElseGet(() -> {
-                    final var eventType = OneUtil.firstUpper(reflected.method().getName());
-                    return args -> eventType;
+                    final var header = eventTypeHeaderKey.isEmpty() ? null
+                            : new OutboundHeader(eventTypeHeaderKey, OneUtil.firstUpper(reflected.method().getName()));
+                    return args -> header;
                 }));
 
         final var keyBinder = reflected.allParametersWith(OfKey.class).stream().findFirst()

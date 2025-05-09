@@ -35,7 +35,7 @@ class CompletedInvocationTest {
     }
 
     @Test
-    @Timeout(3)
+    @Timeout(1)
     void completed_01() {
         final var id = UUID.randomUUID().toString();
 
@@ -48,6 +48,7 @@ class CompletedInvocationTest {
     }
 
     @Test
+    @Timeout(1)
     void bound_01() throws InterruptedException, ExecutionException {
         final var id = UUID.randomUUID().toString();
         send.send(id);
