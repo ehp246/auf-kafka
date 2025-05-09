@@ -8,7 +8,7 @@ import me.ehp246.aufkafka.api.producer.PartitionMapProvider;
 import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
 import me.ehp246.aufkafka.api.producer.ProducerProvider;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilderProvider;
-import me.ehp246.aufkafka.api.producer.SerializedPartitionMap;
+import me.ehp246.aufkafka.api.producer.SerializedPartitionFn;
 import me.ehp246.aufkafka.api.serializer.json.ToJson;
 
 /**
@@ -28,8 +28,8 @@ public final class ProducerConfiguration {
     }
 
     @Bean
-    SerializedPartitionMap serializPartitionKeyMap() {
-	return new SerializedPartitionMap();
+    SerializedPartitionFn serializPartitionKeyMap() {
+	return new SerializedPartitionFn();
     }
 
     @Bean

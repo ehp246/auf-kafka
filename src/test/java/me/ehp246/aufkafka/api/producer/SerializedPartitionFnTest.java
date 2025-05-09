@@ -15,8 +15,8 @@ import org.mockito.Mockito;
  * @author Lei Yang
  *
  */
-class SerializedPartitionMapTest {
-    final SerializedPartitionMap map = new SerializedPartitionMap();
+class SerializedPartitionFnTest {
+    final SerializedPartitionFn map = new SerializedPartitionFn();
 
     @Test
     void test_01() {

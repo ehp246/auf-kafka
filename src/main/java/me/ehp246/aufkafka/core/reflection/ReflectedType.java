@@ -60,6 +60,19 @@ public final class ReflectedType<T> {
                 .collect(Collectors.toList());
     }
 
+    public Method findSingleNamedMethod(final String name) {
+        final var found = this.findMethods(name);
+        if (found.size() == 0) {
+            return null;
+        }
+
+        if (found.size() > 1) {
+            throw new IllegalStateException(found.size() + " methods named '" + name + "' found on " + this.type);
+        }
+
+        return found.get(0);
+    }
+
     /**
      * Returns all methods that have the given annotation.
      *
@@ -69,6 +82,27 @@ public final class ReflectedType<T> {
     public List<Method> findMethods(final Class<? extends Annotation> annotationClass) {
         return Stream.of(type.getMethods()).filter(method -> method.getDeclaredAnnotation(annotationClass) != null)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns the annotated method if there is one and only one, <code>null</code>
+     * if there is none. otherwise, it's an exception.
+     * 
+     * @param annotationClass
+     * @return One-and-only annotated method. <code>null</code> if not found
+     */
+    public Method findSingleAnnotatedMethod(final Class<? extends Annotation> annotationClass) {
+        final var found = this.findMethods(annotationClass);
+        if (found.size() == 0) {
+            return null;
+        }
+
+        if (found.size() > 1) {
+            throw new IllegalStateException(
+                    found.size() + " methods with " + annotationClass.getName() + " found on " + this.type);
+        }
+
+        return found.get(0);
     }
 
     public Class<T> getType() {

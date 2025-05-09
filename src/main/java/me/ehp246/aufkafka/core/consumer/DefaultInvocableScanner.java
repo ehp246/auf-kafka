@@ -1,16 +1,17 @@
 package me.ehp246.aufkafka.core.consumer;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,20 +20,32 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import me.ehp246.aufkafka.api.annotation.Applying;
+import me.ehp246.aufkafka.api.annotation.Execution;
+import me.ehp246.aufkafka.api.annotation.ForEventType;
 import me.ehp246.aufkafka.api.annotation.ForKey;
+import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
+import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
+import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
-import me.ehp246.aufkafka.api.consumer.InvocableKeyDefinition;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.aufkafka.core.reflection.ReflectedType;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
+ * Scans for {@linkplain ForKey} and {@linkplain ForEventType} classes.
+ * <p>
+ * Duplicate {@linkplain EventInvocableDefinition#lookupKeys()} are accepted.
+ * Collision detection on the lookup keys is implemented by
+ * {@linkplain EventInvocableRegistry}.
+ * 
  * @author Lei Yang
- *
+ * @see DefaultEventInvocableRegistry
  */
 public final class DefaultInvocableScanner implements InvocableScanner {
     private final static Logger LOGGER = LoggerFactory.getLogger(DefaultInvocableScanner.class);
+    private final Map<Class<? extends Annotation>, EventInvocableKeyType> ANNO_KEYTYPE_MAP = Map.of(ForEventType.class,
+            EventInvocableKeyType.EVENT_TYPE_HEADER, ForKey.class, EventInvocableKeyType.KEY);
 
     private final ExpressionResolver expressionResolver;
 
@@ -42,86 +55,134 @@ public final class DefaultInvocableScanner implements InvocableScanner {
     }
 
     @Override
-    public Set<InvocableKeyDefinition> apply(final Set<Class<?>> registering, final Set<String> scanPackages) {
+    public Map<EventInvocableKeyType, Set<EventInvocableDefinition>> apply(final Set<Class<?>> registering,
+            final Set<String> scanPackages) {
+        final var map = new HashMap<EventInvocableKeyType, Set<EventInvocableDefinition>>();
+
+        if (registering != null && !registering.isEmpty()) {
+            for (final var type : registering) {
+                final var annos = new HashSet<>(
+                        Arrays.stream(type.getDeclaredAnnotations()).map(Annotation::annotationType).toList());
+                annos.retainAll(ANNO_KEYTYPE_MAP.keySet());
+                if (annos.isEmpty()) {
+                    throw new IllegalArgumentException(
+                            "Missing required annotations from " + ANNO_KEYTYPE_MAP.keySet() + " on " + type.getName());
+                }
+
+                this.newDefinition(type).entrySet().stream().forEach(
+                        entry -> map.computeIfAbsent(entry.getKey(), key -> new HashSet<>()).add(entry.getValue()));
+            }
+        }
+
         final var scanner = new ClassPathScanningCandidateComponentProvider(false) {
             @Override
             protected boolean isCandidateComponent(final AnnotatedBeanDefinition beanDefinition) {
                 return beanDefinition.getMetadata().isIndependent() || beanDefinition.getMetadata().isInterface();
             }
         };
-        scanner.addIncludeFilter(new AnnotationTypeFilter(ForKey.class));
 
-        return Stream
-                .concat(Optional.ofNullable(registering).map(Set::stream).orElseGet(() -> Stream.of((Class<?>) null)),
-                        OneUtil.streamOfNonNull(scanPackages).map(scanner::findCandidateComponents).flatMap(Set::stream)
-                                .map(bean -> {
-                                    try {
-                                        return Class.forName(bean.getBeanClassName());
-                                    } catch (final ClassNotFoundException e) {
-                                        LOGGER.atError().setMessage("This should not happen: {}").setCause(e)
-                                                .addArgument(e::getMessage).log();
-                                    }
-                                    return null;
-                                }))
-                .filter(Objects::nonNull).map(this::newDefinition).filter(Objects::nonNull).collect(Collectors.toSet());
-    }
+        ANNO_KEYTYPE_MAP.keySet().stream().forEach(anno -> scanner.addIncludeFilter(new AnnotationTypeFilter(anno)));
 
-    private InvocableKeyDefinition newDefinition(final Class<?> type) {
-        final var annotation = type.getAnnotation(ForKey.class);
-        if (annotation == null) {
-            throw new IllegalArgumentException(ForKey.class.getName() + " annotation required on " + type.getName());
-        }
-
-        if ((Modifier.isAbstract(type.getModifiers()) && annotation.scope().equals(InstanceScope.MESSAGE))
-                || type.isEnum()) {
-            throw new IllegalArgumentException("Un-instantiable type " + type.getName());
-        }
-        if (!Modifier.isPublic(type.getModifiers())) {
-            throw new IllegalArgumentException("public modifier required on " + type.getName());
-        }
-
-        final var msgTypes = Arrays
-                .asList(annotation.value().length == 0 ? new String[] { type.getSimpleName() } : annotation.value())
-                .stream().map(this.expressionResolver::apply)
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).entrySet().stream()
-                .map(entry -> {
-                    if (entry.getValue() > 1) {
-                        throw new IllegalArgumentException(
-                                "Duplicate type '" + entry.getKey() + "' on " + type.getCanonicalName());
-                    }
-                    return entry.getKey();
-                }).collect(Collectors.toSet());
-
-        final var invokings = new HashMap<String, Method>();
-        final var reflected = new ReflectedType<>(type);
-
-        // TODO: No invoking name anymore. Need to fix.
-        // Search for the annotation first
-        for (final var method : reflected.findMethods(Applying.class)) {
-            invokings.put("", method);
-        }
+        OneUtil.streamOfNonNull(scanPackages).map(scanner::findCandidateComponents).flatMap(Set::stream).map(bean -> {
+            try {
+                return Class.forName(bean.getBeanClassName());
+            } catch (final ClassNotFoundException e) {
+                LOGGER.atError().setMessage("This should not happen: {}").setCause(e).addArgument(e::getMessage).log();
+            }
+            return null;
+        }).map(this::newDefinition).map(Map::entrySet).flatMap(Set::stream)
+                .forEach(entry -> map.computeIfAbsent(entry.getKey(), key -> new HashSet<>()).add(entry.getValue()));
 
         /*
-         * Look for 'invoke', then 'apply'.
+         * Locks down the set.
          */
-        if (invokings.get("") == null) {
-            final var invokes = reflected.findMethods("invoke");
-            if (invokes.size() == 1) {
-                invokings.put("", invokes.get(0));
-            } else {
-                final var applies = reflected.findMethods("apply");
-                if (applies.size() == 1) {
-                    invokings.put("", applies.get(0));
-                }
+        map.keySet().stream().forEach(key -> map.put(key, Collections.unmodifiableSet(map.get(key))));
+
+        /*
+         * Locks down the map.
+         */
+        return Collections.unmodifiableMap(map);
+    }
+
+    /**
+     * Multiple annotations can be applied.
+     * 
+     * @param type
+     * @return
+     */
+    private Map<EventInvocableKeyType, EventInvocableDefinition> newDefinition(final Class<?> type) {
+        final var map = new HashMap<EventInvocableKeyType, EventInvocableDefinition>();
+
+        for (final var annoType : ANNO_KEYTYPE_MAP.keySet()) {
+            final var anno = type.getAnnotation(annoType);
+            if (anno == null) {
+                continue;
             }
+
+            final String[] value;
+            final Execution execution;
+
+            switch (ANNO_KEYTYPE_MAP.get(annoType)) {
+            case EVENT_TYPE_HEADER:
+                final var forEventType = (ForEventType) anno;
+                value = forEventType.value();
+                execution = forEventType.execution();
+                break;
+            case KEY:
+                final var forKey = (ForKey) anno;
+                value = forKey.value();
+                execution = forKey.execution();
+                break;
+            default:
+                throw new IllegalArgumentException("This should not happen: type " + type.getCanonicalName() + " with "
+                        + annoType.getCanonicalName());
+            }
+
+            if (!Modifier.isPublic(type.getModifiers())) {
+                throw new IllegalArgumentException("public modifier required on " + type.getName());
+            }
+            if ((Modifier.isAbstract(type.getModifiers()) && execution.scope().equals(InstanceScope.MESSAGE))
+                    || type.isEnum()) {
+                throw new IllegalArgumentException("Un-instantiable type " + type.getName());
+            }
+
+            final var lookupKeys = Arrays.asList(value.length == 0 ? new String[] { type.getSimpleName() } : value)
+                    .stream().map(this.expressionResolver::apply)
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())).entrySet().stream()
+                    .map(entry -> {
+                        if (entry.getValue() > 1) {
+                            throw new IllegalArgumentException(
+                                    "Duplicate type '" + entry.getKey() + "' on " + type.getCanonicalName());
+                        }
+                        return entry.getKey();
+                    }).collect(Collectors.toSet());
+
+            final var invokings = new HashMap<String, Method>();
+            final var reflected = new ReflectedType<>(type);
+
+            /*
+             * No invoking name for now. Search for the annotation first.
+             */
+            invokings.put("", reflected.findSingleAnnotatedMethod(Applying.class));
+
+            /*
+             * Look for 'apply'.
+             */
+            if (invokings.get("") == null) {
+                invokings.put("", reflected.findSingleNamedMethod("apply"));
+            }
+
+            /*
+             * There should be at least one method.
+             */
+            if (invokings.get("") == null) {
+                throw new NoSuchElementException("No invocation method defined by " + type.getName());
+            }
+
+            map.put(ANNO_KEYTYPE_MAP.get(annoType), new EventInvocableDefinition(lookupKeys, type,
+                    Map.copyOf(invokings), execution.scope(), execution.invocation()));
         }
 
-        // There should be at least one method.
-        if (invokings.get("") == null) {
-            throw new IllegalArgumentException("No invocation method defined by " + type.getName());
-        }
-
-        return new InvocableKeyDefinition(msgTypes, type, Map.copyOf(invokings), annotation.scope(),
-                annotation.invocation());
+        return map;
     }
 }

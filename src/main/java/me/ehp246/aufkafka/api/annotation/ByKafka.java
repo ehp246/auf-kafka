@@ -14,10 +14,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
+import me.ehp246.aufkafka.api.AufKafkaConstant;
+import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
-import me.ehp246.aufkafka.api.producer.PartitionMap;
+import me.ehp246.aufkafka.api.producer.PartitionFn;
 import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
-import me.ehp246.aufkafka.api.producer.SerializedPartitionMap;
+import me.ehp246.aufkafka.api.producer.SerializedPartitionFn;
 
 /**
  * Indicates that the annotated interface should be implemented by Auf Kafka as
@@ -51,6 +53,14 @@ public @interface ByKafka {
      * @see Qualifier
      */
     String name() default "";
+
+    /**
+     * Specifies the key name for
+     * {@linkplain EventInvocableKeyType#EVENT_TYPE_HEADER}.
+     * <p>
+     * If set to an empty string, out-bound message will not contain the header.
+     */
+    String eventTypeHeader() default AufKafkaConstant.HEADER_KEY_EVENT_TYPE;
 
     /**
      * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs for
@@ -102,11 +112,11 @@ public @interface ByKafka {
     String[] producerProperties() default {};
 
     /**
-     * Specifies the type of Spring bean that implements {@linkplain PartitionMap}
-     * to use with the interface to map partition key to partition.
+     * Specifies the type of Spring bean that implements {@linkplain PartitionFn} to
+     * use with the interface to map partition key to partition.
      * 
-     * @see SerializedPartitionMap
+     * @see SerializedPartitionFn
      * @see DirectPartitionMap
      */
-    Class<? extends PartitionMap> partitionMap() default SerializedPartitionMap.class;
+    Class<? extends PartitionFn> partitionFn() default SerializedPartitionFn.class;
 }

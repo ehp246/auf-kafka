@@ -17,7 +17,7 @@ interface TestCases {
         void newEventWithPartition(@OfPartition Object partitionKey);
     }
 
-    @ByKafka(value = "embedded", partitionMap = DirectPartitionMap.class)
+    @ByKafka(value = "embedded", partitionFn = DirectPartitionMap.class)
     interface Case02 {
         void newEvent(@OfPartition Event event);
 

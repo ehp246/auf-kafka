@@ -17,7 +17,7 @@ public final class MsgMDCContext {
     }
 
     private enum InboundContextName {
-        AufKafkaFrom, AufKafkaCorrelationId, AufKafkaKey, AufKafkaMsgMDC;
+        AufKafkaFrom, AufKafkaCorrelationId, AufKafkaKey, AufKafkaType, AufKafkaMsgMDC;
     }
 
     public static AutoCloseable set(final ConsumerRecord<String, String> msg) {
@@ -35,10 +35,8 @@ public final class MsgMDCContext {
             return closeable;
         }
 
-        propertyNames.stream()
-                .filter(name -> name.key().startsWith(AufKafkaConstant.MSG_MDC_HEADER_PREFIX))
-                .forEach(name -> MDC.put(
-                        name.key().replaceFirst(AufKafkaConstant.MSG_MDC_HEADER_PREFIX, ""),
+        propertyNames.stream().filter(name -> name.key().startsWith(AufKafkaConstant.MSG_MDC_HEADER_PREFIX))
+                .forEach(name -> MDC.put(name.key().replaceFirst(AufKafkaConstant.MSG_MDC_HEADER_PREFIX, ""),
                         new String(name.value(), StandardCharsets.UTF_8)));
 
         return closeable;
@@ -57,9 +55,7 @@ public final class MsgMDCContext {
         if (propertyNames == null) {
             return;
         }
-        propertyNames.stream()
-                .filter(name -> name.key().startsWith(AufKafkaConstant.MSG_MDC_HEADER_PREFIX))
-                .forEach(name -> MDC.remove(
-                        name.key().replaceFirst(AufKafkaConstant.MSG_MDC_HEADER_PREFIX, "")));
+        propertyNames.stream().filter(name -> name.key().startsWith(AufKafkaConstant.MSG_MDC_HEADER_PREFIX))
+                .forEach(name -> MDC.remove(name.key().replaceFirst(AufKafkaConstant.MSG_MDC_HEADER_PREFIX, "")));
     }
 }

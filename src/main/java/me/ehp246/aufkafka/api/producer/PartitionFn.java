@@ -9,6 +9,6 @@ import org.apache.kafka.common.PartitionInfo;
  *
  */
 @FunctionalInterface
-public interface PartitionMap {
+public interface PartitionFn {
     Integer apply(List<PartitionInfo> infos, Object key);
 }

@@ -13,17 +13,17 @@ import org.apache.kafka.common.record.TimestampType;
  *
  */
 public class MockConsumerRecord extends ConsumerRecord<String, String> {
-    public MockConsumerRecord(String topic, int partition, long offset, long timestamp,
-            TimestampType timestampType, int serializedKeySize, int serializedValueSize, String key,
-            String value, Headers headers, Optional<Integer> leaderEpoch) {
-        super(topic, partition, offset, timestamp, timestampType, serializedKeySize,
-                serializedValueSize, key, value, headers, leaderEpoch);
+    public MockConsumerRecord(String topic, int partition, long offset, long timestamp, TimestampType timestampType,
+            int serializedKeySize, int serializedValueSize, String key, String value, Headers headers,
+            Optional<Integer> leaderEpoch) {
+        super(topic, partition, offset, timestamp, timestampType, serializedKeySize, serializedValueSize, key, value,
+                headers, leaderEpoch);
     }
 
-    public MockConsumerRecord(final String value, String... headers) {
-        this(UUID.randomUUID().toString(), 0, 0, Instant.now().toEpochMilli(),
-                TimestampType.CREATE_TIME, 0, value == null ? 0 : value.length() * 2, null, value,
-                StringHeader.headers(headers), Optional.ofNullable(null));
+    public MockConsumerRecord(final String key, final String value, String... headers) {
+        this(UUID.randomUUID().toString(), 0, 0, Instant.now().toEpochMilli(), TimestampType.CREATE_TIME, 0,
+                value == null ? 0 : value.length() * 2, key, value, StringHeader.headers(headers),
+                Optional.ofNullable(null));
     }
 
     public MockConsumerRecord(String topic, int partition, long offset, String key, String value) {
@@ -35,8 +35,8 @@ public class MockConsumerRecord extends ConsumerRecord<String, String> {
     }
 
     public static MockConsumerRecord withHeaders(final Headers headers) {
-        return new MockConsumerRecord(UUID.randomUUID().toString(), 0, 0,
-                Instant.now().toEpochMilli(), TimestampType.CREATE_TIME, 0, 0, null, null, headers,
+        return new MockConsumerRecord(UUID.randomUUID().toString(), 0, 0, Instant.now().toEpochMilli(),
+                TimestampType.CREATE_TIME, 0, 0, UUID.randomUUID().toString(), null, headers,
                 Optional.ofNullable(null));
     }
 
@@ -45,7 +45,20 @@ public class MockConsumerRecord extends ConsumerRecord<String, String> {
     }
 
     public static MockConsumerRecord withValue(final String value) {
-        return new MockConsumerRecord(UUID.randomUUID().toString(), 0, 0,
-                UUID.randomUUID().toString(), value);
+        return new MockConsumerRecord(UUID.randomUUID().toString(), 0, 0, UUID.randomUUID().toString(), value);
+    }
+
+    public static MockConsumerRecord withKey() {
+        return new MockConsumerRecord(UUID.randomUUID().toString(), 0, 0, UUID.randomUUID().toString(),
+                UUID.randomUUID().toString());
+    }
+
+    public static MockConsumerRecord withKey(final String key) {
+        return new MockConsumerRecord(UUID.randomUUID().toString(), 0, 0, key, UUID.randomUUID().toString());
+    }
+
+    public static MockConsumerRecord withKeyAndHeaders(String key, String... headers) {
+        return new MockConsumerRecord(UUID.randomUUID().toString(), 0, 0, Instant.now().toEpochMilli(),
+                TimestampType.CREATE_TIME, 0, 0, key, null, StringHeader.headers(headers), Optional.ofNullable(null));
     }
 }
