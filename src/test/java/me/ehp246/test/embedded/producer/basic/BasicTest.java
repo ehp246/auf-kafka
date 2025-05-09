@@ -62,7 +62,7 @@ class BasicTest {
 
         Assertions.assertEquals(true, received.topic().equals("embedded"));
         Assertions.assertEquals(true,
-                OneUtil.getLastHeaderAsString(received, AufKafkaConstant.HEADER_KEY_EVENT_TYPE).equals("NewEvent"));
+                OneUtil.getLastHeaderAsString(received, AufKafkaConstant.EVENT_HEADER).equals("NewEvent"));
     }
 
     @Test
@@ -72,7 +72,7 @@ class BasicTest {
         final var received = listener.take();
 
         Assertions.assertEquals(true, received.topic().equals("embedded"));
-        Assertions.assertEquals(true, OneUtil.getLastHeaderAsString(received, AufKafkaConstant.HEADER_KEY_EVENT_TYPE)
+        Assertions.assertEquals(true, OneUtil.getLastHeaderAsString(received, AufKafkaConstant.EVENT_HEADER)
                 .equals("bc130e00-97fa-475a-b36d-2cd99389b915"));
     }
 
@@ -85,7 +85,7 @@ class BasicTest {
 
         Assertions.assertEquals(true, received.topic().equals("embedded"));
         Assertions.assertEquals(true,
-                OneUtil.getLastHeaderAsString(received, AufKafkaConstant.HEADER_KEY_EVENT_TYPE).equals(eventType));
+                OneUtil.getLastHeaderAsString(received, AufKafkaConstant.EVENT_HEADER).equals(eventType));
     }
 
     @Test
@@ -107,7 +107,7 @@ class BasicTest {
 
         Assertions.assertEquals(true, received.topic().equals("embedded"));
         Assertions.assertEquals(true,
-                OneUtil.getLastHeaderAsString(received, AufKafkaConstant.HEADER_KEY_EVENT_TYPE).equals("NewEvent"));
+                OneUtil.getLastHeaderAsString(received, AufKafkaConstant.EVENT_HEADER).equals("NewEvent"));
         Assertions.assertEquals(true, received.key().equals(companyId));
     }
 

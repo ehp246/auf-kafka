@@ -71,7 +71,7 @@ public final class InboundEndpointFactory {
             }
         };
 
-        final var registery = new DefaultEventInvocableRegistry(inboundAttributes.get("eventTypeHeader").toString());
+        final var registery = new DefaultEventInvocableRegistry(inboundAttributes.get("eventHeader").toString());
 
         this.invocableScanner.apply(
                 Arrays.asList((Class<?>[]) inboundAttributes.get("register")).stream().collect(Collectors.toSet()),

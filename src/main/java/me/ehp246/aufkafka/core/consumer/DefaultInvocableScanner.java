@@ -45,7 +45,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
 public final class DefaultInvocableScanner implements InvocableScanner {
     private final static Logger LOGGER = LoggerFactory.getLogger(DefaultInvocableScanner.class);
     private final Map<Class<? extends Annotation>, EventInvocableKeyType> ANNO_KEYTYPE_MAP = Map.of(ForHeader.class,
-            EventInvocableKeyType.EVENT_TYPE_HEADER, ForKey.class, EventInvocableKeyType.KEY);
+            EventInvocableKeyType.EVENT_HEADER, ForKey.class, EventInvocableKeyType.KEY);
 
     private final ExpressionResolver expressionResolver;
 
@@ -123,7 +123,7 @@ public final class DefaultInvocableScanner implements InvocableScanner {
             final Execution execution;
 
             switch (ANNO_KEYTYPE_MAP.get(annoType)) {
-            case EVENT_TYPE_HEADER:
+            case EVENT_HEADER:
                 final var forEventType = (ForHeader) anno;
                 value = forEventType.value();
                 execution = forEventType.execution();

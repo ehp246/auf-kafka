@@ -56,11 +56,11 @@ public @interface ByKafka {
 
     /**
      * Specifies the key name for
-     * {@linkplain EventInvocableKeyType#EVENT_TYPE_HEADER}.
+     * {@linkplain EventInvocableKeyType#EVENT_HEADER}.
      * <p>
      * If set to an empty string, out-bound message will not contain the header.
      */
-    String eventTypeHeader() default AufKafkaConstant.HEADER_KEY_EVENT_TYPE;
+    String eventTypeHeader() default AufKafkaConstant.EVENT_HEADER;
 
     /**
      * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs for

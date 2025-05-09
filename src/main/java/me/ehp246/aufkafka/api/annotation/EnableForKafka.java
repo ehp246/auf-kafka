@@ -99,9 +99,9 @@ public @interface EnableForKafka {
         Class<?>[] register() default {};
 
         /**
-         * Specifies the name of {@linkplain EventInvocableKeyType#EVENT_TYPE_HEADER}.
+         * Specifies the name of {@linkplain EventInvocableKeyType#EVENT_HEADER}.
          */
-        String eventTypeHeader() default AufKafkaConstant.HEADER_KEY_EVENT_TYPE;
+        String eventHeader() default AufKafkaConstant.EVENT_HEADER;
 
         /**
          * Specifies whether the listener should be started automatically.

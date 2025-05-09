@@ -54,7 +54,7 @@ class HeaderTest {
         Assertions.assertEquals("header02", headers.get(2).key());
         Assertions.assertEquals(null, headers.get(2).value());
 
-        Assertions.assertEquals(AufKafkaConstant.HEADER_KEY_EVENT_TYPE, headers.get(3).key());
+        Assertions.assertEquals(AufKafkaConstant.EVENT_HEADER, headers.get(3).key());
         Assertions.assertEquals("Header", new String(headers.get(3).value(), StandardCharsets.UTF_8));
     }
 

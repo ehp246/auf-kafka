@@ -21,7 +21,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * This implementation matches a {@linkplain ConsumerRecord} to a
  * {@linkplain InvocalType} in the following order:
  * <ul>
- * <li>{@linkplain EventInvocableKeyType#EVENT_TYPE_HEADER}.</li>
+ * <li>{@linkplain EventInvocableKeyType#EVENT_HEADER}.</li>
  * <li>{@linkplain ConsumerRecord#key()}.</li>
  * </ul>
  * <p>
@@ -71,7 +71,7 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
 
     /**
      * If the incoming event has
-     * {@linkplain AufKafkaConstant#HEADER_KEY_EVENT_TYPE} defined, the value will
+     * {@linkplain AufKafkaConstant#EVENT_HEADER} defined, the value will
      * be used as the key for the event-type registry. Otherwise,
      * {@linkplain ConsumerRecord#key()} will be used as the key to look up the key
      * registry.
@@ -88,7 +88,7 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
         final var eventType = OneUtil.getLastHeaderAsString(event, this.eventTypeHeader);
 
         final var lookupkey = eventType != null ? eventType : OneUtil.toString(event.key(), "");
-        final var keyType = eventType != null ? EventInvocableKeyType.EVENT_TYPE_HEADER : EventInvocableKeyType.KEY;
+        final var keyType = eventType != null ? EventInvocableKeyType.EVENT_HEADER : EventInvocableKeyType.KEY;
 
         final var definition = this.cached.get(keyType).computeIfAbsent(lookupkey,
                 key -> this.registeredInvokables.get(keyType).entrySet().stream()
