@@ -2,7 +2,7 @@ package me.ehp246.aufkafka.core.consumer.case03;
 
 import me.ehp246.aufkafka.api.annotation.Applying;
 import me.ehp246.aufkafka.api.annotation.Execution;
-import me.ehp246.aufkafka.api.annotation.ForEventType;
+import me.ehp246.aufkafka.api.annotation.ForHeader;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
 
@@ -11,7 +11,7 @@ public class TestCase03 {
     public interface NotMsg {
     }
 
-    @ForEventType("test")
+    @ForHeader("test")
     public enum NoEnum {
     }
 
@@ -21,11 +21,11 @@ public class TestCase03 {
         }
     }
 
-    @ForEventType("test")
+    @ForHeader("test")
     public static class NoApply {
     }
 
-    @ForEventType("test")
+    @ForHeader("test")
     public static class ManyApply {
         public void apply() {
 
@@ -36,7 +36,7 @@ public class TestCase03 {
         }
     }
 
-    @ForEventType("test")
+    @ForHeader("test")
     public static class ManyApplying {
         @Applying
         public void apply() {
