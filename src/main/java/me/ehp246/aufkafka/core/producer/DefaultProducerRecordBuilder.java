@@ -69,28 +69,6 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
             }).forEach(headers::add);
         }
 
-        /**
-         * Event type header, if there is one, with higher priority
-         */
-        final var eventType = outboundRecord.eventType();
-        if (eventType != null) {
-            headers.add(new Header() {
-                private final String key = eventType.key();
-                private final byte[] value = eventType.value() == null ? null
-                        : eventType.value().toString().getBytes(StandardCharsets.UTF_8);
-
-                @Override
-                public byte[] value() {
-                    return value;
-                }
-
-                @Override
-                public String key() {
-                    return key;
-                }
-            });
-        }
-
         return headers;
     }
 }
