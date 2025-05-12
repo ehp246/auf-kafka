@@ -8,7 +8,7 @@ import me.ehp246.aufkafka.api.annotation.OfValue;
  * @author Lei Yang
  *
  */
-@ByKafka(value = "embedded", eventTypeHeader = "")
+@ByKafka(value = "embedded", eventHeader = "")
 interface Send {
     @OfKey("Send")
     void send(@OfValue String id);

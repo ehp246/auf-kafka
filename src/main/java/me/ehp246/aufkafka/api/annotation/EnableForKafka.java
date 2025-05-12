@@ -99,7 +99,7 @@ public @interface EnableForKafka {
         Class<?>[] register() default {};
 
         /**
-         * Specifies the name/key of {@linkplain EventInvocableKeyType#EVENT_HEADER}.
+         * Specifies the key for {@linkplain EventInvocableKeyType#EVENT_HEADER}.
          */
         String eventHeader() default AufKafkaConstant.EVENT_HEADER;
 

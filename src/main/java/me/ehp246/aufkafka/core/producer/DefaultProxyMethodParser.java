@@ -54,18 +54,18 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                     return (Function<Object[], String>) args -> topic;
                 });
 
-        final var eventTypeHeaderKey = byKafka.eventTypeHeader();
-        final var eventTypeBinder = reflected.allParametersWith(OfEventType.class).stream().findFirst()
-                .map(p -> (Function<Object[], OutboundRecord.Header>) args -> eventTypeHeaderKey.isEmpty() == true
+        final var eventHeaderKey = byKafka.eventHeader();
+        final var eventHeaderBinder = reflected.allParametersWith(OfEventType.class).stream().findFirst()
+                .map(p -> (Function<Object[], OutboundRecord.Header>) args -> eventHeaderKey.isEmpty() == true
                         ? null
-                        : new OutboundHeader(eventTypeHeaderKey, args[p.index()]))
+                        : new OutboundHeader(eventHeaderKey, args[p.index()]))
                 .orElseGet(() -> reflected.findOnMethodUp(OfEventType.class).map(ofEventType -> {
-                    final var header = eventTypeHeaderKey.isEmpty() || ofEventType.value().isEmpty() ? null
-                            : new OutboundHeader(eventTypeHeaderKey, ofEventType.value());
+                    final var header = eventHeaderKey.isEmpty() || ofEventType.value().isEmpty() ? null
+                            : new OutboundHeader(eventHeaderKey, ofEventType.value());
                     return (Function<Object[], OutboundRecord.Header>) args -> header;
                 }).orElseGet(() -> {
-                    final var header = eventTypeHeaderKey.isEmpty() ? null
-                            : new OutboundHeader(eventTypeHeaderKey, OneUtil.firstUpper(reflected.method().getName()));
+                    final var header = eventHeaderKey.isEmpty() ? null
+                            : new OutboundHeader(eventHeaderKey, OneUtil.firstUpper(reflected.method().getName()));
                     return args -> header;
                 }));
 
@@ -110,7 +110,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                         parameter.getType()))
                 .orElse(null);
 
-        return new Parsed(new DefaultProxyInvocationBinder(topicBinder, eventTypeBinder, keyBinder, partitionBinder,
+        return new Parsed(new DefaultProxyInvocationBinder(topicBinder, eventHeaderBinder, keyBinder, partitionBinder,
                 timestampBinder, null, valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, objectOf),
                 headerBinder(reflected), headerStatic(reflected, byKafka)));
     }
