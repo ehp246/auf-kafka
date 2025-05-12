@@ -21,10 +21,10 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import me.ehp246.aufkafka.api.annotation.Applying;
 import me.ehp246.aufkafka.api.annotation.Execution;
-import me.ehp246.aufkafka.api.annotation.ForEventHeader;
+import me.ehp246.aufkafka.api.annotation.ForEvent;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
-import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
+import me.ehp246.aufkafka.api.consumer.EventInvocableNameSource;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
@@ -33,7 +33,7 @@ import me.ehp246.aufkafka.core.reflection.ReflectedType;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
- * Scans for {@linkplain ForKey} and {@linkplain ForEventHeader} classes.
+ * Scans for {@linkplain ForKey} and {@linkplain ForEvent} classes.
  * <p>
  * Duplicate {@linkplain EventInvocableDefinition#names()} are accepted.
  * Collision detection on the lookup keys is implemented by
@@ -44,8 +44,8 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  */
 public final class DefaultInvocableScanner implements InvocableScanner {
     private final static Logger LOGGER = LoggerFactory.getLogger(DefaultInvocableScanner.class);
-    private final Map<Class<? extends Annotation>, EventInvocableKeyType> ANNO_KEYTYPE_MAP = Map.of(ForEventHeader.class,
-            EventInvocableKeyType.EVENT_HEADER, ForKey.class, EventInvocableKeyType.KEY);
+    private final Map<Class<? extends Annotation>, EventInvocableNameSource> ANNO_KEYTYPE_MAP = Map.of(ForEvent.class,
+            EventInvocableNameSource.EVENT_HEADER, ForKey.class, EventInvocableNameSource.KEY);
 
     private final ExpressionResolver expressionResolver;
 
@@ -55,9 +55,9 @@ public final class DefaultInvocableScanner implements InvocableScanner {
     }
 
     @Override
-    public Map<EventInvocableKeyType, Set<EventInvocableDefinition>> apply(final Set<Class<?>> registering,
+    public Map<EventInvocableNameSource, Set<EventInvocableDefinition>> apply(final Set<Class<?>> registering,
             final Set<String> scanPackages) {
-        final var map = new HashMap<EventInvocableKeyType, Set<EventInvocableDefinition>>();
+        final var map = new HashMap<EventInvocableNameSource, Set<EventInvocableDefinition>>();
 
         if (registering != null && !registering.isEmpty()) {
             for (final var type : registering) {
@@ -110,8 +110,8 @@ public final class DefaultInvocableScanner implements InvocableScanner {
      * @param type
      * @return
      */
-    private Map<EventInvocableKeyType, EventInvocableDefinition> newDefinition(final Class<?> type) {
-        final var map = new HashMap<EventInvocableKeyType, EventInvocableDefinition>();
+    private Map<EventInvocableNameSource, EventInvocableDefinition> newDefinition(final Class<?> type) {
+        final var map = new HashMap<EventInvocableNameSource, EventInvocableDefinition>();
 
         for (final var annoType : ANNO_KEYTYPE_MAP.keySet()) {
             final var anno = type.getAnnotation(annoType);
@@ -124,7 +124,7 @@ public final class DefaultInvocableScanner implements InvocableScanner {
 
             switch (ANNO_KEYTYPE_MAP.get(annoType)) {
             case EVENT_HEADER:
-                final var forEventType = (ForEventHeader) anno;
+                final var forEventType = (ForEvent) anno;
                 value = forEventType.value();
                 execution = forEventType.execution();
                 break;
@@ -141,7 +141,7 @@ public final class DefaultInvocableScanner implements InvocableScanner {
             if (!Modifier.isPublic(type.getModifiers())) {
                 throw new IllegalArgumentException("public modifier required on " + type.getName());
             }
-            if ((Modifier.isAbstract(type.getModifiers()) && execution.scope().equals(InstanceScope.MESSAGE))
+            if ((Modifier.isAbstract(type.getModifiers()) && execution.scope().equals(InstanceScope.EVENT))
                     || type.isEnum()) {
                 throw new IllegalArgumentException("Un-instantiable type " + type.getName());
             }

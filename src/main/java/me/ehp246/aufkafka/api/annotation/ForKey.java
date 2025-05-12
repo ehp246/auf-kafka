@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
+import me.ehp246.aufkafka.api.consumer.EventInvocableNameSource;
 
 /**
  * Indicates that the class defines methods that should be invoked on a message
@@ -21,7 +21,7 @@ import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
  * @author Lei Yang
  * @since 1.0
  * @see Applying
- * @see EventInvocableKeyType
+ * @see EventInvocableNameSource
  */
 @Documented
 @Retention(RUNTIME)

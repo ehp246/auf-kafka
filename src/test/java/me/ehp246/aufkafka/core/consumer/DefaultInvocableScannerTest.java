@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
-import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
+import me.ehp246.aufkafka.api.consumer.EventInvocableNameSource;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
 import me.ehp246.aufkafka.api.consumer.InvocationModel;
 import me.ehp246.aufkafka.core.consumer.case02.TestCase02;
@@ -75,7 +75,7 @@ class DefaultInvocableScannerTest {
         final var mapped = new DefaultInvocableScanner(Object::toString).apply(Set.of(TestCase02.ForKey01.class), null);
 
         Assertions.assertEquals(1, mapped.keySet().size());
-        Assertions.assertEquals(true, mapped.keySet().contains(EventInvocableKeyType.KEY));
+        Assertions.assertEquals(true, mapped.keySet().contains(EventInvocableNameSource.KEY));
     }
 
     @Test
@@ -84,7 +84,7 @@ class DefaultInvocableScannerTest {
                 null);
 
         Assertions.assertEquals(1, mapped.keySet().size());
-        Assertions.assertEquals(true, mapped.keySet().contains(EventInvocableKeyType.EVENT_HEADER));
+        Assertions.assertEquals(true, mapped.keySet().contains(EventInvocableNameSource.EVENT_HEADER));
     }
 
     @Test
@@ -92,7 +92,7 @@ class DefaultInvocableScannerTest {
         final var mapped = new DefaultInvocableScanner(Object::toString).apply(Set.of(TestCase02.ForCombined01.class),
                 null);
 
-        final var forKeySet = mapped.get(EventInvocableKeyType.KEY);
+        final var forKeySet = mapped.get(EventInvocableNameSource.KEY);
 
         Assertions.assertEquals(1, forKeySet.size());
 
@@ -105,7 +105,7 @@ class DefaultInvocableScannerTest {
         Assertions.assertEquals(true, forKeyDefs[0].model() == InvocationModel.INLINE);
         Assertions.assertEquals(true, forKeyDefs[0].scope() == InstanceScope.BEAN);
 
-        final var eventTypeSet = mapped.get(EventInvocableKeyType.EVENT_HEADER);
+        final var eventTypeSet = mapped.get(EventInvocableNameSource.EVENT_HEADER);
 
         Assertions.assertEquals(1, eventTypeSet.size());
 
@@ -114,7 +114,7 @@ class DefaultInvocableScannerTest {
         Assertions.assertEquals(1, eventTypeDefs.length);
         Assertions.assertEquals(true, eventTypeDefs[0].names().contains("event-type-test"));
         Assertions.assertEquals(true, eventTypeDefs[0].model() == InvocationModel.DEFAULT);
-        Assertions.assertEquals(true, eventTypeDefs[0].scope() == InstanceScope.MESSAGE);
+        Assertions.assertEquals(true, eventTypeDefs[0].scope() == InstanceScope.EVENT);
     }
 
     @Test
@@ -122,7 +122,7 @@ class DefaultInvocableScannerTest {
         final var mapped = new DefaultInvocableScanner(Object::toString).apply(null,
                 Set.of("me.ehp246.aufkafka.core.consumer.case02"));
 
-        final var forKeySet = mapped.get(EventInvocableKeyType.KEY);
+        final var forKeySet = mapped.get(EventInvocableNameSource.KEY);
 
         Assertions.assertEquals(2, forKeySet.size(), "should accept duplicated lookup keys");
 
@@ -134,7 +134,7 @@ class DefaultInvocableScannerTest {
         Assertions.assertEquals(true, forKeyDefs[0].names().contains("key-test"));
         Assertions.assertEquals(true, forKeyDefs[1].names().contains("key-test"));
 
-        final var eventTypeSet = mapped.get(EventInvocableKeyType.EVENT_HEADER);
+        final var eventTypeSet = mapped.get(EventInvocableNameSource.EVENT_HEADER);
 
         Assertions.assertEquals(2, eventTypeSet.size());
 

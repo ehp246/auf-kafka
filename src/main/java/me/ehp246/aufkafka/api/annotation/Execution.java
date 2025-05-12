@@ -16,7 +16,7 @@ public @interface Execution {
      *
      * @see InstanceScope
      */
-    InstanceScope scope() default InstanceScope.MESSAGE;
+    InstanceScope scope() default InstanceScope.EVENT;
 
     /**
      * Not implemented.

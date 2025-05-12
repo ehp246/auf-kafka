@@ -9,7 +9,7 @@ import org.apache.logging.log4j.ThreadContext;
 import org.springframework.stereotype.Service;
 
 import me.ehp246.aufkafka.api.annotation.Execution;
-import me.ehp246.aufkafka.api.annotation.ForEventHeader;
+import me.ehp246.aufkafka.api.annotation.ForEvent;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfMDC;
 import me.ehp246.aufkafka.api.annotation.OfValue;
@@ -21,7 +21,7 @@ import me.ehp246.aufkafka.api.consumer.InvocationModel;
  *
  */
 @Service
-@ForEventHeader(value = "Ping2", execution = @Execution(scope = InstanceScope.BEAN, invocation = InvocationModel.DEFAULT))
+@ForEvent(value = "Ping2", execution = @Execution(scope = InstanceScope.BEAN, invocation = InvocationModel.DEFAULT))
 public class OnPing2 {
     private final AtomicReference<CompletableFuture<Map<String, String>>> ref = new AtomicReference<>(
             new CompletableFuture<>());
