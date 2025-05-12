@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RUNTIME)
 @Target({ ElementType.TYPE })
-public @interface ForHeader {
+public @interface ForEventHeader {
     String[] value() default {};
 
     Execution execution() default @Execution();

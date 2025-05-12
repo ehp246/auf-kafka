@@ -56,6 +56,11 @@ public @interface ByKafka {
 
     /**
      * Specifies the key for {@linkplain EventInvocableKeyType#EVENT_HEADER}.
+     * <p>
+     * The value of the header is the method name with the first letter changed to
+     * upper case.
+     * <p>
+     * If the key is empty, no such header will be included.
      */
     String eventHeader() default AufKafkaConstant.EVENT_HEADER;
 

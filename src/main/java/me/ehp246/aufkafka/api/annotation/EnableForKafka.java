@@ -100,6 +100,8 @@ public @interface EnableForKafka {
 
         /**
          * Specifies the key for {@linkplain EventInvocableKeyType#EVENT_HEADER}.
+         * <p>
+         * The value is used for looking up {@linkplain ForEventHeader} classes.
          */
         String eventHeader() default AufKafkaConstant.EVENT_HEADER;
 

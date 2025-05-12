@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import me.ehp246.aufkafka.api.annotation.ForHeader;
+import me.ehp246.aufkafka.api.annotation.ForEventHeader;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 
 /**
@@ -17,7 +17,7 @@ import me.ehp246.aufkafka.api.annotation.ForKey;
  * @author Lei Yang
  * @since 1.0
  * @see ForKey
- * @see ForHeader
+ * @see ForEventHeader
  */
 public record EventInvocableDefinition(Set<String> names, Class<?> type, Map<String, Method> methods,
         InstanceScope scope, InvocationModel model) {

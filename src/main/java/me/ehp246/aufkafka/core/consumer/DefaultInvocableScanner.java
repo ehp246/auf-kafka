@@ -21,7 +21,7 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import me.ehp246.aufkafka.api.annotation.Applying;
 import me.ehp246.aufkafka.api.annotation.Execution;
-import me.ehp246.aufkafka.api.annotation.ForHeader;
+import me.ehp246.aufkafka.api.annotation.ForEventHeader;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
 import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
@@ -33,7 +33,7 @@ import me.ehp246.aufkafka.core.reflection.ReflectedType;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
- * Scans for {@linkplain ForKey} and {@linkplain ForHeader} classes.
+ * Scans for {@linkplain ForKey} and {@linkplain ForEventHeader} classes.
  * <p>
  * Duplicate {@linkplain EventInvocableDefinition#names()} are accepted.
  * Collision detection on the lookup keys is implemented by
@@ -44,7 +44,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  */
 public final class DefaultInvocableScanner implements InvocableScanner {
     private final static Logger LOGGER = LoggerFactory.getLogger(DefaultInvocableScanner.class);
-    private final Map<Class<? extends Annotation>, EventInvocableKeyType> ANNO_KEYTYPE_MAP = Map.of(ForHeader.class,
+    private final Map<Class<? extends Annotation>, EventInvocableKeyType> ANNO_KEYTYPE_MAP = Map.of(ForEventHeader.class,
             EventInvocableKeyType.EVENT_HEADER, ForKey.class, EventInvocableKeyType.KEY);
 
     private final ExpressionResolver expressionResolver;
@@ -124,7 +124,7 @@ public final class DefaultInvocableScanner implements InvocableScanner {
 
             switch (ANNO_KEYTYPE_MAP.get(annoType)) {
             case EVENT_HEADER:
-                final var forEventType = (ForHeader) anno;
+                final var forEventType = (ForEventHeader) anno;
                 value = forEventType.value();
                 execution = forEventType.execution();
                 break;
