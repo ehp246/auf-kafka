@@ -51,7 +51,7 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
     public void register(final EventInvocableKeyType keyType, final EventInvocableDefinition invokingDefinition) {
         final var invokables = this.registeredInvokables.get(keyType);
 
-        invokingDefinition.lookupKeys().forEach(type -> {
+        invokingDefinition.names().forEach(type -> {
             final var registered = invokables.putIfAbsent(type, invokingDefinition);
             if (registered != null) {
                 throw new IllegalArgumentException("Duplicate type " + type + " from " + registered.type());

@@ -35,7 +35,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
 /**
  * Scans for {@linkplain ForKey} and {@linkplain ForHeader} classes.
  * <p>
- * Duplicate {@linkplain EventInvocableDefinition#lookupKeys()} are accepted.
+ * Duplicate {@linkplain EventInvocableDefinition#names()} are accepted.
  * Collision detection on the lookup keys is implemented by
  * {@linkplain EventInvocableRegistry}.
  * 

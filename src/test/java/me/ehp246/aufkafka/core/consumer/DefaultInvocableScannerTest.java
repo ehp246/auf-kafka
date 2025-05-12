@@ -101,7 +101,7 @@ class DefaultInvocableScannerTest {
         final var forKeyDefs = forKeySet.toArray(new EventInvocableDefinition[0]);
 
         Assertions.assertEquals(1, forKeyDefs.length);
-        Assertions.assertEquals(true, forKeyDefs[0].lookupKeys().contains("key-test"));
+        Assertions.assertEquals(true, forKeyDefs[0].names().contains("key-test"));
         Assertions.assertEquals(true, forKeyDefs[0].model() == InvocationModel.INLINE);
         Assertions.assertEquals(true, forKeyDefs[0].scope() == InstanceScope.BEAN);
 
@@ -112,7 +112,7 @@ class DefaultInvocableScannerTest {
         final var eventTypeDefs = eventTypeSet.toArray(new EventInvocableDefinition[0]);
 
         Assertions.assertEquals(1, eventTypeDefs.length);
-        Assertions.assertEquals(true, eventTypeDefs[0].lookupKeys().contains("event-type-test"));
+        Assertions.assertEquals(true, eventTypeDefs[0].names().contains("event-type-test"));
         Assertions.assertEquals(true, eventTypeDefs[0].model() == InvocationModel.DEFAULT);
         Assertions.assertEquals(true, eventTypeDefs[0].scope() == InstanceScope.MESSAGE);
     }
@@ -131,8 +131,8 @@ class DefaultInvocableScannerTest {
         final var forKeyDefs = forKeySet.toArray(new EventInvocableDefinition[0]);
 
         Assertions.assertEquals(2, forKeyDefs.length);
-        Assertions.assertEquals(true, forKeyDefs[0].lookupKeys().contains("key-test"));
-        Assertions.assertEquals(true, forKeyDefs[1].lookupKeys().contains("key-test"));
+        Assertions.assertEquals(true, forKeyDefs[0].names().contains("key-test"));
+        Assertions.assertEquals(true, forKeyDefs[1].names().contains("key-test"));
 
         final var eventTypeSet = mapped.get(EventInvocableKeyType.EVENT_HEADER);
 
@@ -141,8 +141,8 @@ class DefaultInvocableScannerTest {
         final var eventTypeDefs = eventTypeSet.toArray(new EventInvocableDefinition[0]);
 
         Assertions.assertEquals(2, eventTypeDefs.length);
-        Assertions.assertEquals(true, eventTypeDefs[0].lookupKeys().contains("event-type-test"));
-        Assertions.assertEquals(true, eventTypeDefs[1].lookupKeys().contains("event-type-test"));
+        Assertions.assertEquals(true, eventTypeDefs[0].names().contains("event-type-test"));
+        Assertions.assertEquals(true, eventTypeDefs[1].names().contains("event-type-test"));
     }
 
     @ForKey("test")

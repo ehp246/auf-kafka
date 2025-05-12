@@ -6,15 +6,20 @@ import java.util.Set;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import me.ehp246.aufkafka.api.annotation.ForHeader;
+import me.ehp246.aufkafka.api.annotation.ForKey;
+
 /**
- * The definition of a Java type that is invokable by a
- * {@linkplain ConsumerRecord} and to be registered in a
- * {@linkplain EventInvocableRegistry}.
+ * Defines a type that is to be registered in a
+ * {@linkplain EventInvocableRegistry} and is invokable by a
+ * {@linkplain ConsumerRecord}.
  *
  * @author Lei Yang
  * @since 1.0
+ * @see ForKey
+ * @see ForHeader
  */
-public record EventInvocableDefinition(Set<String> lookupKeys, Class<?> type, Map<String, Method> methods,
+public record EventInvocableDefinition(Set<String> names, Class<?> type, Map<String, Method> methods,
         InstanceScope scope, InvocationModel model) {
 
     public EventInvocableDefinition(final Set<String> eventKeys, final Class<?> type,
