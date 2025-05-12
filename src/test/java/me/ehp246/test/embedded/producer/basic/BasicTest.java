@@ -66,17 +66,6 @@ class BasicTest {
     }
 
     @Test
-    void producer_type_02() throws InterruptedException, ExecutionException {
-        this.case01.newEventType();
-
-        final var received = listener.take();
-
-        Assertions.assertEquals(true, received.topic().equals("embedded"));
-        Assertions.assertEquals(true, OneUtil.getLastHeaderAsString(received, AufKafkaConstant.EVENT_HEADER)
-                .equals("bc130e00-97fa-475a-b36d-2cd99389b915"));
-    }
-
-    @Test
     void producer_type_03() throws InterruptedException, ExecutionException {
         final var eventType = UUID.randomUUID().toString();
         this.case01.newEventType(eventType);

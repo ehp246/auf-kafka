@@ -8,13 +8,12 @@ import me.ehp246.aufkafka.api.annotation.OfHeader;
  *
  */
 interface TestCases {
-    @ByKafka(value = "embedded")
+    @ByKafka(value = "embedded", eventHeader = "")
     interface Case01 {
-        void header(@OfHeader Object header, @OfHeader("header02") Object value,
-                @OfHeader("header02") Object value2);
+        void header(@OfHeader Object header, @OfHeader("header02") Object value, @OfHeader("header02") Object value2);
     }
 
-    @ByKafka(value = "embedded", headers = { "header", "${static.1}", "header2", "static.2" })
+    @ByKafka(value = "embedded", headers = { "header", "${static.1}", "header2", "static.2" }, eventHeader = "")
     interface Case02 {
         void header();
 

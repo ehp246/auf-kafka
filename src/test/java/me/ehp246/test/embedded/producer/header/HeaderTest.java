@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.core.util.OneUtil;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
@@ -43,7 +42,7 @@ class HeaderTest {
 
         final var headers = OneUtil.toList(listener.take().headers());
 
-        Assertions.assertEquals(4, headers.size());
+        Assertions.assertEquals(3, headers.size());
 
         Assertions.assertEquals("Header", headers.get(0).key());
         Assertions.assertEquals(null, headers.get(0).value());
@@ -53,9 +52,6 @@ class HeaderTest {
 
         Assertions.assertEquals("header02", headers.get(2).key());
         Assertions.assertEquals(null, headers.get(2).value());
-
-        Assertions.assertEquals(AufKafkaConstant.EVENT_HEADER, headers.get(3).key());
-        Assertions.assertEquals("Header", new String(headers.get(3).value(), StandardCharsets.UTF_8));
     }
 
     @Test
@@ -67,7 +63,7 @@ class HeaderTest {
 
         final var headers = OneUtil.toList(listener.take().headers());
 
-        Assertions.assertEquals(4, headers.size());
+        Assertions.assertEquals(3, headers.size());
 
         Assertions.assertEquals("Header", headers.get(0).key());
         Assertions.assertEquals(true,
@@ -87,7 +83,7 @@ class HeaderTest {
 
         final var headers = OneUtil.toList(listener.take().headers());
 
-        Assertions.assertEquals(3, headers.size());
+        Assertions.assertEquals(2, headers.size());
 
         Assertions.assertEquals("header", headers.get(0).key());
         Assertions.assertEquals(true, new String(headers.get(0).value(), StandardCharsets.UTF_8)
@@ -105,17 +101,16 @@ class HeaderTest {
 
         final var headers = OneUtil.toList(listener.take().headers());
 
-        Assertions.assertEquals(4, headers.size());
+        Assertions.assertEquals(3, headers.size());
 
-        Assertions.assertEquals("Header", headers.get(0).key());
-        Assertions.assertEquals(true,
-                new String(headers.get(0).value(), StandardCharsets.UTF_8).equals(value.toString()));
+        Assertions.assertEquals("header", headers.get(0).key());
+        Assertions.assertEquals("234e3609-3edd-4059-b685-fa8a0bed19d3",
+                new String(headers.get(0).value(), StandardCharsets.UTF_8));
 
-        Assertions.assertEquals("header", headers.get(1).key());
-        Assertions.assertEquals(true, new String(headers.get(1).value(), StandardCharsets.UTF_8)
-                .equals("234e3609-3edd-4059-b685-fa8a0bed19d3"));
+        Assertions.assertEquals("header2", headers.get(1).key());
+        Assertions.assertEquals("static.2", new String(headers.get(1).value(), StandardCharsets.UTF_8));
 
-        Assertions.assertEquals("header2", headers.get(2).key());
-        Assertions.assertEquals(true, new String(headers.get(2).value(), StandardCharsets.UTF_8).equals("static.2"));
+        Assertions.assertEquals("Header", headers.get(2).key());
+        Assertions.assertEquals(value.toString(), new String(headers.get(2).value(), StandardCharsets.UTF_8));
     }
 }

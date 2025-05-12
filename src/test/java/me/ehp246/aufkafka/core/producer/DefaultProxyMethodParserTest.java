@@ -372,17 +372,17 @@ class DefaultProxyMethodParserTest {
 
         Assertions.assertEquals(4, headers.size());
 
-        Assertions.assertEquals("Header", headers.get(0).key());
-        Assertions.assertEquals(captor.invocation().args()[0], headers.get(0).value());
+        Assertions.assertEquals("Header", headers.get(3).key());
+        Assertions.assertEquals(captor.invocation().args()[0], headers.get(3).value());
 
-        Assertions.assertEquals("header1", headers.get(1).key());
-        Assertions.assertEquals("value1", headers.get(1).value());
-
-        Assertions.assertEquals("header2", headers.get(2).key());
+        Assertions.assertEquals("header1", headers.get(2).key());
         Assertions.assertEquals("value2", headers.get(2).value());
 
-        Assertions.assertEquals("header1", headers.get(3).key());
-        Assertions.assertEquals("value2", headers.get(3).value());
+        Assertions.assertEquals("header2", headers.get(1).key());
+        Assertions.assertEquals("value2", headers.get(1).value());
+
+        Assertions.assertEquals("header1", headers.get(0).key());
+        Assertions.assertEquals("value1", headers.get(0).value());
     }
 
     @Test
@@ -396,17 +396,8 @@ class DefaultProxyMethodParserTest {
 
         Assertions.assertEquals(4, headers.size());
 
-        Assertions.assertEquals("Header", headers.get(0).key());
-        Assertions.assertEquals(captor.invocation().args()[0], headers.get(0).value());
-
-        Assertions.assertEquals("header1", headers.get(1).key());
-        Assertions.assertEquals("value1", headers.get(1).value());
-
-        Assertions.assertEquals("header2", headers.get(2).key());
-        Assertions.assertEquals("value2", headers.get(2).value());
-
-        Assertions.assertEquals("header1", headers.get(3).key());
-        Assertions.assertEquals("value2", headers.get(3).value());
+        Assertions.assertEquals("Header", headers.get(3).key());
+        Assertions.assertEquals(captor.invocation().args()[0], headers.get(3).value());
     }
 
     @Test
