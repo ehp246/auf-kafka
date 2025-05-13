@@ -1,5 +1,6 @@
 package me.ehp246.test.embedded.producer.header;
 
+import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 
@@ -18,5 +19,17 @@ interface TestCases {
         void header();
 
         void header(@OfHeader Object header);
+    }
+
+    @ByKafka(value = "embedded")
+    interface Case03 {
+        void methodName();
+
+        void paramHeader(@OfHeader(AufKafkaConstant.EVENT_HEADER) Object header);
+    }
+
+    @ByKafka(value = "embedded", eventHeader = "my.own.event")
+    interface Case04 {
+        void methodName();
     }
 }
