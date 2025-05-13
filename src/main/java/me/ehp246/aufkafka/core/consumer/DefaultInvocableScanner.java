@@ -24,7 +24,7 @@ import me.ehp246.aufkafka.api.annotation.Execution;
 import me.ehp246.aufkafka.api.annotation.ForEvent;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
-import me.ehp246.aufkafka.api.consumer.EventInvocableNameSource;
+import me.ehp246.aufkafka.api.consumer.EventInvocableLookupType;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
@@ -44,8 +44,8 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  */
 public final class DefaultInvocableScanner implements InvocableScanner {
     private final static Logger LOGGER = LoggerFactory.getLogger(DefaultInvocableScanner.class);
-    private final Map<Class<? extends Annotation>, EventInvocableNameSource> ANNO_KEYTYPE_MAP = Map.of(ForEvent.class,
-            EventInvocableNameSource.EVENT_HEADER, ForKey.class, EventInvocableNameSource.KEY);
+    private final Map<Class<? extends Annotation>, EventInvocableLookupType> ANNO_KEYTYPE_MAP = Map.of(ForEvent.class,
+            EventInvocableLookupType.EVENT_HEADER, ForKey.class, EventInvocableLookupType.KEY);
 
     private final ExpressionResolver expressionResolver;
 
@@ -55,9 +55,9 @@ public final class DefaultInvocableScanner implements InvocableScanner {
     }
 
     @Override
-    public Map<EventInvocableNameSource, Set<EventInvocableDefinition>> apply(final Set<Class<?>> registering,
+    public Map<EventInvocableLookupType, Set<EventInvocableDefinition>> apply(final Set<Class<?>> registering,
             final Set<String> scanPackages) {
-        final var map = new HashMap<EventInvocableNameSource, Set<EventInvocableDefinition>>();
+        final var map = new HashMap<EventInvocableLookupType, Set<EventInvocableDefinition>>();
 
         if (registering != null && !registering.isEmpty()) {
             for (final var type : registering) {
@@ -110,8 +110,8 @@ public final class DefaultInvocableScanner implements InvocableScanner {
      * @param type
      * @return
      */
-    private Map<EventInvocableNameSource, EventInvocableDefinition> newDefinition(final Class<?> type) {
-        final var map = new HashMap<EventInvocableNameSource, EventInvocableDefinition>();
+    private Map<EventInvocableLookupType, EventInvocableDefinition> newDefinition(final Class<?> type) {
+        final var map = new HashMap<EventInvocableLookupType, EventInvocableDefinition>();
 
         for (final var annoType : ANNO_KEYTYPE_MAP.keySet()) {
             final var anno = type.getAnnotation(annoType);

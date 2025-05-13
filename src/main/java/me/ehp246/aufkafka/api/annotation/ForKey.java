@@ -9,10 +9,11 @@ import java.lang.annotation.Target;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import me.ehp246.aufkafka.api.consumer.EventInvocableNameSource;
+import me.ehp246.aufkafka.api.consumer.EventInvocableLookupType;
+import me.ehp246.aufkafka.api.consumer.Invocable;
 
 /**
- * Indicates that the class defines methods that should be invoked on a message
+ * Indicates that the class defines methods that should be invoked on an event
  * by matching on message's key, i.e., {@linkplain ConsumerRecord#key()}.
  * <p>
  * The annotated class must be <code>public</code>.
@@ -21,15 +22,13 @@ import me.ehp246.aufkafka.api.consumer.EventInvocableNameSource;
  * @author Lei Yang
  * @since 1.0
  * @see Applying
- * @see EventInvocableNameSource
+ * @see EventInvocableLookupType
  */
 @Documented
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ForKey {
     /**
-     * Specifies the message keys for which a method of the class should be applied.
-     * <p>
      * The matching is done via {@linkplain String#matches(String)} where the
      * <code>this</code> object is from {@linkplain ConsumerRecord#key()} and the
      * argument is the value specified here which could be a regular expression.
@@ -47,5 +46,9 @@ public @interface ForKey {
      */
     String[] value() default {};
 
+    /**
+     * Specifies the execution model of the {@linkplain Invocable}.
+     * 
+     */
     Execution execution() default @Execution();
 }

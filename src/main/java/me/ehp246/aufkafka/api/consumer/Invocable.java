@@ -6,6 +6,8 @@ import me.ehp246.aufkafka.api.annotation.Applying;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 
 /**
+ * The abstraction of an object and a method that are ready to be invoked.
+ * 
  * @author Lei Yang
  * @since 1.0
  */

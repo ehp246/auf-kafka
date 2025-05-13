@@ -14,7 +14,7 @@ public class TestCase02 {
     }
 
     @ForEvent("event-type-test")
-    public static class ForEventType01 {
+    public static class ForEvent01 {
         public void apply() {
         }
     }

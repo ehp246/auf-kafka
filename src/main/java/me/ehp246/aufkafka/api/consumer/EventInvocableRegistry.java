@@ -15,18 +15,18 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
  * @author Lei Yang
  * @since 1.0
  * @see InboundEndpoint
- * @see EventInvocableNameSource
+ * @see EventInvocableLookupType
  */
 public interface EventInvocableRegistry {
     /**
      * Register a new definition.
      */
-    void register(EventInvocableNameSource nameType, EventInvocableDefinition definition);
+    void register(EventInvocableLookupType nameType, EventInvocableDefinition definition);
 
     /**
      * Returns an un-modifiable copy of all registered.
      */
-    Map<String, EventInvocableDefinition> registered(EventInvocableNameSource keyType);
+    Map<String, EventInvocableDefinition> registered(EventInvocableLookupType keyType);
 
     /**
      * Resolves a {@linkplain ConsumerRecord} to an {@linkplain InvocableType}.
