@@ -1,4 +1,4 @@
-package me.ehp246.test.embedded.consumer.header;
+package me.ehp246.test.embedded.consumer.header.event;
 
 import org.springframework.kafka.annotation.EnableKafka;
 

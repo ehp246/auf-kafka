@@ -1,4 +1,4 @@
-package me.ehp246.test.embedded.consumer.header;
+package me.ehp246.test.embedded.consumer.header.injection;
 
 import java.util.List;
 import java.util.UUID;
@@ -6,8 +6,10 @@ import java.util.UUID;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
@@ -20,19 +22,20 @@ import me.ehp246.test.mock.StringHeader;
  * @author Lei Yang
  *
  */
-@SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, HeaderAction.class })
+@SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class,
+        HeaderInjectAction.class }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { "embedded" }, partitions = 1)
 @DirtiesContext
-class HeaderTest {
+class HeaderInjectionTest {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
     @Autowired
-    private HeaderAction action;
+    private HeaderInjectAction action;
 
     @Test
+    @Timeout(1)
     void header_01() {
-        kafkaTemplate.send(
-                new ProducerRecord<String, String>("embedded", UUID.randomUUID().toString(), null));
+        kafkaTemplate.send(new ProducerRecord<String, String>("embedded", UUID.randomUUID().toString(), null));
 
         final var received = action.take();
 
@@ -42,11 +45,11 @@ class HeaderTest {
     }
 
     @Test
+    @Timeout(1)
     void header_02() {
         final var header1Value = UUID.randomUUID().toString();
-        kafkaTemplate.send(
-                new ProducerRecord<String, String>("embedded", null, UUID.randomUUID().toString(),
-                        null, List.of(new StringHeader("Header1", header1Value))));
+        kafkaTemplate.send(new ProducerRecord<String, String>("embedded", null, UUID.randomUUID().toString(), null,
+                List.of(new StringHeader("Header1", header1Value))));
 
         final var received = action.take();
 
