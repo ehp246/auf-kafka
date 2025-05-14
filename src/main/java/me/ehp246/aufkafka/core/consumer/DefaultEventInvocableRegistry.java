@@ -31,7 +31,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * @since 1.0
  */
 final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
-    private final String eventTypeHeader;
+    private final String eventHeader;
     private final Map<EventInvocableLookupType, Map<String, EventInvocableDefinition>> cached = new ConcurrentHashMap<>();
     private final Map<EventInvocableLookupType, Map<String, EventInvocableDefinition>> registeredInvokables = new ConcurrentHashMap<>();
     /**
@@ -39,8 +39,8 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
      */
     private final Map<Class<?>, Map<String, Method>> registeredMethods = new ConcurrentHashMap<>();
 
-    DefaultEventInvocableRegistry(final String eventTypeHeader) {
-        this.eventTypeHeader = Objects.requireNonNull(eventTypeHeader);
+    DefaultEventInvocableRegistry(final String eventHeader) {
+        this.eventHeader = Objects.requireNonNull(eventHeader);
         for (final var type : EventInvocableLookupType.values()) {
             this.registeredInvokables.put(type, new ConcurrentHashMap<>());
             this.cached.put(type, new ConcurrentHashMap<>());
@@ -85,7 +85,7 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
         /**
          * Look up by event type header first.
          */
-        final var eventType = OneUtil.getLastHeaderAsString(event, this.eventTypeHeader);
+        final var eventType = OneUtil.getLastHeaderAsString(event, this.eventHeader);
 
         final var lookupkey = eventType != null ? eventType : OneUtil.toString(event.key(), "");
         final var keyType = eventType != null ? EventInvocableLookupType.EVENT_HEADER : EventInvocableLookupType.KEY;

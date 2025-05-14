@@ -11,6 +11,8 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
  *
  */
 @EnableKafka
-@EnableForKafka({ @Inbound(value = @From("embedded")) })
+@EnableForKafka({ @Inbound(value = @From("topic1")),
+        @Inbound(value = @From("topic2"), eventHeader = "my.own.event.header"),
+        @Inbound(value = @From("topic3"), eventHeader = "") })
 class AppConfig {
 }
