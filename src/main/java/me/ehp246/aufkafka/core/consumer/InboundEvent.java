@@ -41,10 +41,44 @@ public final class InboundEvent {
         return this.consumerRecord;
     }
 
+    public String key() {
+        return this.consumerRecord.key();
+    }
+
+    public String topic() {
+        return this.consumerRecord.topic();
+    }
+
+    public String value() {
+        return this.consumerRecord.value();
+    }
+
     /**
      * Returned {@linkplain Map} and {@linkplain List} are not modifiable.
      */
     public Map<String, List<String>> headerMap() {
         return this.headerMap;
+    }
+
+    /**
+     * Does not check if the key exists.
+     */
+    public String lastHeader(final String key) {
+        return this.headerMap.get(key).getLast();
+    }
+
+    /**
+     * Does not check if the key exists.
+     */
+    public String firstHeader(final String key) {
+        return this.headerMap.get(key).getFirst();
+    }
+
+    public Long timestamp() {
+        return this.consumerRecord.timestamp();
+    }
+
+    public int partition() {
+        return this.consumerRecord.partition();
     }
 }
