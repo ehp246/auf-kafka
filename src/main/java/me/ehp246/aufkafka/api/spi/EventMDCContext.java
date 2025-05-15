@@ -12,12 +12,12 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * @author Lei Yang
  * @since 1.0
  */
-public final class MsgMDCContext {
-    private MsgMDCContext() {
+public final class EventMDCContext {
+    private EventMDCContext() {
     }
 
     private enum InboundContextName {
-        AufKafkaFrom, AufKafkaCorrelationId, AufKafkaKey, AufKafkaType, AufKafkaMsgMDC;
+        AufKafkaFrom, AufKafkaCorrelationId, AufKafkaKey, AufKafkaEvent, AufKafkaEventMDC;
     }
 
     public static AutoCloseable set(final ConsumerRecord<String, String> msg) {
@@ -25,7 +25,7 @@ public final class MsgMDCContext {
             return () -> {
             };
         }
-        final AutoCloseable closeable = () -> MsgMDCContext.clear(msg);
+        final AutoCloseable closeable = () -> EventMDCContext.clear(msg);
 
         MDC.put(InboundContextName.AufKafkaFrom.name(), OneUtil.toString(msg.topic()));
         MDC.put(InboundContextName.AufKafkaKey.name(), msg.key());
@@ -35,8 +35,8 @@ public final class MsgMDCContext {
             return closeable;
         }
 
-        propertyNames.stream().filter(name -> name.key().startsWith(AufKafkaConstant.MSG_MDC_HEADER_PREFIX))
-                .forEach(name -> MDC.put(name.key().replaceFirst(AufKafkaConstant.MSG_MDC_HEADER_PREFIX, ""),
+        propertyNames.stream().filter(name -> name.key().startsWith(AufKafkaConstant.MDC_HEADER_PREFIX))
+                .forEach(name -> MDC.put(name.key().replaceFirst(AufKafkaConstant.MDC_HEADER_PREFIX, ""),
                         new String(name.value(), StandardCharsets.UTF_8)));
 
         return closeable;
@@ -55,7 +55,7 @@ public final class MsgMDCContext {
         if (propertyNames == null) {
             return;
         }
-        propertyNames.stream().filter(name -> name.key().startsWith(AufKafkaConstant.MSG_MDC_HEADER_PREFIX))
-                .forEach(name -> MDC.remove(name.key().replaceFirst(AufKafkaConstant.MSG_MDC_HEADER_PREFIX, "")));
+        propertyNames.stream().filter(name -> name.key().startsWith(AufKafkaConstant.MDC_HEADER_PREFIX))
+                .forEach(name -> MDC.remove(name.key().replaceFirst(AufKafkaConstant.MDC_HEADER_PREFIX, "")));
     }
 }

@@ -16,7 +16,7 @@ import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
 import me.ehp246.aufkafka.api.exception.UnknownEventException;
-import me.ehp246.aufkafka.api.spi.MsgMDCContext;
+import me.ehp246.aufkafka.api.spi.EventMDCContext;
 
 /**
  * @author Lei Yang
@@ -56,7 +56,7 @@ final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
             }
 
             for (final var event : polled) {
-                try (final var closeble = MsgMDCContext.set(event);) {
+                try (final var closeble = EventMDCContext.set(event);) {
                     this.onDispatching.stream().forEach(l -> l.onDispatching(event));
 
                     final var invocable = invocableFactory.get(event);

@@ -23,7 +23,7 @@ import me.ehp246.aufkafka.api.consumer.InvocationModel;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 import me.ehp246.aufkafka.api.exception.BoundInvocationFailedException;
-import me.ehp246.aufkafka.api.spi.MsgMDCContext;
+import me.ehp246.aufkafka.api.spi.EventMDCContext;
 
 /**
  * @author Lei Yang
@@ -115,7 +115,7 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
 
         } else {
             executor.execute(() -> {
-                try (final var closeable = MsgMDCContext.set(msg)) {
+                try (final var closeable = EventMDCContext.set(msg)) {
                     runnable.run();
                 } catch (final Exception e) {
                     LOGGER.atWarn().setCause(e).addMarker(AufKafkaConstant.EXCEPTION)
