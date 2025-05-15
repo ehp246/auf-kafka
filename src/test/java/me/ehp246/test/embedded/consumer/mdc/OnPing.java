@@ -9,7 +9,7 @@ import org.apache.logging.log4j.ThreadContext;
 import org.springframework.stereotype.Service;
 
 import me.ehp246.aufkafka.api.annotation.Execution;
-import me.ehp246.aufkafka.api.annotation.ForEventType;
+import me.ehp246.aufkafka.api.annotation.ForEvent;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
 
 /**
@@ -17,7 +17,7 @@ import me.ehp246.aufkafka.api.consumer.InstanceScope;
  *
  */
 @Service
-@ForEventType(value = "Ping", execution = @Execution(scope = InstanceScope.BEAN))
+@ForEvent(value = "Ping", execution = @Execution(scope = InstanceScope.BEAN))
 public class OnPing {
     private CompletableFuture<Map<String, String>> ref = new CompletableFuture<>();
 

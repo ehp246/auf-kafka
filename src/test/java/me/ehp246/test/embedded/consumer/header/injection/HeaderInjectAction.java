@@ -1,8 +1,7 @@
-package me.ehp246.test.embedded.consumer.header;
+package me.ehp246.test.embedded.consumer.header.injection;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.kafka.common.header.Headers;
@@ -11,13 +10,14 @@ import me.ehp246.aufkafka.api.annotation.Execution;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
+import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
  * @author Lei Yang
  *
  */
 @ForKey(value = ".*", execution = @Execution(scope = InstanceScope.BEAN))
-public class HeaderAction {
+public class HeaderInjectAction {
     private final AtomicReference<CompletableFuture<Received>> ref = new AtomicReference<>(new CompletableFuture<>());
 
     public void apply(@OfHeader final Headers headers, @OfHeader final List<String> headerList,
@@ -26,19 +26,14 @@ public class HeaderAction {
     }
 
     public Received take() {
-        final Received key;
-
-        try {
-            key = ref.get().get();
+        return OneUtil.orThrow(() -> {
+            final var received = ref.get().get();
             reset();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-
-        return key;
+            return received;
+        });
     }
 
-    public void reset() {
+    public synchronized void reset() {
         ref.set(new CompletableFuture<Received>());
     }
 

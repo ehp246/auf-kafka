@@ -3,6 +3,7 @@ package me.ehp246.test.mock;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
@@ -12,10 +13,21 @@ import org.apache.kafka.common.header.internals.RecordHeaders;
  * @author Lei Yang
  *
  */
-public record StringHeader(String key, String strValue) implements Header {
+public class StringHeader implements Header {
+    private final String key;
+    private final String value;
+    private final byte[] bytes;
+
+    public StringHeader(final String key, final String value) {
+        super();
+        this.key = Objects.requireNonNull(key);
+        this.value = value;
+        this.bytes = value == null ? null : value.getBytes(StandardCharsets.UTF_8);
+    }
+
     @Override
     public byte[] value() {
-        return this.strValue.getBytes(StandardCharsets.UTF_8);
+        return this.bytes;
     }
 
     /**
@@ -45,5 +57,10 @@ public record StringHeader(String key, String strValue) implements Header {
         }
 
         return headers(array);
+    }
+
+    @Override
+    public String key() {
+        return this.key;
     }
 }

@@ -36,7 +36,7 @@ class DefaultEventInvocableRegistryTest {
 
         final var registry = new DefaultEventInvocableRegistry(eventTypeHeader);
 
-        registry.register(EventInvocableKeyType.EVENT_TYPE_HEADER,
+        registry.register(EventInvocableKeyType.EVENT_HEADER,
                 new EventInvocableDefinition(Set.of(event.key()), Map.class, Map.of("", Map.class.getMethods()[0])));
 
         registry.register(EventInvocableKeyType.KEY,
@@ -55,7 +55,7 @@ class DefaultEventInvocableRegistryTest {
         final var event = MockConsumerRecord.withHeaders(eventTypeHeader, eventType);
         final var registry = new DefaultEventInvocableRegistry(eventTypeHeader);
 
-        registry.register(EventInvocableKeyType.EVENT_TYPE_HEADER,
+        registry.register(EventInvocableKeyType.EVENT_HEADER,
                 new EventInvocableDefinition(Set.of(eventType), String.class, Map.of("", method)));
 
         final var invocable = registry.resolve(event);
@@ -72,7 +72,7 @@ class DefaultEventInvocableRegistryTest {
 
         final var registry = new DefaultEventInvocableRegistry(eventTypeHeader);
 
-        registry.register(EventInvocableKeyType.EVENT_TYPE_HEADER,
+        registry.register(EventInvocableKeyType.EVENT_HEADER,
                 new EventInvocableDefinition(Set.of(eventType), String.class, Map.of("", method)));
 
         registry.register(EventInvocableKeyType.KEY,
@@ -91,7 +91,7 @@ class DefaultEventInvocableRegistryTest {
 
         final var registry = new DefaultEventInvocableRegistry(eventTypeHeader);
 
-        registry.register(EventInvocableKeyType.EVENT_TYPE_HEADER,
+        registry.register(EventInvocableKeyType.EVENT_HEADER,
                 new EventInvocableDefinition(Set.of(eventType), String.class, Map.of("", headerMethod)));
 
         final var keyMethod = Map.class.getMethods()[0];
@@ -127,7 +127,7 @@ class DefaultEventInvocableRegistryTest {
 
         Assertions
                 .assertDoesNotThrow(
-                        () -> registry.register(EventInvocableKeyType.EVENT_TYPE_HEADER,
+                        () -> registry.register(EventInvocableKeyType.EVENT_HEADER,
                                 new EventInvocableDefinition(Set.of(keyValue), Map.class,
                                         Map.of("", Map.class.getMethods()[0]))),
                         "should be okay for different key type");

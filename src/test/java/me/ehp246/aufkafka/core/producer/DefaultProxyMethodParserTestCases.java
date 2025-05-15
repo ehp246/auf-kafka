@@ -3,8 +3,8 @@ package me.ehp246.aufkafka.core.producer;
 import java.time.Instant;
 import java.util.UUID;
 
+import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.annotation.ByKafka;
-import me.ehp246.aufkafka.api.annotation.OfEventType;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
@@ -43,14 +43,7 @@ interface DefaultProxyMethodParserTestCases {
     interface EventTypeCase01 {
         void m01();
 
-        @OfEventType("aa143627-0e3f-4758-a7cf-e56db55c77c1")
-        void m02(@OfEventType Object key);
-
-        @OfEventType
-        void m03();
-
-        @OfEventType("887114e5-5770-4f7f-b0c6-e0803753eb58")
-        void m04();
+        void m02(@OfHeader(AufKafkaConstant.EVENT_HEADER) Object key);
     }
 
     @ByKafka("topic")
@@ -82,21 +75,22 @@ interface DefaultProxyMethodParserTestCases {
         void m04(UUID uuid, @OfValue UUID value);
     }
 
-    @ByKafka(value = "topic", headers = { "header1", "value1", "header2", "value2", "header1", "value2" })
+    @ByKafka(value = "topic", headers = { "header1", "value1", "header2", "value2", "header1",
+            "value2" }, eventHeader = "")
     interface HeaderCase01 {
         void m01();
 
         void m02(@OfHeader UUID header);
     }
 
-    @ByKafka(value = "topic")
+    @ByKafka(value = "topic", eventHeader = "")
     interface HeaderCase02 {
         void m01();
 
         void m03(@OfHeader("header1") Object value1, @OfHeader("header1") Object value2);
     }
 
-    @ByKafka(value = "topic", headers = { "header1", "${value1}", "header2", "value2" })
+    @ByKafka(value = "topic", headers = { "header1", "${value1}", "header2", "value2" }, eventHeader = "")
     interface HeaderCase03 {
         void m01();
     }

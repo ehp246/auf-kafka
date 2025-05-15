@@ -80,11 +80,11 @@ class DefaultInvocableScannerTest {
 
     @Test
     void key_type_register_02() {
-        final var mapped = new DefaultInvocableScanner(Object::toString).apply(Set.of(TestCase02.ForEventType01.class),
+        final var mapped = new DefaultInvocableScanner(Object::toString).apply(Set.of(TestCase02.ForEvent01.class),
                 null);
 
         Assertions.assertEquals(1, mapped.keySet().size());
-        Assertions.assertEquals(true, mapped.keySet().contains(EventInvocableKeyType.EVENT_TYPE_HEADER));
+        Assertions.assertEquals(true, mapped.keySet().contains(EventInvocableKeyType.EVENT_HEADER));
     }
 
     @Test
@@ -101,20 +101,20 @@ class DefaultInvocableScannerTest {
         final var forKeyDefs = forKeySet.toArray(new EventInvocableDefinition[0]);
 
         Assertions.assertEquals(1, forKeyDefs.length);
-        Assertions.assertEquals(true, forKeyDefs[0].lookupKeys().contains("key-test"));
+        Assertions.assertEquals(true, forKeyDefs[0].eventKeys().contains("key-test"));
         Assertions.assertEquals(true, forKeyDefs[0].model() == InvocationModel.INLINE);
         Assertions.assertEquals(true, forKeyDefs[0].scope() == InstanceScope.BEAN);
 
-        final var eventTypeSet = mapped.get(EventInvocableKeyType.EVENT_TYPE_HEADER);
+        final var eventTypeSet = mapped.get(EventInvocableKeyType.EVENT_HEADER);
 
         Assertions.assertEquals(1, eventTypeSet.size());
 
         final var eventTypeDefs = eventTypeSet.toArray(new EventInvocableDefinition[0]);
 
         Assertions.assertEquals(1, eventTypeDefs.length);
-        Assertions.assertEquals(true, eventTypeDefs[0].lookupKeys().contains("event-type-test"));
+        Assertions.assertEquals(true, eventTypeDefs[0].eventKeys().contains("event-type-test"));
         Assertions.assertEquals(true, eventTypeDefs[0].model() == InvocationModel.DEFAULT);
-        Assertions.assertEquals(true, eventTypeDefs[0].scope() == InstanceScope.MESSAGE);
+        Assertions.assertEquals(true, eventTypeDefs[0].scope() == InstanceScope.EVENT);
     }
 
     @Test
@@ -131,18 +131,18 @@ class DefaultInvocableScannerTest {
         final var forKeyDefs = forKeySet.toArray(new EventInvocableDefinition[0]);
 
         Assertions.assertEquals(2, forKeyDefs.length);
-        Assertions.assertEquals(true, forKeyDefs[0].lookupKeys().contains("key-test"));
-        Assertions.assertEquals(true, forKeyDefs[1].lookupKeys().contains("key-test"));
+        Assertions.assertEquals(true, forKeyDefs[0].eventKeys().contains("key-test"));
+        Assertions.assertEquals(true, forKeyDefs[1].eventKeys().contains("key-test"));
 
-        final var eventTypeSet = mapped.get(EventInvocableKeyType.EVENT_TYPE_HEADER);
+        final var eventTypeSet = mapped.get(EventInvocableKeyType.EVENT_HEADER);
 
         Assertions.assertEquals(2, eventTypeSet.size());
 
         final var eventTypeDefs = eventTypeSet.toArray(new EventInvocableDefinition[0]);
 
         Assertions.assertEquals(2, eventTypeDefs.length);
-        Assertions.assertEquals(true, eventTypeDefs[0].lookupKeys().contains("event-type-test"));
-        Assertions.assertEquals(true, eventTypeDefs[1].lookupKeys().contains("event-type-test"));
+        Assertions.assertEquals(true, eventTypeDefs[0].eventKeys().contains("event-type-test"));
+        Assertions.assertEquals(true, eventTypeDefs[1].eventKeys().contains("event-type-test"));
     }
 
     @ForKey("test")

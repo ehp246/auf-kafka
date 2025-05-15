@@ -21,7 +21,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * This implementation matches a {@linkplain ConsumerRecord} to a
  * {@linkplain InvocalType} in the following order:
  * <ul>
- * <li>{@linkplain EventInvocableKeyType#EVENT_TYPE_HEADER}.</li>
+ * <li>{@linkplain EventInvocableKeyType#EVENT_HEADER}.</li>
  * <li>{@linkplain ConsumerRecord#key()}.</li>
  * </ul>
  * <p>
@@ -31,7 +31,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * @since 1.0
  */
 final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
-    private final String eventTypeHeader;
+    private final String eventHeader;
     private final Map<EventInvocableKeyType, Map<String, EventInvocableDefinition>> cached = new ConcurrentHashMap<>();
     private final Map<EventInvocableKeyType, Map<String, EventInvocableDefinition>> registeredInvokables = new ConcurrentHashMap<>();
     /**
@@ -39,8 +39,8 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
      */
     private final Map<Class<?>, Map<String, Method>> registeredMethods = new ConcurrentHashMap<>();
 
-    DefaultEventInvocableRegistry(final String eventTypeHeader) {
-        this.eventTypeHeader = Objects.requireNonNull(eventTypeHeader);
+    DefaultEventInvocableRegistry(final String eventHeader) {
+        this.eventHeader = Objects.requireNonNull(eventHeader);
         for (final var type : EventInvocableKeyType.values()) {
             this.registeredInvokables.put(type, new ConcurrentHashMap<>());
             this.cached.put(type, new ConcurrentHashMap<>());
@@ -51,7 +51,7 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
     public void register(final EventInvocableKeyType keyType, final EventInvocableDefinition invokingDefinition) {
         final var invokables = this.registeredInvokables.get(keyType);
 
-        invokingDefinition.lookupKeys().forEach(type -> {
+        invokingDefinition.eventKeys().forEach(type -> {
             final var registered = invokables.putIfAbsent(type, invokingDefinition);
             if (registered != null) {
                 throw new IllegalArgumentException("Duplicate type " + type + " from " + registered.type());
@@ -71,7 +71,7 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
 
     /**
      * If the incoming event has
-     * {@linkplain AufKafkaConstant#HEADER_KEY_EVENT_TYPE} defined, the value will
+     * {@linkplain AufKafkaConstant#EVENT_HEADER} defined, the value will
      * be used as the key for the event-type registry. Otherwise,
      * {@linkplain ConsumerRecord#key()} will be used as the key to look up the key
      * registry.
@@ -85,10 +85,10 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
         /**
          * Look up by event type header first.
          */
-        final var eventType = OneUtil.getLastHeaderAsString(event, this.eventTypeHeader);
+        final var eventType = OneUtil.getLastHeaderAsString(event, this.eventHeader);
 
         final var lookupkey = eventType != null ? eventType : OneUtil.toString(event.key(), "");
-        final var keyType = eventType != null ? EventInvocableKeyType.EVENT_TYPE_HEADER : EventInvocableKeyType.KEY;
+        final var keyType = eventType != null ? EventInvocableKeyType.EVENT_HEADER : EventInvocableKeyType.KEY;
 
         final var definition = this.cached.get(keyType).computeIfAbsent(lookupkey,
                 key -> this.registeredInvokables.get(keyType).entrySet().stream()

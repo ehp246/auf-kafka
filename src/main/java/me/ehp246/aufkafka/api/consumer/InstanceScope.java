@@ -1,5 +1,6 @@
 package me.ehp246.aufkafka.api.consumer;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 
@@ -22,11 +23,11 @@ public enum InstanceScope {
      */
     BEAN,
     /**
-     * Indicates that for each inbound message, a new instance of the class is to be
-     * initiated.
+     * Indicates that for each {@linkplain ProducerRecord} a new instance of the
+     * class is to be initiated.
      * <p>
      * The instance is created via
      * {@linkplain AutowireCapableBeanFactory#createBean(Class)}.
      */
-    MESSAGE
+    EVENT
 }

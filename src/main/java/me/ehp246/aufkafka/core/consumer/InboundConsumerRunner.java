@@ -15,7 +15,7 @@ import me.ehp246.aufkafka.api.consumer.InboundEndpointConsumer;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
-import me.ehp246.aufkafka.api.exception.UnknownKeyException;
+import me.ehp246.aufkafka.api.exception.UnknownEventException;
 import me.ehp246.aufkafka.api.spi.MsgMDCContext;
 
 /**
@@ -35,86 +35,86 @@ final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
     private final CompletableFuture<Boolean> closedFuture = new CompletableFuture<Boolean>();
 
     InboundConsumerRunner(final Consumer<String, String> consumer, final InvocableDispatcher dispatcher,
-	    final InvocableFactory invocableFactory,
-	    final List<InboundConsumerListener.DispatchingListener> onDispatching, final UnmatchedConsumer onUnmatched,
-	    final ConsumerExceptionListener onException) {
-	super();
-	this.consumer = consumer;
-	this.dispatcher = dispatcher;
-	this.invocableFactory = invocableFactory;
-	this.onDispatching = onDispatching == null ? List.of() : onDispatching;
-	this.onUnmatched = onUnmatched;
-	this.onException = onException;
+            final InvocableFactory invocableFactory,
+            final List<InboundConsumerListener.DispatchingListener> onDispatching, final UnmatchedConsumer onUnmatched,
+            final ConsumerExceptionListener onException) {
+        super();
+        this.consumer = consumer;
+        this.dispatcher = dispatcher;
+        this.invocableFactory = invocableFactory;
+        this.onDispatching = onDispatching == null ? List.of() : onDispatching;
+        this.onUnmatched = onUnmatched;
+        this.onException = onException;
     }
 
     @Override
     public void run() {
-	while (!this.closed) {
-	    final var polled = consumer.poll(Duration.ofMillis(100));
-	    if (polled.count() > 1) {
-		LOGGER.atWarn().setMessage("Polled count: {}").addArgument(polled::count).log();
-	    }
+        while (!this.closed) {
+            final var polled = consumer.poll(Duration.ofMillis(100));
+            if (polled.count() > 1) {
+                LOGGER.atWarn().setMessage("Polled count: {}").addArgument(polled::count).log();
+            }
 
-	    for (final var msg : polled) {
-		try (final var closeble = MsgMDCContext.set(msg);) {
-		    this.onDispatching.stream().forEach(l -> l.onDispatching(msg));
+            for (final var event : polled) {
+                try (final var closeble = MsgMDCContext.set(event);) {
+                    this.onDispatching.stream().forEach(l -> l.onDispatching(event));
 
-		    final var invocable = invocableFactory.get(msg);
+                    final var invocable = invocableFactory.get(event);
 
-		    if (invocable == null) {
-			if (onUnmatched == null) {
-			    throw new UnknownKeyException(msg);
-			} else {
-			    onUnmatched.accept(msg);
-			}
-		    } else {
-			dispatcher.dispatch(invocable, msg);
-		    }
-		} catch (Exception e) {
-		    LOGGER.atError().setCause(e)
-			    .setMessage(this.onException.getClass().getSimpleName()
-				    + " failed, ignored: {}, {}, {} because of {}")
-			    .addArgument(msg::topic).addArgument(msg::key).addArgument(msg::offset)
-			    .addArgument(e::getMessage).log();
+                    if (invocable == null) {
+                        if (onUnmatched == null) {
+                            throw new UnknownEventException(event);
+                        } else {
+                            onUnmatched.accept(event);
+                        }
+                    } else {
+                        dispatcher.dispatch(invocable, event);
+                    }
+                } catch (Exception e) {
+                    LOGGER.atError().setCause(e)
+                            .setMessage(this.onException.getClass().getSimpleName()
+                                    + " failed, ignored: {}, {}, {} because of {}")
+                            .addArgument(event::topic).addArgument(event::key).addArgument(event::offset)
+                            .addArgument(e::getMessage).log();
 
-		    if (this.onException != null) {
-			this.onException.onException(new ConsumerExceptionListener.Context() {
+                    if (this.onException != null) {
+                        this.onException.onException(new ConsumerExceptionListener.Context() {
 
-			    @Override
-			    public Consumer<String, String> consumer() {
-				return consumer;
-			    }
+                            @Override
+                            public Consumer<String, String> consumer() {
+                                return consumer;
+                            }
 
-			    @Override
-			    public ConsumerRecord<String, String> message() {
-				return msg;
-			    }
+                            @Override
+                            public ConsumerRecord<String, String> message() {
+                                return event;
+                            }
 
-			    @Override
-			    public Exception thrown() {
-				return e;
-			    }
-			});
-		    }
-		}
-	    }
+                            @Override
+                            public Exception thrown() {
+                                return e;
+                            }
+                        });
+                    }
+                }
+            }
 
-	    if (polled.count() > 0) {
-		consumer.commitSync();
-	    }
-	}
+            if (polled.count() > 0) {
+                consumer.commitSync();
+            }
+        }
 
-	this.consumer.close();
-	this.closedFuture.complete(true);
+        this.consumer.close();
+        this.closedFuture.complete(true);
     }
 
     @Override
     public Consumer<String, String> consumer() {
-	return this.consumer;
+        return this.consumer;
     }
 
     public CompletableFuture<Boolean> close() {
-	this.closed = true;
-	return this.closedFuture;
+        this.closed = true;
+        return this.closedFuture;
     }
 }

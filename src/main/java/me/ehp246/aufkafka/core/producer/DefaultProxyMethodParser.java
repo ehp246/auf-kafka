@@ -12,7 +12,6 @@ import java.util.function.Function;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
-import me.ehp246.aufkafka.api.annotation.OfEventType;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
@@ -53,21 +52,6 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                     final var topic = expressionResolver.apply(byKafka.value());
                     return (Function<Object[], String>) args -> topic;
                 });
-
-        final var eventTypeHeaderKey = byKafka.eventTypeHeader();
-        final var eventTypeBinder = reflected.allParametersWith(OfEventType.class).stream().findFirst()
-                .map(p -> (Function<Object[], OutboundRecord.Header>) args -> eventTypeHeaderKey.isEmpty() == true
-                        ? null
-                        : new OutboundHeader(eventTypeHeaderKey, args[p.index()]))
-                .orElseGet(() -> reflected.findOnMethodUp(OfEventType.class).map(ofEventType -> {
-                    final var header = eventTypeHeaderKey.isEmpty() || ofEventType.value().isEmpty() ? null
-                            : new OutboundHeader(eventTypeHeaderKey, ofEventType.value());
-                    return (Function<Object[], OutboundRecord.Header>) args -> header;
-                }).orElseGet(() -> {
-                    final var header = eventTypeHeaderKey.isEmpty() ? null
-                            : new OutboundHeader(eventTypeHeaderKey, OneUtil.firstUpper(reflected.method().getName()));
-                    return args -> header;
-                }));
 
         final var keyBinder = reflected.allParametersWith(OfKey.class).stream().findFirst()
                 .map(p -> (Function<Object[], String>) args -> {
@@ -110,9 +94,9 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                         parameter.getType()))
                 .orElse(null);
 
-        return new Parsed(new DefaultProxyInvocationBinder(topicBinder, eventTypeBinder, keyBinder, partitionBinder,
-                timestampBinder, null, valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, objectOf),
-                headerBinder(reflected), headerStatic(reflected, byKafka)));
+        return new Parsed(new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder,
+                null, valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, objectOf), headerBinder(reflected),
+                headerStatic(reflected, byKafka)));
     }
 
     private Map<Integer, HeaderParam> headerBinder(final ReflectedMethod reflected) {
@@ -134,23 +118,19 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
         }
 
         final List<OutboundRecord.Header> headerStatic = new ArrayList<>();
+
+        if (!byKafka.eventHeader().isEmpty()) {
+            headerStatic
+                    .add(new OutboundHeader(byKafka.eventHeader(), OneUtil.firstUpper(reflected.method().getName())));
+        }
+
         for (int i = 0; i < headers.length; i += 2) {
             final var key = headers[i];
             final var value = expressionResolver.apply(headers[i + 1]);
 
-            headerStatic.add(new OutboundRecord.Header() {
-
-                @Override
-                public String key() {
-                    return key;
-                }
-
-                @Override
-                public Object value() {
-                    return value;
-                }
-            });
+            headerStatic.add(new OutboundHeader(key, value));
         }
+
         return headerStatic;
     }
 }

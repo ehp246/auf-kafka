@@ -8,14 +8,14 @@ import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
  * 
  * @author Lei Yang
  * @since 1.0
- * @see InboundEndpoint#keyRegistry()
+ * @see InboundEndpoint#invocableRegistry()
  */
-public final class UnknownKeyException extends RuntimeException {
+public final class UnknownEventException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     private final ConsumerRecord<?, ?> msg;
 
-    public UnknownKeyException(final ConsumerRecord<?, ?> msg) {
+    public UnknownEventException(final ConsumerRecord<?, ?> msg) {
         super("Unknown key: " + msg.key());
         this.msg = msg;
     }

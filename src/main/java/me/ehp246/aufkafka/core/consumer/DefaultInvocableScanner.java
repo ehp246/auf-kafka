@@ -21,7 +21,7 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import me.ehp246.aufkafka.api.annotation.Applying;
 import me.ehp246.aufkafka.api.annotation.Execution;
-import me.ehp246.aufkafka.api.annotation.ForEventType;
+import me.ehp246.aufkafka.api.annotation.ForEvent;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
 import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
@@ -33,9 +33,9 @@ import me.ehp246.aufkafka.core.reflection.ReflectedType;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
- * Scans for {@linkplain ForKey} and {@linkplain ForEventType} classes.
+ * Scans for {@linkplain ForKey} and {@linkplain ForEvent} classes.
  * <p>
- * Duplicate {@linkplain EventInvocableDefinition#lookupKeys()} are accepted.
+ * Duplicate {@linkplain EventInvocableDefinition#eventKeys()} are accepted.
  * Collision detection on the lookup keys is implemented by
  * {@linkplain EventInvocableRegistry}.
  * 
@@ -44,8 +44,8 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  */
 public final class DefaultInvocableScanner implements InvocableScanner {
     private final static Logger LOGGER = LoggerFactory.getLogger(DefaultInvocableScanner.class);
-    private final Map<Class<? extends Annotation>, EventInvocableKeyType> ANNO_KEYTYPE_MAP = Map.of(ForEventType.class,
-            EventInvocableKeyType.EVENT_TYPE_HEADER, ForKey.class, EventInvocableKeyType.KEY);
+    private final Map<Class<? extends Annotation>, EventInvocableKeyType> ANNO_KEYTYPE_MAP = Map.of(ForEvent.class,
+            EventInvocableKeyType.EVENT_HEADER, ForKey.class, EventInvocableKeyType.KEY);
 
     private final ExpressionResolver expressionResolver;
 
@@ -123,8 +123,8 @@ public final class DefaultInvocableScanner implements InvocableScanner {
             final Execution execution;
 
             switch (ANNO_KEYTYPE_MAP.get(annoType)) {
-            case EVENT_TYPE_HEADER:
-                final var forEventType = (ForEventType) anno;
+            case EVENT_HEADER:
+                final var forEventType = (ForEvent) anno;
                 value = forEventType.value();
                 execution = forEventType.execution();
                 break;
@@ -141,7 +141,7 @@ public final class DefaultInvocableScanner implements InvocableScanner {
             if (!Modifier.isPublic(type.getModifiers())) {
                 throw new IllegalArgumentException("public modifier required on " + type.getName());
             }
-            if ((Modifier.isAbstract(type.getModifiers()) && execution.scope().equals(InstanceScope.MESSAGE))
+            if ((Modifier.isAbstract(type.getModifiers()) && execution.scope().equals(InstanceScope.EVENT))
                     || type.isEnum()) {
                 throw new IllegalArgumentException("Un-instantiable type " + type.getName());
             }

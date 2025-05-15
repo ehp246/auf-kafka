@@ -3,7 +3,7 @@ package me.ehp246.aufkafka.api.consumer;
 import java.util.Map;
 import java.util.Set;
 
-import me.ehp246.aufkafka.api.annotation.ForEventType;
+import me.ehp246.aufkafka.api.annotation.ForEvent;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 
 /**
@@ -14,7 +14,7 @@ import me.ehp246.aufkafka.api.annotation.ForKey;
  * @author Lei Yang
  * @since 1.0
  * @see ForKey
- * @see ForEventType
+ * @see ForEvent
  * @see EventInvocableKeyType
  */
 @FunctionalInterface

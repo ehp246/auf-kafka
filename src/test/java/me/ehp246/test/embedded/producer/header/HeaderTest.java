@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
@@ -20,7 +21,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  *
  */
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, MsgListener.class }, properties = {
-        "static.1=234e3609-3edd-4059-b685-fa8a0bed19d3" })
+        "static.1=234e3609-3edd-4059-b685-fa8a0bed19d3" }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { "embedded" }, partitions = 10)
 class HeaderTest {
     @Autowired
@@ -28,6 +29,12 @@ class HeaderTest {
 
     @Autowired
     private TestCases.Case02 case02;
+
+    @Autowired
+    private TestCases.Case03 case03;
+
+    @Autowired
+    private TestCases.Case04 case04;
 
     @Autowired
     private MsgListener listener;
@@ -43,7 +50,7 @@ class HeaderTest {
 
         final var headers = OneUtil.toList(listener.take().headers());
 
-        Assertions.assertEquals(4, headers.size());
+        Assertions.assertEquals(3, headers.size());
 
         Assertions.assertEquals("Header", headers.get(0).key());
         Assertions.assertEquals(null, headers.get(0).value());
@@ -53,9 +60,6 @@ class HeaderTest {
 
         Assertions.assertEquals("header02", headers.get(2).key());
         Assertions.assertEquals(null, headers.get(2).value());
-
-        Assertions.assertEquals(AufKafkaConstant.HEADER_KEY_EVENT_TYPE, headers.get(3).key());
-        Assertions.assertEquals("Header", new String(headers.get(3).value(), StandardCharsets.UTF_8));
     }
 
     @Test
@@ -67,7 +71,7 @@ class HeaderTest {
 
         final var headers = OneUtil.toList(listener.take().headers());
 
-        Assertions.assertEquals(4, headers.size());
+        Assertions.assertEquals(3, headers.size());
 
         Assertions.assertEquals("Header", headers.get(0).key());
         Assertions.assertEquals(true,
@@ -87,7 +91,7 @@ class HeaderTest {
 
         final var headers = OneUtil.toList(listener.take().headers());
 
-        Assertions.assertEquals(3, headers.size());
+        Assertions.assertEquals(2, headers.size());
 
         Assertions.assertEquals("header", headers.get(0).key());
         Assertions.assertEquals(true, new String(headers.get(0).value(), StandardCharsets.UTF_8)
@@ -105,17 +109,51 @@ class HeaderTest {
 
         final var headers = OneUtil.toList(listener.take().headers());
 
-        Assertions.assertEquals(4, headers.size());
+        Assertions.assertEquals(3, headers.size());
 
-        Assertions.assertEquals("Header", headers.get(0).key());
-        Assertions.assertEquals(true,
-                new String(headers.get(0).value(), StandardCharsets.UTF_8).equals(value.toString()));
+        Assertions.assertEquals("header", headers.get(0).key());
+        Assertions.assertEquals("234e3609-3edd-4059-b685-fa8a0bed19d3",
+                new String(headers.get(0).value(), StandardCharsets.UTF_8));
 
-        Assertions.assertEquals("header", headers.get(1).key());
-        Assertions.assertEquals(true, new String(headers.get(1).value(), StandardCharsets.UTF_8)
-                .equals("234e3609-3edd-4059-b685-fa8a0bed19d3"));
+        Assertions.assertEquals("header2", headers.get(1).key());
+        Assertions.assertEquals("static.2", new String(headers.get(1).value(), StandardCharsets.UTF_8));
 
-        Assertions.assertEquals("header2", headers.get(2).key());
-        Assertions.assertEquals(true, new String(headers.get(2).value(), StandardCharsets.UTF_8).equals("static.2"));
+        Assertions.assertEquals("Header", headers.get(2).key());
+        Assertions.assertEquals(value.toString(), new String(headers.get(2).value(), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void event_01() throws InterruptedException, ExecutionException {
+        this.case03.methodName();
+
+        final var headers = OneUtil.toList(listener.take().headers());
+
+        Assertions.assertEquals(1, headers.size());
+        Assertions.assertEquals(AufKafkaConstant.EVENT_HEADER, headers.get(0).key());
+        Assertions.assertEquals("MethodName", new String(headers.get(0).value(), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void event_02() throws InterruptedException, ExecutionException {
+        final var expected = UUID.randomUUID().toString();
+        this.case03.paramHeader(expected);
+
+        final var headers = listener.takeInboud().headerMap();
+
+        Assertions.assertEquals(1, headers.size());
+        Assertions.assertEquals(2, headers.get(AufKafkaConstant.EVENT_HEADER).size());
+        Assertions.assertEquals("ParamHeader", headers.get(AufKafkaConstant.EVENT_HEADER).get(0));
+        Assertions.assertEquals(expected, headers.get(AufKafkaConstant.EVENT_HEADER).get(1));
+    }
+
+    @Test
+    void event_03() throws InterruptedException, ExecutionException {
+        this.case04.methodName();
+
+        final var headers = listener.takeInboud().headerMap();
+
+        Assertions.assertEquals(1, headers.size());
+        Assertions.assertEquals(1, headers.get("my.own.event").size());
+        Assertions.assertEquals("MethodName", headers.get("my.own.event").get(0));
     }
 }

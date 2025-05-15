@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
+import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
 import me.ehp246.aufkafka.core.util.OneUtil;
 import me.ehp246.test.TestUtil;
@@ -131,7 +132,7 @@ class DefaultProxyMethodParserTest {
     }
 
     @Test
-    void eventType_01() throws Throwable {
+    void event_01() throws Throwable {
         final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.EventTypeCase01.class);
 
         captor.proxy().m01();
@@ -139,11 +140,11 @@ class DefaultProxyMethodParserTest {
         final var message = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
-        Assertions.assertEquals("M01", message.eventType().value().toString());
+        Assertions.assertEquals("M01", TestUtil.getLastValue(message.headers(), AufKafkaConstant.EVENT_HEADER));
     }
 
     @Test
-    void eventType_02() throws Throwable {
+    void event_02() throws Throwable {
         final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.EventTypeCase01.class);
         final var expected = UUID.randomUUID();
 
@@ -152,11 +153,12 @@ class DefaultProxyMethodParserTest {
         final var message = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
-        Assertions.assertEquals(expected.toString(), message.eventType().value().toString());
+        Assertions.assertEquals(expected.toString(),
+                TestUtil.getLastValue(message.headers(), AufKafkaConstant.EVENT_HEADER));
     }
 
     @Test
-    void eventType_03() throws Throwable {
+    void event_03() throws Throwable {
         final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.EventTypeCase01.class);
 
         captor.proxy().m02(null);
@@ -164,32 +166,7 @@ class DefaultProxyMethodParserTest {
         final var message = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message();
 
-        Assertions.assertEquals(null, message.eventType().value());
-    }
-
-    @Test
-    void eventType_04() throws Throwable {
-        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.EventTypeCase01.class);
-
-        captor.proxy().m03();
-
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
-
-        Assertions.assertEquals(null, message.eventType(), "should supress the header altogether");
-    }
-
-    @Test
-    void eventType_05() throws Throwable {
-        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.EventTypeCase01.class);
-
-        captor.proxy().m04();
-
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
-
-        Assertions.assertEquals("887114e5-5770-4f7f-b0c6-e0803753eb58", message.eventType().value().toString(),
-                "should follow annotation");
+        Assertions.assertEquals(null, TestUtil.getLastValue(message.headers(), AufKafkaConstant.EVENT_HEADER));
     }
 
     @Test
@@ -395,17 +372,17 @@ class DefaultProxyMethodParserTest {
 
         Assertions.assertEquals(4, headers.size());
 
-        Assertions.assertEquals("Header", headers.get(0).key());
-        Assertions.assertEquals(captor.invocation().args()[0], headers.get(0).value());
+        Assertions.assertEquals("Header", headers.get(3).key());
+        Assertions.assertEquals(captor.invocation().args()[0], headers.get(3).value());
 
-        Assertions.assertEquals("header1", headers.get(1).key());
-        Assertions.assertEquals("value1", headers.get(1).value());
-
-        Assertions.assertEquals("header2", headers.get(2).key());
+        Assertions.assertEquals("header1", headers.get(2).key());
         Assertions.assertEquals("value2", headers.get(2).value());
 
-        Assertions.assertEquals("header1", headers.get(3).key());
-        Assertions.assertEquals("value2", headers.get(3).value());
+        Assertions.assertEquals("header2", headers.get(1).key());
+        Assertions.assertEquals("value2", headers.get(1).value());
+
+        Assertions.assertEquals("header1", headers.get(0).key());
+        Assertions.assertEquals("value1", headers.get(0).value());
     }
 
     @Test
@@ -419,17 +396,8 @@ class DefaultProxyMethodParserTest {
 
         Assertions.assertEquals(4, headers.size());
 
-        Assertions.assertEquals("Header", headers.get(0).key());
-        Assertions.assertEquals(captor.invocation().args()[0], headers.get(0).value());
-
-        Assertions.assertEquals("header1", headers.get(1).key());
-        Assertions.assertEquals("value1", headers.get(1).value());
-
-        Assertions.assertEquals("header2", headers.get(2).key());
-        Assertions.assertEquals("value2", headers.get(2).value());
-
-        Assertions.assertEquals("header1", headers.get(3).key());
-        Assertions.assertEquals("value2", headers.get(3).value());
+        Assertions.assertEquals("Header", headers.get(3).key());
+        Assertions.assertEquals(captor.invocation().args()[0], headers.get(3).value());
     }
 
     @Test
