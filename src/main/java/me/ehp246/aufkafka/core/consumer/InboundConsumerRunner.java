@@ -55,26 +55,26 @@ final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
                 LOGGER.atWarn().setMessage("Polled count: {}").addArgument(polled::count).log();
             }
 
-            for (final var msg : polled) {
-                try (final var closeble = MsgMDCContext.set(msg);) {
-                    this.onDispatching.stream().forEach(l -> l.onDispatching(msg));
+            for (final var event : polled) {
+                try (final var closeble = MsgMDCContext.set(event);) {
+                    this.onDispatching.stream().forEach(l -> l.onDispatching(event));
 
-                    final var invocable = invocableFactory.get(msg);
+                    final var invocable = invocableFactory.get(event);
 
                     if (invocable == null) {
                         if (onUnmatched == null) {
-                            throw new UnknownEventException(msg);
+                            throw new UnknownEventException(event);
                         } else {
-                            onUnmatched.accept(msg);
+                            onUnmatched.accept(event);
                         }
                     } else {
-                        dispatcher.dispatch(invocable, msg);
+                        dispatcher.dispatch(invocable, event);
                     }
                 } catch (Exception e) {
                     LOGGER.atError().setCause(e)
                             .setMessage(this.onException.getClass().getSimpleName()
                                     + " failed, ignored: {}, {}, {} because of {}")
-                            .addArgument(msg::topic).addArgument(msg::key).addArgument(msg::offset)
+                            .addArgument(event::topic).addArgument(event::key).addArgument(event::offset)
                             .addArgument(e::getMessage).log();
 
                     if (this.onException != null) {
@@ -87,7 +87,7 @@ final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
 
                             @Override
                             public ConsumerRecord<String, String> message() {
-                                return msg;
+                                return event;
                             }
 
                             @Override
