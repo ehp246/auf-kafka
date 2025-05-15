@@ -14,15 +14,14 @@ public final class AufKafkaConstant {
     public static final String BEAN_NOOP_UNMATCHED_CONSUMER = "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
     public static final String BEAN_IGNORING_CONSUMEREXCEPTION_LISTENER = "6cf6af85-c802-46c1-97a6-2d5bbfee568a";
 
-    public static final String MSG_MDC_HEADER_PREFIX = "AufKafkaMsgMDC";
-
-    public static final String EVENT_HEADER = "aufkafka-event";
-
     public static final String PROPERTY_INBOUND_MESSAGELOGGING_ENABLED = "me.ehp246.aufkafka.inbound.messagelogging.enabled";
+
+    public static final String EVENT_HEADER = "AufKafkaEvent";
 
     /**
      * MDC
      */
+    public static final String MDC_HEADER_PREFIX = "AufKafkaEventMDC";
     public final static Marker HEADERS = MarkerFactory.getMarker("HEADERS");
     public final static Marker VALUE = MarkerFactory.getMarker("VALUE");
     public final static Marker EXCEPTION = MarkerFactory.getMarker("EXCEPTION");

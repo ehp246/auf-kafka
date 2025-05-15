@@ -93,8 +93,11 @@ public @interface EnableForKafka {
         Class<?>[] scan() default {};
 
         /**
-         * Registers the specified {@linkplain ForKey} classes explicitly for this
-         * endpoint.
+         * Registers the specified classes explicitly for this endpoint. The classes
+         * must be annotated.
+         * 
+         * @see ForKey
+         * @see ForEvent
          */
         Class<?>[] register() default {};
 
