@@ -16,7 +16,7 @@ import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.Invocable;
-import me.ehp246.aufkafka.api.consumer.InvocableBinder;
+import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.InvocationModel;
@@ -33,12 +33,12 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
     private final static Logger LOGGER = LoggerFactory.getLogger(InvocableDispatcher.class);
 
     private final Executor executor;
-    private final InvocableBinder binder;
+    private final EventInvocableBinder binder;
     private final List<InvocationListener.InvokingListener> invoking = new ArrayList<>();
     private final List<InvocationListener.CompletedListener> completed = new ArrayList<>();
     private final List<InvocationListener.FailedListener> failed = new ArrayList<>();
 
-    public DefaultInvocableDispatcher(final InvocableBinder binder, @Nullable final List<InvocationListener> listeners,
+    public DefaultInvocableDispatcher(final EventInvocableBinder binder, @Nullable final List<InvocationListener> listeners,
             @Nullable final Executor executor) {
         super();
         this.binder = binder;

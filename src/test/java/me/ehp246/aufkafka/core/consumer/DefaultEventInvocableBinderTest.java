@@ -28,9 +28,9 @@ import me.ehp246.test.mock.StringHeader;
  * @author Lei Yang
  *
  */
-class DefaultInvocableBinderTest {
+class DefaultEventInvocableBinderTest {
     private final JsonByObjectMapper jackson = new JsonByObjectMapper(TestUtil.OBJECT_MAPPER);
-    private final DefaultInvocableBinder binder = new DefaultInvocableBinder(jackson);
+    private final DefaultEventInvocableBinder binder = new DefaultEventInvocableBinder(jackson);
 
     @Test
     void bound_01() {

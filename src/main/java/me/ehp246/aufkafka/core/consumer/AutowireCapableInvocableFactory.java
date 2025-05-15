@@ -31,10 +31,10 @@ final class AutowireCapableInvocableFactory implements InvocableFactory {
     }
 
     @Override
-    public Invocable get(final InboundEvent msg) {
-        Objects.requireNonNull(msg);
+    public Invocable get(final InboundEvent event) {
+        Objects.requireNonNull(event);
 
-        final var registered = this.registry.resolve(msg);
+        final var registered = this.registry.resolve(event);
         if (registered == null) {
             return null;
         }

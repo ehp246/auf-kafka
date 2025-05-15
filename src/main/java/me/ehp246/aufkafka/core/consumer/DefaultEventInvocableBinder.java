@@ -30,9 +30,9 @@ import me.ehp246.aufkafka.api.annotation.OfMDC;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
+import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.Invocable;
-import me.ehp246.aufkafka.api.consumer.InvocableBinder;
 import me.ehp246.aufkafka.api.exception.UnboundParameterException;
 import me.ehp246.aufkafka.api.serializer.json.FromJson;
 import me.ehp246.aufkafka.api.serializer.json.JacksonObjectOfBuilder;
@@ -46,7 +46,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * @author Lei Yang
  * @since 1.0
  */
-public final class DefaultInvocableBinder implements InvocableBinder {
+public final class DefaultEventInvocableBinder implements EventInvocableBinder {
     private static final Map<Class<? extends Annotation>, Function<InboundEvent, Object>> HEADER_VALUE_SUPPLIERS = Map
             .of(OfKey.class, InboundEvent::key, OfPartition.class, InboundEvent::partition);
 
@@ -54,9 +54,9 @@ public final class DefaultInvocableBinder implements InvocableBinder {
             .copyOf(HEADER_VALUE_SUPPLIERS.keySet());
 
     private final FromJson fromJson;
-    private final Map<Method, ConsumerRecordBinders> parsed = new ConcurrentHashMap<>();
+    private final Map<Method, EventBinders> parsed = new ConcurrentHashMap<>();
 
-    public DefaultInvocableBinder(final FromJson fromJson) {
+    public DefaultEventInvocableBinder(final FromJson fromJson) {
         super();
         this.fromJson = fromJson;
     }
@@ -67,7 +67,7 @@ public final class DefaultInvocableBinder implements InvocableBinder {
 
         final var argBinders = this.parsed.computeIfAbsent(method, this::parse);
 
-        final var paramBinders = argBinders.recordBinders();
+        final var paramBinders = argBinders.eventBinders();
         final var parameterCount = method.getParameterCount();
 
         /*
@@ -115,7 +115,7 @@ public final class DefaultInvocableBinder implements InvocableBinder {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private ConsumerRecordBinders parse(final Method method) {
+    private EventBinders parse(final Method method) {
         final var parameters = method.getParameters();
         final Map<Integer, Function<InboundEvent, Object>> paramBinders = new HashMap<>();
         final var valueParamRef = new ReflectedParameter[] { null };
@@ -263,7 +263,7 @@ public final class DefaultInvocableBinder implements InvocableBinder {
         final var valueReflectedParam = valueParamRef[0];
 
         if (valueReflectedParam == null || valueReflectedParam.parameter().getAnnotation(OfMDC.class) == null) {
-            return new ConsumerRecordBinders(paramBinders, mdcMapBinders);
+            return new EventBinders(paramBinders, mdcMapBinders);
         }
 
         /*
@@ -311,10 +311,10 @@ public final class DefaultInvocableBinder implements InvocableBinder {
             break;
         }
 
-        return new ConsumerRecordBinders(paramBinders, mdcMapBinders);
+        return new EventBinders(paramBinders, mdcMapBinders);
     }
 
-    record ConsumerRecordBinders(Map<Integer, Function<InboundEvent, Object>> recordBinders,
+    private record EventBinders(Map<Integer, Function<InboundEvent, Object>> eventBinders,
             Map<String, Function<Object[], String>> mdcMapBinders) {
     };
 }

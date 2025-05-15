@@ -22,7 +22,7 @@ import org.mockito.stubbing.Answer;
 
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
 import me.ehp246.aufkafka.api.consumer.Invocable;
-import me.ehp246.aufkafka.api.consumer.InvocableBinder;
+import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.InvocationListener.CompletedListener;
 import me.ehp246.aufkafka.api.consumer.InvocationListener.FailedListener;
@@ -45,20 +45,20 @@ class DefaultInvocableDispatcherTest {
     private final static int LOOP = 1_000_000;
     private final Invocable invocable = Mockito.mock(Invocable.class);
 
-    private static InvocableBinder bindToBound(final BoundInvocable bound, final Completed completed) {
+    private static EventInvocableBinder bindToBound(final BoundInvocable bound, final Completed completed) {
         Mockito.when(bound.invoke()).thenReturn(completed);
 
         return (i, m) -> bound;
     }
 
-    private static InvocableBinder bindToComplete(final Completed completed) {
+    private static EventInvocableBinder bindToComplete(final Completed completed) {
         final var bound = Mockito.mock(BoundInvocable.class);
         Mockito.when(bound.invoke()).thenReturn(completed);
 
         return (i, m) -> bound;
     }
 
-    private static InvocableBinder bindToFail(final Exception ex) {
+    private static EventInvocableBinder bindToFail(final Exception ex) {
         final BoundInvocable bound = Mockito.mock(BoundInvocable.class);
 
         final var failed = new Failed() {
@@ -333,7 +333,7 @@ class DefaultInvocableDispatcherTest {
     @Test
     @EnabledIfSystemProperty(named = "me.ehp246.perf", matches = "true")
     void perf_01() {
-        final var binder = new DefaultInvocableBinder(new JsonByObjectMapper(TestUtil.OBJECT_MAPPER));
+        final var binder = new DefaultEventInvocableBinder(new JsonByObjectMapper(TestUtil.OBJECT_MAPPER));
         final var dispatcher = new DefaultInvocableDispatcher(binder, null, null);
         final var msg = new MockConsumerRecord();
         final var invocable = new InvocableRecord(new InvocableBinderTestCases.PerfCase(),
