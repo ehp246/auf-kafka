@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
 
 /**
@@ -17,8 +18,8 @@ class Unmatched implements UnmatchedConsumer {
             new CompletableFuture<>());
 
     @Override
-    public void accept(final ConsumerRecord<String, String> msg) {
-        ref.get().complete(msg);
+    public void accept(final InboundEvent event) {
+        ref.get().complete(event.consumerRecord());
     }
 
     ConsumerRecord<String, String> take() {

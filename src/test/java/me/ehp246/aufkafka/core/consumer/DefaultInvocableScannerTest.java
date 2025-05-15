@@ -14,7 +14,6 @@ import me.ehp246.aufkafka.api.consumer.InvocationModel;
 import me.ehp246.aufkafka.core.consumer.case02.TestCase02;
 
 class DefaultInvocableScannerTest {
-
     @Test
     void test_01() {
         Assertions.assertThrows(IllegalArgumentException.class,

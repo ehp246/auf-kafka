@@ -1,4 +1,4 @@
-package me.ehp246.aufkafka.api;
+package me.ehp246.aufkafka.api.common;
 
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;

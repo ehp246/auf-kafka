@@ -13,7 +13,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Import;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
 import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
 import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
@@ -25,7 +25,7 @@ import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
 import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointRegistrar;
 import me.ehp246.aufkafka.core.consumer.ConsumerConfiguration;
-import me.ehp246.aufkafka.core.consumer.DefaultInvocableBinder;
+import me.ehp246.aufkafka.core.consumer.DefaultEventInvocableBinder;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableScanner;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointConsumerConfigurer;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointFactory;
@@ -44,7 +44,7 @@ import me.ehp246.aufkafka.core.consumer.InboundEndpointFactory;
 @Target(ElementType.TYPE)
 @Import({ AufKafkaConfiguration.class, ConsumerConfiguration.class, AnnotatedInboundEndpointRegistrar.class,
         InboundEndpointFactory.class, InboundEndpointConsumerConfigurer.class, DefaultInvocableScanner.class,
-        DefaultInvocableBinder.class })
+        DefaultEventInvocableBinder.class })
 public @interface EnableForKafka {
     /**
      * Specifies the topics to listen for in-bound messages and their

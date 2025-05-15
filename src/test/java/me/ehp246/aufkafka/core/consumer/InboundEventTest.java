@@ -3,6 +3,7 @@ package me.ehp246.aufkafka.core.consumer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.test.mock.MockConsumerRecord;
 
 class InboundEventTest {
@@ -15,7 +16,7 @@ class InboundEventTest {
     @Test
     void test_02() {
         final var expected = MockConsumerRecord.withHeaders("h.1", "v.1");
-        final var event = new InboundEvent(expected);
+        final var event = expected.toEvent();
         final var headerMap = event.headerMap();
 
         Assertions.assertEquals(expected, event.consumerRecord());

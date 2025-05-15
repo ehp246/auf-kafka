@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.mock.env.MockEnvironment;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.InboundDispatchingLogger;
 import me.ehp246.aufkafka.core.consumer.ConsumerConfiguration;
 import me.ehp246.test.mock.MockConsumerConfigProvider;

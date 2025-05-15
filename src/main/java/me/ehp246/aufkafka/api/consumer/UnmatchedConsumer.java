@@ -1,7 +1,5 @@
 package me.ehp246.aufkafka.api.consumer;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 
 /**
@@ -12,5 +10,5 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka;
  */
 @FunctionalInterface
 public interface UnmatchedConsumer {
-    void accept(ConsumerRecord<String, String> msg);
+    void accept(InboundEvent event);
 }

@@ -20,7 +20,7 @@ public sealed interface InvocationListener {
 
     /**
      * When an invocation fails on a {@linkplain BoundInvocable},
-     * {@linkplain InvocableDispatcher} makes the best effort to call all
+     * {@linkplain EventInvocableDispatcher} makes the best effort to call all
      * {@linkplain FailedListener} listeners in turn passing in the failure.
      * <p>
      * If a {@linkplain FailedListener} throws an exception, the exception will not be

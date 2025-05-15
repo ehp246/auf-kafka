@@ -1,7 +1,6 @@
 package me.ehp246.aufkafka.api.consumer;
 
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 
@@ -15,11 +14,6 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 public interface ConsumerExceptionListener {
     void onException(ConsumerExceptionListener.Context context);
 
-    interface Context {
-        Consumer<String, String> consumer();
-
-        ConsumerRecord<String, String> message();
-
-        Exception thrown();
+    record Context(Consumer<String, String> consumer, InboundEvent event, Exception thrown) {
     }
 }

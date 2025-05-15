@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
-import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
+import me.ehp246.aufkafka.api.consumer.EventInvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
 import me.ehp246.test.mock.MockConsumerRecord;
@@ -24,7 +24,7 @@ import me.ehp246.test.mock.MockConsumerRecord;
 class InboundConsumerRunnerTest {
     @SuppressWarnings("unchecked")
     private final Consumer<String, String> consumer = Mockito.mock(Consumer.class);
-    private final InvocableDispatcher dispatcher = (i, r) -> {
+    private final EventInvocableDispatcher dispatcher = (i, r) -> {
     };
     private final InvocableFactory factory = r -> null;
     private final UnmatchedConsumer listener = r -> {
@@ -40,6 +40,7 @@ class InboundConsumerRunnerTest {
         final var records = Mockito.mock(ConsumerRecords.class);
         Mockito.when(records.count()).thenReturn(1);
         Mockito.when(records.iterator()).thenReturn(List.of(msg).iterator());
+        Mockito.when(records.spliterator()).thenReturn(List.of(msg).spliterator());
 
         final var consumer = Mockito.mock(Consumer.class);
         Mockito.when(consumer.poll(Mockito.any())).thenReturn(records);
@@ -55,7 +56,7 @@ class InboundConsumerRunnerTest {
 
         Assertions.assertEquals(consumer, context.consumer());
         Assertions.assertEquals(thrown, context.thrown());
-        Assertions.assertEquals(msg, context.message());
+        Assertions.assertEquals(msg, context.event().consumerRecord());
 
         Mockito.verify(consumer, Mockito.atLeastOnce()).commitSync();
     }

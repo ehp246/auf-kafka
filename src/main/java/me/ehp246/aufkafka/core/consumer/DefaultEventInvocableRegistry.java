@@ -8,10 +8,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
 import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InvocableType;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
@@ -70,9 +71,8 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
     }
 
     /**
-     * If the incoming event has
-     * {@linkplain AufKafkaConstant#EVENT_HEADER} defined, the value will
-     * be used as the key for the event-type registry. Otherwise,
+     * If the incoming event has {@linkplain AufKafkaConstant#EVENT_HEADER} defined,
+     * the value will be used as the key for the event-type registry. Otherwise,
      * {@linkplain ConsumerRecord#key()} will be used as the key to look up the key
      * registry.
      * <p>
@@ -80,12 +80,12 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
      * 
      */
     @Override
-    public InvocableType resolve(final ConsumerRecord<?, ?> event) {
+    public InvocableType resolve(final InboundEvent event) {
         Objects.requireNonNull(event);
         /**
          * Look up by event type header first.
          */
-        final var eventType = OneUtil.getLastHeaderAsString(event, this.eventHeader);
+        final var eventType = OneUtil.getLastHeaderAsString(event.consumerRecord(), this.eventHeader);
 
         final var lookupkey = eventType != null ? eventType : OneUtil.toString(event.key(), "");
         final var keyType = eventType != null ? EventInvocableKeyType.EVENT_HEADER : EventInvocableKeyType.KEY;

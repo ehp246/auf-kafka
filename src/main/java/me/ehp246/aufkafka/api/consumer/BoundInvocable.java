@@ -18,7 +18,7 @@ import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 public interface BoundInvocable {
     Invocable invocable();
 
-    ConsumerRecord<String, String> received();
+    InboundEvent event();
 
     /**
      * Resolved arguments. Might not contain a value but the array should never be

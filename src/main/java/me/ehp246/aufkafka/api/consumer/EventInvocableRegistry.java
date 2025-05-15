@@ -33,5 +33,5 @@ public interface EventInvocableRegistry {
      *
      * @return <code>null</code> if no match found.
      */
-    InvocableType resolve(ConsumerRecord<?, ?> event);
+    InvocableType resolve(InboundEvent event);
 }

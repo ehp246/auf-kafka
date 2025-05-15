@@ -2,7 +2,7 @@ package me.ehp246.aufkafka.api.consumer;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 
 /**
  * Defines the look-up logic for a {@linkplain EventInvocableRegistry}.

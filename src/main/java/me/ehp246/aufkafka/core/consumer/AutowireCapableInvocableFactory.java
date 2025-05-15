@@ -3,13 +3,13 @@ package me.ehp246.aufkafka.core.consumer;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
+import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
-import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InvocationModel;
 
 /**
@@ -23,8 +23,7 @@ final class AutowireCapableInvocableFactory implements InvocableFactory {
     private final AutowireCapableBeanFactory autowireCapableBeanFactory;
     private final EventInvocableRegistry registry;
 
-    public AutowireCapableInvocableFactory(
-            final AutowireCapableBeanFactory autowireCapableBeanFactory,
+    public AutowireCapableInvocableFactory(final AutowireCapableBeanFactory autowireCapableBeanFactory,
             final EventInvocableRegistry registry) {
         super();
         this.autowireCapableBeanFactory = autowireCapableBeanFactory;
@@ -32,10 +31,10 @@ final class AutowireCapableInvocableFactory implements InvocableFactory {
     }
 
     @Override
-    public Invocable get(final ConsumerRecord<String, String> msg) {
-        Objects.requireNonNull(msg);
+    public Invocable get(final InboundEvent event) {
+        Objects.requireNonNull(event);
 
-        final var registered = this.registry.resolve(msg);
+        final var registered = this.registry.resolve(event);
         if (registered == null) {
             return null;
         }

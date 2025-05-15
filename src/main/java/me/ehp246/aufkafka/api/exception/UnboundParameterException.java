@@ -7,10 +7,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import me.ehp246.aufkafka.api.annotation.Applying;
 import me.ehp246.aufkafka.api.annotation.ForKey;
-import me.ehp246.aufkafka.api.consumer.InvocableBinder;
+import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 
 /**
- * Thrown when {@linkplain InvocableBinder} doesn't know how to bind a parameter
+ * Thrown when {@linkplain EventInvocableBinder} doesn't know how to bind a parameter
  * on a {@linkplain ForKey} {@linkplain Applying} method to
  * {@linkplain ConsumerRecord} .
  * 

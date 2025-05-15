@@ -7,8 +7,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import me.ehp246.aufkafka.api.annotation.Execution;
 import me.ehp246.aufkafka.api.annotation.ForEvent;
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
-import me.ehp246.aufkafka.core.consumer.InboundEvent;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**

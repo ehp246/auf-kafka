@@ -4,7 +4,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 
 /**
  * Built-in logger on dispatching {@linkplain ConsumerRecord}.
@@ -21,15 +21,15 @@ public final class InboundDispatchingLogger implements InboundConsumerListener.D
     }
 
     @Override
-    public void onDispatching(final ConsumerRecord<String, String> msg) {
+    public void onDispatching(final InboundEvent event) {
         if (!this.enabled) {
             return;
         }
 
-        LOGGER.atInfo().setMessage("{}:{}, {}, {}").addArgument(msg::topic).addArgument(msg::partition)
-                .addArgument(msg::key).addArgument(msg::offset).log();
+        LOGGER.atInfo().setMessage("{}:{}, {}, {}").addArgument(event::topic).addArgument(event::partition)
+                .addArgument(event::key).addArgument(event::offset).log();
 
-        LOGGER.atTrace().addMarker(AufKafkaConstant.VALUE).setMessage("{}").addArgument(msg::value).log();
+        LOGGER.atTrace().addMarker(AufKafkaConstant.VALUE).setMessage("{}").addArgument(event::value).log();
     }
 
 }
