@@ -40,6 +40,7 @@ class InboundConsumerRunnerTest {
         final var records = Mockito.mock(ConsumerRecords.class);
         Mockito.when(records.count()).thenReturn(1);
         Mockito.when(records.iterator()).thenReturn(List.of(msg).iterator());
+        Mockito.when(records.spliterator()).thenReturn(List.of(msg).spliterator());
 
         final var consumer = Mockito.mock(Consumer.class);
         Mockito.when(consumer.poll(Mockito.any())).thenReturn(records);
@@ -55,7 +56,7 @@ class InboundConsumerRunnerTest {
 
         Assertions.assertEquals(consumer, context.consumer());
         Assertions.assertEquals(thrown, context.thrown());
-        Assertions.assertEquals(msg, context.message());
+        Assertions.assertEquals(msg, context.event().consumerRecord());
 
         Mockito.verify(consumer, Mockito.atLeastOnce()).commitSync();
     }

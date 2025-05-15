@@ -2,12 +2,12 @@ package me.ehp246.test.embedded.producer.basic;
 
 import java.time.Instant;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 
 /**
  * @author Lei Yang

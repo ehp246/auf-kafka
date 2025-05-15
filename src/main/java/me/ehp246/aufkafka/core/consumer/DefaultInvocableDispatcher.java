@@ -7,14 +7,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.lang.Nullable;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocableBinder;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
@@ -38,8 +38,8 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
     private final List<InvocationListener.CompletedListener> completed = new ArrayList<>();
     private final List<InvocationListener.FailedListener> failed = new ArrayList<>();
 
-    public DefaultInvocableDispatcher(final InvocableBinder binder,
-            @Nullable final List<InvocationListener> listeners, @Nullable final Executor executor) {
+    public DefaultInvocableDispatcher(final InvocableBinder binder, @Nullable final List<InvocationListener> listeners,
+            @Nullable final Executor executor) {
         super();
         this.binder = binder;
         this.executor = executor;
@@ -58,7 +58,7 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
     }
 
     @Override
-    public void dispatch(final Invocable invocable, final ConsumerRecord<String, String> msg) {
+    public void dispatch(final Invocable invocable, final InboundEvent event) {
         /*
          * The runnable returned is expected to handle all execution and exception. The
          * caller simply invokes this runnable without further processing.
@@ -66,16 +66,14 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
         final var boundRef = new BoundInvocable[] { null };
         final var runnable = (Runnable) () -> {
             try {
-                boundRef[0] = binder.bind(invocable, msg);
+                boundRef[0] = binder.bind(invocable, event);
 
                 final var bound = boundRef[0];
 
-                Optional.ofNullable(bound.mdcMap()).map(Map::entrySet)
-                        .filter(set -> !set.isEmpty()).ifPresent(set -> set.stream()
-                                .forEach(entry -> MDC.put(entry.getKey(), entry.getValue())));
+                Optional.ofNullable(bound.mdcMap()).map(Map::entrySet).filter(set -> !set.isEmpty())
+                        .ifPresent(set -> set.stream().forEach(entry -> MDC.put(entry.getKey(), entry.getValue())));
 
-                DefaultInvocableDispatcher.this.invoking
-                        .forEach(listener -> listener.onInvoking(bound));
+                DefaultInvocableDispatcher.this.invoking.forEach(listener -> listener.onInvoking(bound));
 
                 final var outcome = bound.invoke();
 
@@ -96,16 +94,15 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
                 }
 
                 final var completed = (Completed) outcome;
-                DefaultInvocableDispatcher.this.completed
-                        .forEach(listener -> listener.onCompleted(completed));
+                DefaultInvocableDispatcher.this.completed.forEach(listener -> listener.onCompleted(completed));
             } finally {
                 try (invocable) {
                 } catch (final Exception e) {
-                    LOGGER.atWarn().setCause(e).addMarker(AufKafkaConstant.EXCEPTION)
-                            .setMessage("Ignored: {}").addArgument(e::getMessage).log();
+                    LOGGER.atWarn().setCause(e).addMarker(AufKafkaConstant.EXCEPTION).setMessage("Ignored: {}")
+                            .addArgument(e::getMessage).log();
                 }
-                Optional.ofNullable(boundRef[0]).map(BoundInvocable::mdcMap).map(Map::keySet)
-                        .map(Set::stream).ifPresent(s -> s.forEach(MDC::remove));
+                Optional.ofNullable(boundRef[0]).map(BoundInvocable::mdcMap).map(Map::keySet).map(Set::stream)
+                        .ifPresent(s -> s.forEach(MDC::remove));
             }
         };
 
@@ -115,11 +112,11 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
 
         } else {
             executor.execute(() -> {
-                try (final var closeable = EventMDCContext.set(msg)) {
+                try (final var closeable = EventMDCContext.set(event)) {
                     runnable.run();
                 } catch (final Exception e) {
-                    LOGGER.atWarn().setCause(e).addMarker(AufKafkaConstant.EXCEPTION)
-                            .setMessage("Ignored: {}").addArgument(e::getMessage).log();
+                    LOGGER.atWarn().setCause(e).addMarker(AufKafkaConstant.EXCEPTION).setMessage("Ignored: {}")
+                            .addArgument(e::getMessage).log();
                 }
             });
         }

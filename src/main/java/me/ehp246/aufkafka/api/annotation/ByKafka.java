@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
 import me.ehp246.aufkafka.api.producer.PartitionFn;

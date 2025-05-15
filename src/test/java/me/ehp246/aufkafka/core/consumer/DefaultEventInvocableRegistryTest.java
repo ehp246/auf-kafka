@@ -16,7 +16,7 @@ class DefaultEventInvocableRegistryTest {
     @Test
     void key_01() {
         final var method = String.class.getMethods()[0];
-        final var event = MockConsumerRecord.withKey();
+        final var event = MockConsumerRecord.withKey().toEvent();
         final var registry = new DefaultEventInvocableRegistry("");
 
         registry.register(EventInvocableKeyType.KEY,
@@ -32,7 +32,7 @@ class DefaultEventInvocableRegistryTest {
     void key_02() {
         final var method = String.class.getMethods()[0];
         final var eventTypeHeader = UUID.randomUUID().toString();
-        final var event = MockConsumerRecord.withKey();
+        final var event = MockConsumerRecord.withKey().toEvent();
 
         final var registry = new DefaultEventInvocableRegistry(eventTypeHeader);
 
@@ -52,7 +52,7 @@ class DefaultEventInvocableRegistryTest {
         final var method = String.class.getMethods()[0];
         final var eventTypeHeader = UUID.randomUUID().toString();
         final var eventType = UUID.randomUUID().toString();
-        final var event = MockConsumerRecord.withHeaders(eventTypeHeader, eventType);
+        final var event = MockConsumerRecord.withHeaders(eventTypeHeader, eventType).toEvent();
         final var registry = new DefaultEventInvocableRegistry(eventTypeHeader);
 
         registry.register(EventInvocableKeyType.EVENT_HEADER,
@@ -68,7 +68,7 @@ class DefaultEventInvocableRegistryTest {
         final var method = String.class.getMethods()[0];
         final var eventTypeHeader = UUID.randomUUID().toString();
         final var eventType = UUID.randomUUID().toString();
-        final var event = MockConsumerRecord.withKeyAndHeaders(eventType, eventTypeHeader, eventType);
+        final var event = MockConsumerRecord.withKeyAndHeaders(eventType, eventTypeHeader, eventType).toEvent();
 
         final var registry = new DefaultEventInvocableRegistry(eventTypeHeader);
 
@@ -99,17 +99,19 @@ class DefaultEventInvocableRegistryTest {
                 new EventInvocableDefinition(Set.of(eventType), Map.class, Map.of("", keyMethod)));
 
         Assertions.assertEquals(headerMethod,
-                registry.resolve(MockConsumerRecord.withKeyAndHeaders(eventType, eventTypeHeader, eventType)).method(),
+                registry.resolve(MockConsumerRecord.withKeyAndHeaders(eventType, eventTypeHeader, eventType).toEvent())
+                        .method(),
                 "should use the header instead of key");
 
-        Assertions.assertEquals(keyMethod, registry.resolve(MockConsumerRecord.withKey(eventType)).method(),
+        Assertions.assertEquals(keyMethod, registry.resolve(MockConsumerRecord.withKey(eventType).toEvent()).method(),
                 "should use the key instead of header");
 
         Assertions.assertEquals(headerMethod,
-                registry.resolve(MockConsumerRecord.withKeyAndHeaders(eventType, eventTypeHeader, eventType)).method(),
+                registry.resolve(MockConsumerRecord.withKeyAndHeaders(eventType, eventTypeHeader, eventType).toEvent())
+                        .method(),
                 "should use the header instead of key");
 
-        Assertions.assertEquals(keyMethod, registry.resolve(MockConsumerRecord.withKey(eventType)).method(),
+        Assertions.assertEquals(keyMethod, registry.resolve(MockConsumerRecord.withKey(eventType).toEvent()).method(),
                 "should use the key instead of header");
     }
 
@@ -138,7 +140,7 @@ class DefaultEventInvocableRegistryTest {
         final var registry = new DefaultEventInvocableRegistry("");
         Assertions.assertEquals(null,
                 registry.resolve(MockConsumerRecord.withKeyAndHeaders(UUID.randomUUID().toString(),
-                        UUID.randomUUID().toString(), UUID.randomUUID().toString())));
+                        UUID.randomUUID().toString(), UUID.randomUUID().toString()).toEvent()));
     }
 
     @Test

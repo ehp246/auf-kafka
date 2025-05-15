@@ -2,10 +2,10 @@ package me.ehp246.aufkafka.api.spi;
 
 import java.nio.charset.StandardCharsets;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.MDC;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
@@ -20,17 +20,17 @@ public final class EventMDCContext {
         AufKafkaFrom, AufKafkaCorrelationId, AufKafkaKey, AufKafkaEvent, AufKafkaEventMDC;
     }
 
-    public static AutoCloseable set(final ConsumerRecord<String, String> msg) {
-        if (msg == null) {
+    public static AutoCloseable set(final InboundEvent event) {
+        if (event == null) {
             return () -> {
             };
         }
-        final AutoCloseable closeable = () -> EventMDCContext.clear(msg);
+        final AutoCloseable closeable = () -> EventMDCContext.clear(event);
 
-        MDC.put(InboundContextName.AufKafkaFrom.name(), OneUtil.toString(msg.topic()));
-        MDC.put(InboundContextName.AufKafkaKey.name(), msg.key());
+        MDC.put(InboundContextName.AufKafkaFrom.name(), OneUtil.toString(event.topic()));
+        MDC.put(InboundContextName.AufKafkaKey.name(), event.key());
 
-        final var propertyNames = OneUtil.toList(msg.headers());
+        final var propertyNames = OneUtil.toList(event.headers());
         if (propertyNames == null) {
             return closeable;
         }
@@ -42,7 +42,7 @@ public final class EventMDCContext {
         return closeable;
     }
 
-    public static void clear(final ConsumerRecord<String, String> msg) {
+    public static void clear(final InboundEvent msg) {
         if (msg == null) {
             return;
         }

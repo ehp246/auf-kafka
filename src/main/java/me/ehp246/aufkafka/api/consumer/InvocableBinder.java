@@ -1,7 +1,5 @@
 package me.ehp246.aufkafka.api.consumer;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-
 /**
  * 
  * @author Lei Yang
@@ -9,5 +7,5 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
  */
 @FunctionalInterface
 public interface InvocableBinder {
-    BoundInvocable bind(Invocable invocable, ConsumerRecord<String, String> received);
+    BoundInvocable bind(Invocable invocable, InboundEvent event);
 }

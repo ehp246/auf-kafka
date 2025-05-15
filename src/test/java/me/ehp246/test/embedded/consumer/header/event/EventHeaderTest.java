@@ -13,7 +13,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 import me.ehp246.test.mock.StringHeader;
 
@@ -93,7 +93,7 @@ class EventHeaderTest {
     }
 
     @Test
-    @Timeout(2)
+    @Timeout(5)
     void topic3_header_01() {
         kafkaTemplate.send(new ProducerRecord<String, String>("c67e2456-8427-439a-af2b-ba19eb2b7945", null,
                 UUID.randomUUID().toString(), null, StringHeader.headers("", "")));

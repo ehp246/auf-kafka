@@ -8,6 +8,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.record.TimestampType;
 
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
+
 /**
  * @author Lei Yang
  *
@@ -32,6 +34,10 @@ public class MockConsumerRecord extends ConsumerRecord<String, String> {
 
     public MockConsumerRecord() {
         this(UUID.randomUUID().toString(), 0, 0, null, null);
+    }
+
+    public InboundEvent toEvent() {
+        return new InboundEvent(this);
     }
 
     public static MockConsumerRecord withHeaders(final Headers headers) {

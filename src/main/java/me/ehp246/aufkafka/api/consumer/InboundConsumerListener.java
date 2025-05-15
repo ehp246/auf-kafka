@@ -1,7 +1,5 @@
 package me.ehp246.aufkafka.api.consumer;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-
 /**
  * Defines inbound message life-cycle events supported by
  * {@linkplain InboundEndpoint}.
@@ -12,6 +10,6 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 public sealed interface InboundConsumerListener {
     @FunctionalInterface
     non-sealed interface DispatchingListener extends InboundConsumerListener {
-        void onDispatching(ConsumerRecord<String, String> message);
+        void onDispatching(InboundEvent event);
     }
 }

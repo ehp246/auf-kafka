@@ -3,15 +3,16 @@ package me.ehp246.aufkafka.core.consumer;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.StreamSupport;
 
 import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InboundEndpointConsumer;
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
@@ -55,7 +56,7 @@ final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
                 LOGGER.atWarn().setMessage("Polled count: {}").addArgument(polled::count).log();
             }
 
-            for (final var event : polled) {
+            StreamSupport.stream(polled.spliterator(), false).map(InboundEvent::new).forEach(event -> {
                 try (final var closeble = EventMDCContext.set(event);) {
                     this.onDispatching.stream().forEach(l -> l.onDispatching(event));
 
@@ -78,26 +79,10 @@ final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
                             .addArgument(e::getMessage).log();
 
                     if (this.onException != null) {
-                        this.onException.onException(new ConsumerExceptionListener.Context() {
-
-                            @Override
-                            public Consumer<String, String> consumer() {
-                                return consumer;
-                            }
-
-                            @Override
-                            public ConsumerRecord<String, String> message() {
-                                return event;
-                            }
-
-                            @Override
-                            public Exception thrown() {
-                                return e;
-                            }
-                        });
+                        this.onException.onException(new ConsumerExceptionListener.Context(consumer, event, e));
                     }
                 }
-            }
+            });
 
             if (polled.count() > 0) {
                 consumer.commitSync();

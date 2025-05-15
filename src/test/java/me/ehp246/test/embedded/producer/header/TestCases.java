@@ -1,8 +1,8 @@
 package me.ehp246.test.embedded.producer.header;
 
-import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 
 /**
  * @author Lei Yang

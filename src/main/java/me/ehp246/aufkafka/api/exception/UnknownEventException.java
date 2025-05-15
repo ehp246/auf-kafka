@@ -1,8 +1,7 @@
 package me.ehp246.aufkafka.api.exception;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 
 /**
  * 
@@ -13,14 +12,13 @@ import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 public final class UnknownEventException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    private final ConsumerRecord<?, ?> msg;
+    private final InboundEvent event;
 
-    public UnknownEventException(final ConsumerRecord<?, ?> msg) {
-        super("Unknown key: " + msg.key());
-        this.msg = msg;
+    public UnknownEventException(final InboundEvent event) {
+        this.event = event;
     }
 
-    public ConsumerRecord<?, ?> msg() {
-        return this.msg;
+    public InboundEvent event() {
+        return this.event;
     }
 }

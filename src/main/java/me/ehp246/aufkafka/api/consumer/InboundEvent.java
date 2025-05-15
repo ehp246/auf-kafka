@@ -1,4 +1,4 @@
-package me.ehp246.aufkafka.core.consumer;
+package me.ehp246.aufkafka.api.consumer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -12,6 +12,7 @@ import java.util.stream.StreamSupport;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
 
 /**
  * A convenient wrapper of {@linkplain ConsumerRecord}.
@@ -74,11 +75,23 @@ public final class InboundEvent {
         return this.headerMap.get(key).getFirst();
     }
 
+    public List<String> headerValues(final String key) {
+        return this.headerMap.get(key);
+    }
+
     public Long timestamp() {
         return this.consumerRecord.timestamp();
     }
 
     public int partition() {
         return this.consumerRecord.partition();
+    }
+
+    public long offset() {
+        return this.consumerRecord.offset();
+    }
+
+    public Headers headers() {
+        return this.consumerRecord.headers();
     }
 }

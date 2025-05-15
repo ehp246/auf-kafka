@@ -30,6 +30,7 @@ import me.ehp246.aufkafka.api.annotation.OfMDC;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.InvocableBinder;
 import me.ehp246.aufkafka.api.exception.UnboundParameterException;
@@ -46,8 +47,8 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * @since 1.0
  */
 public final class DefaultInvocableBinder implements InvocableBinder {
-    private static final Map<Class<? extends Annotation>, Function<ConsumerRecord<String, String>, Object>> HEADER_VALUE_SUPPLIERS = Map
-            .of(OfKey.class, ConsumerRecord::key, OfPartition.class, ConsumerRecord::partition);
+    private static final Map<Class<? extends Annotation>, Function<InboundEvent, Object>> HEADER_VALUE_SUPPLIERS = Map
+            .of(OfKey.class, InboundEvent::key, OfPartition.class, InboundEvent::partition);
 
     private static final Set<Class<? extends Annotation>> PROPERTY_ANNOTATIONS = Set
             .copyOf(HEADER_VALUE_SUPPLIERS.keySet());
@@ -61,7 +62,7 @@ public final class DefaultInvocableBinder implements InvocableBinder {
     }
 
     @Override
-    public BoundInvocable bind(final Invocable target, final ConsumerRecord<String, String> msg) {
+    public BoundInvocable bind(final Invocable target, final InboundEvent event) {
         final var method = target.method();
 
         final var argBinders = this.parsed.computeIfAbsent(method, this::parse);
@@ -74,7 +75,7 @@ public final class DefaultInvocableBinder implements InvocableBinder {
          */
         final var arguments = new Object[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
-            arguments[i] = paramBinders.get(i).apply(msg);
+            arguments[i] = paramBinders.get(i).apply(event);
         }
 
         /*
@@ -96,8 +97,8 @@ public final class DefaultInvocableBinder implements InvocableBinder {
             }
 
             @Override
-            public ConsumerRecord<String, String> received() {
-                return msg;
+            public InboundEvent event() {
+                return event;
             }
 
             @Override
@@ -116,7 +117,7 @@ public final class DefaultInvocableBinder implements InvocableBinder {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private ConsumerRecordBinders parse(final Method method) {
         final var parameters = method.getParameters();
-        final Map<Integer, Function<ConsumerRecord<String, String>, Object>> paramBinders = new HashMap<>();
+        final Map<Integer, Function<InboundEvent, Object>> paramBinders = new HashMap<>();
         final var valueParamRef = new ReflectedParameter[] { null };
 
         for (int i = 0; i < parameters.length; i++) {
@@ -126,11 +127,14 @@ public final class DefaultInvocableBinder implements InvocableBinder {
             /*
              * Bindings in descending priorities.
              */
-            if (type.isAssignableFrom(ConsumerRecord.class)) {
-                paramBinders.put(i, msg -> msg);
+            if (type.isAssignableFrom(InboundEvent.class)) {
+                paramBinders.put(i, event -> event);
+                continue;
+            } else if (type.isAssignableFrom(ConsumerRecord.class)) {
+                paramBinders.put(i, InboundEvent::consumerRecord);
                 continue;
             } else if (type.isAssignableFrom(FromJson.class)) {
-                paramBinders.put(i, msg -> fromJson);
+                paramBinders.put(i, event -> fromJson);
                 continue;
             }
 
@@ -142,7 +146,7 @@ public final class DefaultInvocableBinder implements InvocableBinder {
                     .filter(annotation -> PROPERTY_ANNOTATIONS.contains(annotation.annotationType())).findAny();
             if (propertyAnnotation.isPresent()) {
                 final var fn = HEADER_VALUE_SUPPLIERS.get(propertyAnnotation.get().annotationType());
-                paramBinders.put(i, msg -> fn.apply(msg));
+                paramBinders.put(i, event -> fn.apply(event));
                 continue;
             }
 
@@ -155,16 +159,16 @@ public final class DefaultInvocableBinder implements InvocableBinder {
                         () -> OneUtil.firstUpper(parameter.getName()));
 
                 if (type.isAssignableFrom(Headers.class)) {
-                    paramBinders.put(i, ConsumerRecord::headers);
+                    paramBinders.put(i, InboundEvent::headers);
                     continue;
                 } else if (type.isAssignableFrom(Header.class)) {
-                    paramBinders.put(i, msg -> msg.headers().lastHeader(key));
+                    paramBinders.put(i, event -> event.headers().lastHeader(key));
                     continue;
                 } else if (type.isAssignableFrom(Iterable.class)) {
-                    paramBinders.put(i, msg -> msg.headers().headers(key));
+                    paramBinders.put(i, event -> event.headers().headers(key));
                     continue;
                 } else if (type.isAssignableFrom(List.class)) {
-                    paramBinders.put(i, msg -> OneUtil.toList(msg.headers().headers(key)));
+                    paramBinders.put(i, event -> event.headerValues(key));
                     continue;
                 } else if (type.isAssignableFrom(Map.class)) {
                     paramBinders.put(i, msg -> {
@@ -310,7 +314,7 @@ public final class DefaultInvocableBinder implements InvocableBinder {
         return new ConsumerRecordBinders(paramBinders, mdcMapBinders);
     }
 
-    record ConsumerRecordBinders(Map<Integer, Function<ConsumerRecord<String, String>, Object>> recordBinders,
+    record ConsumerRecordBinders(Map<Integer, Function<InboundEvent, Object>> recordBinders,
             Map<String, Function<Object[], String>> mdcMapBinders) {
     };
 }
