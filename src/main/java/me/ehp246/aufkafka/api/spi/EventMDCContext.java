@@ -17,7 +17,7 @@ public final class EventMDCContext {
     }
 
     private enum InboundContextName {
-        AufKafkaFrom, AufKafkaCorrelationId, AufKafkaKey, AufKafkaEventMDC;
+        AufKafkaFrom, AufKafkaCorrelationId, AufKafkaKey, AufKafkaEvent, AufKafkaEventMDC;
     }
 
     public static AutoCloseable set(final ConsumerRecord<String, String> msg) {
