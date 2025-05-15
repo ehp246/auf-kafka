@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
-import me.ehp246.aufkafka.api.consumer.EventInvocableLookupType;
+import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
 import me.ehp246.aufkafka.api.producer.PartitionFn;
 import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
@@ -55,7 +55,7 @@ public @interface ByKafka {
     String name() default "";
 
     /**
-     * Specifies the key for {@linkplain EventInvocableLookupType#EVENT_HEADER}.
+     * Specifies the key for {@linkplain EventInvocableKeyType#EVENT_HEADER}.
      * <p>
      * The value of the header is the method name with the first letter changed to
      * upper case.

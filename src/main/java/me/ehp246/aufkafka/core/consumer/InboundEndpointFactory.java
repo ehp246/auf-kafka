@@ -91,7 +91,7 @@ public final class InboundEndpointFactory {
             }
 
             @Override
-            public EventInvocableRegistry registry() {
+            public EventInvocableRegistry invocableRegistry() {
                 return registery;
             }
 

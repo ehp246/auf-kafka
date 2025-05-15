@@ -10,7 +10,7 @@ import me.ehp246.aufkafka.api.AufKafkaConstant;
  * @author Lei Yang
  * @see AufKafkaConstant#EVENT_HEADER
  */
-public enum EventInvocableLookupType {
+public enum EventInvocableKeyType {
     /**
      * Indicates to use the event header value for the name.
      */

@@ -15,10 +15,10 @@ import me.ehp246.aufkafka.api.annotation.ForKey;
  * @since 1.0
  * @see ForKey
  * @see ForEvent
- * @see EventInvocableLookupType
+ * @see EventInvocableKeyType
  */
 @FunctionalInterface
 public interface InvocableScanner {
-    Map<EventInvocableLookupType, Set<EventInvocableDefinition>> apply(final Set<Class<?>> registering,
+    Map<EventInvocableKeyType, Set<EventInvocableDefinition>> apply(final Set<Class<?>> registering,
             final Set<String> scanPackages);
 }

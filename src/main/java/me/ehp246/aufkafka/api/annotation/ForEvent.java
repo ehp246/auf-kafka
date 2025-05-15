@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import me.ehp246.aufkafka.api.consumer.EventInvocableLookupType;
+import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 
 /**
@@ -23,7 +23,7 @@ import me.ehp246.aufkafka.api.consumer.Invocable;
  * @since 1.0
  * @see Applying
  * @see EnableForKafka.Inbound#eventHeader()
- * @see EventInvocableLookupType#EVENT_HEADER
+ * @see EventInvocableKeyType#EVENT_HEADER
  */
 @Retention(RUNTIME)
 @Target({ ElementType.TYPE })

@@ -19,7 +19,7 @@ import me.ehp246.aufkafka.api.annotation.ForKey;
  * @see ForKey
  * @see ForEvent
  */
-public record EventInvocableDefinition(Set<String> names, Class<?> type, Map<String, Method> methods,
+public record EventInvocableDefinition(Set<String> eventKeys, Class<?> type, Map<String, Method> methods,
         InstanceScope scope, InvocationModel model) {
 
     public EventInvocableDefinition(final Set<String> eventKeys, final Class<?> type,

@@ -9,7 +9,7 @@ import java.util.Map;
 public interface InboundEndpoint {
     From from();
 
-    EventInvocableRegistry registry();
+    EventInvocableRegistry invocableRegistry();
 
     default String name() {
         return null;

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
-import me.ehp246.aufkafka.api.consumer.EventInvocableLookupType;
+import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.test.mock.MockConsumerRecord;
 
 class DefaultEventInvocableRegistryTest {
@@ -19,7 +19,7 @@ class DefaultEventInvocableRegistryTest {
         final var event = MockConsumerRecord.withKey();
         final var registry = new DefaultEventInvocableRegistry("");
 
-        registry.register(EventInvocableLookupType.KEY,
+        registry.register(EventInvocableKeyType.KEY,
                 new EventInvocableDefinition(Set.of(event.key()), String.class, Map.of("", method)));
 
         final var invocable = registry.resolve(event);
@@ -36,10 +36,10 @@ class DefaultEventInvocableRegistryTest {
 
         final var registry = new DefaultEventInvocableRegistry(eventTypeHeader);
 
-        registry.register(EventInvocableLookupType.EVENT_HEADER,
+        registry.register(EventInvocableKeyType.EVENT_HEADER,
                 new EventInvocableDefinition(Set.of(event.key()), Map.class, Map.of("", Map.class.getMethods()[0])));
 
-        registry.register(EventInvocableLookupType.KEY,
+        registry.register(EventInvocableKeyType.KEY,
                 new EventInvocableDefinition(Set.of(event.key()), String.class, Map.of("", method)));
 
         final var invocable = registry.resolve(event);
@@ -55,7 +55,7 @@ class DefaultEventInvocableRegistryTest {
         final var event = MockConsumerRecord.withHeaders(eventTypeHeader, eventType);
         final var registry = new DefaultEventInvocableRegistry(eventTypeHeader);
 
-        registry.register(EventInvocableLookupType.EVENT_HEADER,
+        registry.register(EventInvocableKeyType.EVENT_HEADER,
                 new EventInvocableDefinition(Set.of(eventType), String.class, Map.of("", method)));
 
         final var invocable = registry.resolve(event);
@@ -72,10 +72,10 @@ class DefaultEventInvocableRegistryTest {
 
         final var registry = new DefaultEventInvocableRegistry(eventTypeHeader);
 
-        registry.register(EventInvocableLookupType.EVENT_HEADER,
+        registry.register(EventInvocableKeyType.EVENT_HEADER,
                 new EventInvocableDefinition(Set.of(eventType), String.class, Map.of("", method)));
 
-        registry.register(EventInvocableLookupType.KEY,
+        registry.register(EventInvocableKeyType.KEY,
                 new EventInvocableDefinition(Set.of(eventType), Map.class, Map.of("", Map.class.getMethods()[0])));
 
         final var invocable = registry.resolve(event);
@@ -91,11 +91,11 @@ class DefaultEventInvocableRegistryTest {
 
         final var registry = new DefaultEventInvocableRegistry(eventTypeHeader);
 
-        registry.register(EventInvocableLookupType.EVENT_HEADER,
+        registry.register(EventInvocableKeyType.EVENT_HEADER,
                 new EventInvocableDefinition(Set.of(eventType), String.class, Map.of("", headerMethod)));
 
         final var keyMethod = Map.class.getMethods()[0];
-        registry.register(EventInvocableLookupType.KEY,
+        registry.register(EventInvocableKeyType.KEY,
                 new EventInvocableDefinition(Set.of(eventType), Map.class, Map.of("", keyMethod)));
 
         Assertions.assertEquals(headerMethod,
@@ -118,16 +118,16 @@ class DefaultEventInvocableRegistryTest {
         final var registry = new DefaultEventInvocableRegistry("");
         final var keyValue = UUID.randomUUID().toString();
 
-        registry.register(EventInvocableLookupType.KEY,
+        registry.register(EventInvocableKeyType.KEY,
                 new EventInvocableDefinition(Set.of(keyValue), Map.class, Map.of("", Map.class.getMethods()[0])));
 
         Assertions.assertThrows(IllegalArgumentException.class,
-                () -> registry.register(EventInvocableLookupType.KEY, new EventInvocableDefinition(Set.of(keyValue),
+                () -> registry.register(EventInvocableKeyType.KEY, new EventInvocableDefinition(Set.of(keyValue),
                         String.class, Map.of("", String.class.getMethods()[0]))));
 
         Assertions
                 .assertDoesNotThrow(
-                        () -> registry.register(EventInvocableLookupType.EVENT_HEADER,
+                        () -> registry.register(EventInvocableKeyType.EVENT_HEADER,
                                 new EventInvocableDefinition(Set.of(keyValue), Map.class,
                                         Map.of("", Map.class.getMethods()[0]))),
                         "should be okay for different key type");
@@ -145,6 +145,6 @@ class DefaultEventInvocableRegistryTest {
     void registered_01() {
         final var registry = new DefaultEventInvocableRegistry("");
 
-        Assertions.assertEquals(true, registry.registered(EventInvocableLookupType.KEY).isEmpty());
+        Assertions.assertEquals(true, registry.registered(EventInvocableKeyType.KEY).isEmpty());
     }
 }

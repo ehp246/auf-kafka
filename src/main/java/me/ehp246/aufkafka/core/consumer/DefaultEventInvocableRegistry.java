@@ -10,7 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import me.ehp246.aufkafka.api.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.EventInvocableDefinition;
-import me.ehp246.aufkafka.api.consumer.EventInvocableLookupType;
+import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InvocableType;
 import me.ehp246.aufkafka.core.util.OneUtil;
@@ -21,7 +21,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * This implementation matches a {@linkplain ConsumerRecord} to a
  * {@linkplain InvocalType} in the following order:
  * <ul>
- * <li>{@linkplain EventInvocableLookupType#EVENT_HEADER}.</li>
+ * <li>{@linkplain EventInvocableKeyType#EVENT_HEADER}.</li>
  * <li>{@linkplain ConsumerRecord#key()}.</li>
  * </ul>
  * <p>
@@ -32,8 +32,8 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  */
 final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
     private final String eventHeader;
-    private final Map<EventInvocableLookupType, Map<String, EventInvocableDefinition>> cached = new ConcurrentHashMap<>();
-    private final Map<EventInvocableLookupType, Map<String, EventInvocableDefinition>> registeredInvokables = new ConcurrentHashMap<>();
+    private final Map<EventInvocableKeyType, Map<String, EventInvocableDefinition>> cached = new ConcurrentHashMap<>();
+    private final Map<EventInvocableKeyType, Map<String, EventInvocableDefinition>> registeredInvokables = new ConcurrentHashMap<>();
     /**
      * A shortcut lookup map from a matched type to the invoke method.
      */
@@ -41,17 +41,17 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
 
     DefaultEventInvocableRegistry(final String eventHeader) {
         this.eventHeader = Objects.requireNonNull(eventHeader);
-        for (final var type : EventInvocableLookupType.values()) {
+        for (final var type : EventInvocableKeyType.values()) {
             this.registeredInvokables.put(type, new ConcurrentHashMap<>());
             this.cached.put(type, new ConcurrentHashMap<>());
         }
     }
 
     @Override
-    public void register(final EventInvocableLookupType keyType, final EventInvocableDefinition invokingDefinition) {
+    public void register(final EventInvocableKeyType keyType, final EventInvocableDefinition invokingDefinition) {
         final var invokables = this.registeredInvokables.get(keyType);
 
-        invokingDefinition.names().forEach(type -> {
+        invokingDefinition.eventKeys().forEach(type -> {
             final var registered = invokables.putIfAbsent(type, invokingDefinition);
             if (registered != null) {
                 throw new IllegalArgumentException("Duplicate type " + type + " from " + registered.type());
@@ -65,7 +65,7 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
     }
 
     @Override
-    public Map<String, EventInvocableDefinition> registered(final EventInvocableLookupType keyType) {
+    public Map<String, EventInvocableDefinition> registered(final EventInvocableKeyType keyType) {
         return Collections.unmodifiableMap(this.registeredInvokables.get(keyType));
     }
 
@@ -88,7 +88,7 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
         final var eventType = OneUtil.getLastHeaderAsString(event, this.eventHeader);
 
         final var lookupkey = eventType != null ? eventType : OneUtil.toString(event.key(), "");
-        final var keyType = eventType != null ? EventInvocableLookupType.EVENT_HEADER : EventInvocableLookupType.KEY;
+        final var keyType = eventType != null ? EventInvocableKeyType.EVENT_HEADER : EventInvocableKeyType.KEY;
 
         final var definition = this.cached.get(keyType).computeIfAbsent(lookupkey,
                 key -> this.registeredInvokables.get(keyType).entrySet().stream()

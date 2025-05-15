@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
-import me.ehp246.aufkafka.api.consumer.EventInvocableLookupType;
+import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 
 /**
@@ -22,7 +22,7 @@ import me.ehp246.aufkafka.api.consumer.Invocable;
  * @author Lei Yang
  * @since 1.0
  * @see Applying
- * @see EventInvocableLookupType
+ * @see EventInvocableKeyType
  */
 @Documented
 @Retention(RUNTIME)
