@@ -13,7 +13,7 @@ import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InboundEndpointConsumer;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
-import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
+import me.ehp246.aufkafka.api.consumer.EventInvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
 import me.ehp246.aufkafka.api.exception.UnknownEventException;
@@ -27,7 +27,7 @@ final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
     private final static Logger LOGGER = LoggerFactory.getLogger(InboundConsumerRunner.class);
 
     private final Consumer<String, String> consumer;
-    private final InvocableDispatcher dispatcher;
+    private final EventInvocableDispatcher dispatcher;
     private final InvocableFactory invocableFactory;
     private final List<InboundConsumerListener.DispatchingListener> onDispatching;
     private final UnmatchedConsumer onUnmatched;
@@ -35,7 +35,7 @@ final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
     private volatile boolean closed = false;
     private final CompletableFuture<Boolean> closedFuture = new CompletableFuture<Boolean>();
 
-    InboundConsumerRunner(final Consumer<String, String> consumer, final InvocableDispatcher dispatcher,
+    InboundConsumerRunner(final Consumer<String, String> consumer, final EventInvocableDispatcher dispatcher,
             final InvocableFactory invocableFactory,
             final List<InboundConsumerListener.DispatchingListener> onDispatching, final UnmatchedConsumer onUnmatched,
             final ConsumerExceptionListener onException) {

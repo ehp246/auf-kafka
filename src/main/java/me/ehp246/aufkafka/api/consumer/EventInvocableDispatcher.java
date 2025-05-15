@@ -5,6 +5,6 @@ package me.ehp246.aufkafka.api.consumer;
  * @since 1.0
  */
 @FunctionalInterface
-public interface InvocableDispatcher {
+public interface EventInvocableDispatcher {
     void dispatch(Invocable invocable, InboundEvent event);
 }

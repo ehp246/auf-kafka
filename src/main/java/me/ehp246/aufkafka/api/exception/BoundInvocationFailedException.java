@@ -1,11 +1,11 @@
 package me.ehp246.aufkafka.api.exception;
 
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
-import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
+import me.ehp246.aufkafka.api.consumer.EventInvocableDispatcher;
 
 /**
  * Indicates the invocation on {@linkplain BoundInvocable} has failed wrapping
- * the cause. Thrown by {@linkplain InvocableDispatcher}.
+ * the cause. Thrown by {@linkplain EventInvocableDispatcher}.
  *
  * @author Lei Yang
  * @since 1.0

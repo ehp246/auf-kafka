@@ -17,7 +17,7 @@ import me.ehp246.aufkafka.api.consumer.BoundInvocable;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.Invocable;
 import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
-import me.ehp246.aufkafka.api.consumer.InvocableDispatcher;
+import me.ehp246.aufkafka.api.consumer.EventInvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.InvocationModel;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
@@ -29,8 +29,8 @@ import me.ehp246.aufkafka.api.spi.EventMDCContext;
  * @author Lei Yang
  * @since 1.0
  */
-final class DefaultInvocableDispatcher implements InvocableDispatcher {
-    private final static Logger LOGGER = LoggerFactory.getLogger(InvocableDispatcher.class);
+final class DefaultEventInvocableDispatcher implements EventInvocableDispatcher {
+    private final static Logger LOGGER = LoggerFactory.getLogger(EventInvocableDispatcher.class);
 
     private final Executor executor;
     private final EventInvocableBinder binder;
@@ -38,7 +38,7 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
     private final List<InvocationListener.CompletedListener> completed = new ArrayList<>();
     private final List<InvocationListener.FailedListener> failed = new ArrayList<>();
 
-    public DefaultInvocableDispatcher(final EventInvocableBinder binder, @Nullable final List<InvocationListener> listeners,
+    public DefaultEventInvocableDispatcher(final EventInvocableBinder binder, @Nullable final List<InvocationListener> listeners,
             @Nullable final Executor executor) {
         super();
         this.binder = binder;
@@ -73,12 +73,12 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
                 Optional.ofNullable(bound.mdcMap()).map(Map::entrySet).filter(set -> !set.isEmpty())
                         .ifPresent(set -> set.stream().forEach(entry -> MDC.put(entry.getKey(), entry.getValue())));
 
-                DefaultInvocableDispatcher.this.invoking.forEach(listener -> listener.onInvoking(bound));
+                DefaultEventInvocableDispatcher.this.invoking.forEach(listener -> listener.onInvoking(bound));
 
                 final var outcome = bound.invoke();
 
                 if (outcome instanceof final Failed failed) {
-                    for (final var listener : DefaultInvocableDispatcher.this.failed) {
+                    for (final var listener : DefaultEventInvocableDispatcher.this.failed) {
                         try {
                             listener.onFailed(failed);
                         } catch (final Exception e) {
@@ -94,7 +94,7 @@ final class DefaultInvocableDispatcher implements InvocableDispatcher {
                 }
 
                 final var completed = (Completed) outcome;
-                DefaultInvocableDispatcher.this.completed.forEach(listener -> listener.onCompleted(completed));
+                DefaultEventInvocableDispatcher.this.completed.forEach(listener -> listener.onCompleted(completed));
             } finally {
                 try (invocable) {
                 } catch (final Exception e) {
