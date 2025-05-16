@@ -119,9 +119,9 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
 
         final List<OutboundRecord.Header> headerStatic = new ArrayList<>();
 
-        if (!byKafka.eventHeader().isEmpty()) {
+        if (!byKafka.methodAsHeader().isEmpty()) {
             headerStatic
-                    .add(new OutboundHeader(byKafka.eventHeader(), OneUtil.firstUpper(reflected.method().getName())));
+                    .add(new OutboundHeader(byKafka.methodAsHeader(), OneUtil.firstUpper(reflected.method().getName())));
         }
 
         for (int i = 0; i < headers.length; i += 2) {

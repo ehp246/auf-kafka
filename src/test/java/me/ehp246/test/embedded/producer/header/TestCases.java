@@ -9,12 +9,12 @@ import me.ehp246.aufkafka.api.common.AufKafkaConstant;
  *
  */
 interface TestCases {
-    @ByKafka(value = "embedded", eventHeader = "")
+    @ByKafka(value = "embedded", methodAsHeader = "")
     interface Case01 {
         void header(@OfHeader Object header, @OfHeader("header02") Object value, @OfHeader("header02") Object value2);
     }
 
-    @ByKafka(value = "embedded", headers = { "header", "${static.1}", "header2", "static.2" }, eventHeader = "")
+    @ByKafka(value = "embedded", headers = { "header", "${static.1}", "header2", "static.2" }, methodAsHeader = "")
     interface Case02 {
         void header();
 
@@ -28,7 +28,7 @@ interface TestCases {
         void paramHeader(@OfHeader(AufKafkaConstant.EVENT_HEADER) Object header);
     }
 
-    @ByKafka(value = "embedded", eventHeader = "my.own.event")
+    @ByKafka(value = "embedded", methodAsHeader = "my.own.event")
     interface Case04 {
         void methodName();
     }
