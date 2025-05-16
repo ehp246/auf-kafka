@@ -3,6 +3,7 @@ package me.ehp246.test;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -62,6 +63,10 @@ public final class TestUtil {
         Invocation invocation();
 
         InvocationCaptor<T> setReturn(Object ret);
+    }
+
+    public static <T> List<T> toList(final Iterable<T> iterable) {
+        return StreamSupport.stream(iterable.spliterator(), false).toList();
     }
 
     public record Invocation(Method method, Object target, Object[] args) {

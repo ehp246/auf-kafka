@@ -17,7 +17,7 @@ import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
 import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
 import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
-import me.ehp246.aufkafka.api.consumer.Invocable;
+import me.ehp246.aufkafka.api.consumer.EventInvocable;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
@@ -144,7 +144,7 @@ public @interface EnableForKafka {
          * The listener bean is designed to support the invocation of
          * {@linkplain ForKey} objects. It applies only after a matching
          * {@linkplain ForKey} class has been found. It will not be invoked if there is
-         * no matching {@linkplain Invocable}, e.g.,
+         * no matching {@linkplain EventInvocable}, e.g.,
          * {@linkplain EnableForKafka.Inbound#unmatchedConsumer()} invocation.
          * <p>
          * Supports Spring property placeholder and SpEL expression.
@@ -153,7 +153,7 @@ public @interface EnableForKafka {
 
         /**
          * Specifies the bean name of {@linkplain UnmatchedConsumer} type to accept any
-         * message that no matching {@linkplain Invocable} can be found for its
+         * message that no matching {@linkplain EventInvocable} can be found for its
          * {@linkplain ConsumerRecord#key()}.
          * <p>
          * The default value specifies a no-operation bean that logs the un-matched

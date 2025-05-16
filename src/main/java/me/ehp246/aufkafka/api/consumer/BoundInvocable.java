@@ -9,14 +9,14 @@ import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 
 /**
- * An {@linkplain Invocable} that has been bound to a
+ * An {@linkplain EventInvocable} that has been bound to a
  * {@linkplain ConsumerRecord}, ready to be invoked.
  *
  * @author Lei Yang
  * @since 1.0
  */
 public interface BoundInvocable {
-    Invocable invocable();
+    EventInvocable eventInvocable();
 
     InboundEvent event();
 
@@ -30,7 +30,7 @@ public interface BoundInvocable {
 
     default Invoked invoke() {
         try {
-            final var invocable = this.invocable();
+            final var invocable = this.eventInvocable();
             final var returned = invocable.method().invoke(invocable.instance(), this.arguments());
             return new Completed() {
 

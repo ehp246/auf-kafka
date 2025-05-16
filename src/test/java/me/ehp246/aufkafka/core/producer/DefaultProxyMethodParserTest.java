@@ -10,7 +10,6 @@ import org.springframework.mock.env.MockEnvironment;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
-import me.ehp246.aufkafka.core.util.OneUtil;
 import me.ehp246.test.TestUtil;
 
 /**
@@ -347,7 +346,7 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m01();
 
-        final var headers = OneUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
+        final var headers = TestUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message().headers());
 
         Assertions.assertEquals(3, headers.size());
@@ -367,7 +366,7 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(UUID.randomUUID());
 
-        final var headers = OneUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
+        final var headers = TestUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message().headers());
 
         Assertions.assertEquals(4, headers.size());
@@ -391,7 +390,7 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(null);
 
-        final var headers = OneUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
+        final var headers = TestUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message().headers());
 
         Assertions.assertEquals(4, headers.size());
@@ -405,7 +404,7 @@ class DefaultProxyMethodParserTest {
         final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.HeaderCase02.class);
         captor.proxy().m01();
 
-        final var headers = OneUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
+        final var headers = TestUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message().headers());
 
         Assertions.assertEquals(0, headers.size());
@@ -416,7 +415,7 @@ class DefaultProxyMethodParserTest {
         final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.HeaderCase02.class);
         captor.proxy().m03(UUID.randomUUID(), UUID.randomUUID());
 
-        final var headers = OneUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
+        final var headers = TestUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message().headers());
 
         Assertions.assertEquals(2, headers.size());
@@ -433,7 +432,7 @@ class DefaultProxyMethodParserTest {
         final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.HeaderCase02.class);
         captor.proxy().m03(null, UUID.randomUUID());
 
-        final var headers = OneUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
+        final var headers = TestUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args()).message().headers());
 
         Assertions.assertEquals(2, headers.size());
@@ -451,7 +450,7 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m01();
 
-        final var headers = OneUtil.toList(new DefaultProxyMethodParser(new MockEnvironment().withProperty("value1",
+        final var headers = TestUtil.toList(new DefaultProxyMethodParser(new MockEnvironment().withProperty("value1",
                 "bc5beb1b-569c-4055-bedf-3b06f9af2e5d")::resolvePlaceholders).parse(captor.invocation().method())
                 .invocationBinder().apply(captor.invocation().target(), captor.invocation().args()).message()
                 .headers());

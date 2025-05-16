@@ -8,17 +8,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.common.header.Headers;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 
@@ -147,33 +141,5 @@ public final class OneUtil {
         c[0] = Character.toLowerCase(c[0]);
 
         return new String(c);
-    }
-
-    public static <T> List<T> toList(final Iterable<T> iterable) {
-        return StreamSupport
-                .stream(Spliterators.spliteratorUnknownSize(iterable.iterator(), Spliterator.ORDERED), false)
-                .collect(Collectors.toList());
-    }
-
-    public static String headerStringValue(final Headers headers, final String key) {
-        if (headers == null) {
-            return null;
-        }
-        final var header = headers.lastHeader(key);
-        if (header == null) {
-            return null;
-        }
-        final byte[] value = header.value();
-        return value == null ? null : new String(value, StandardCharsets.UTF_8);
-    }
-
-    public static <T> T headerValue(final Headers headers, final String key, final Function<String, T> parser) {
-        final var value = OneUtil.headerStringValue(headers, key);
-        return value == null ? null : parser.apply(value);
-    }
-
-    public static String getLastHeaderAsString(final ConsumerRecord<?, ?> msg, final String key) {
-        final var header = msg.headers().lastHeader(key);
-        return header != null ? new String(header.value(), StandardCharsets.UTF_8) : null;
     }
 }

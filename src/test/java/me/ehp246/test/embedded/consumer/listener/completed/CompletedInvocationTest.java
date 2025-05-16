@@ -55,7 +55,7 @@ class CompletedInvocationTest {
 
         final var bound = listener.takeBound();
 
-        Assertions.assertEquals(true, bound.invocable().instance() instanceof OnMsg);
+        Assertions.assertEquals(true, bound.eventInvocable().instance() instanceof OnMsg);
         Assertions.assertEquals(id, bound.arguments()[1]);
         Assertions.assertEquals("Send", bound.arguments()[0]);
     }

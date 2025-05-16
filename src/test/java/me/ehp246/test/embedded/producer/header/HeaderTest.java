@@ -13,7 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
-import me.ehp246.aufkafka.core.util.OneUtil;
+import me.ehp246.test.TestUtil;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
 /**
@@ -48,7 +48,7 @@ class HeaderTest {
     void header_01() throws InterruptedException, ExecutionException {
         this.case01.header(null, null, null);
 
-        final var headers = OneUtil.toList(listener.take().headers());
+        final var headers = TestUtil.toList(listener.take().headers());
 
         Assertions.assertEquals(3, headers.size());
 
@@ -69,7 +69,7 @@ class HeaderTest {
 
         this.case01.header(header1, header2, null);
 
-        final var headers = OneUtil.toList(listener.take().headers());
+        final var headers = TestUtil.toList(listener.take().headers());
 
         Assertions.assertEquals(3, headers.size());
 
@@ -89,7 +89,7 @@ class HeaderTest {
     void header_03() throws InterruptedException, ExecutionException {
         this.case02.header();
 
-        final var headers = OneUtil.toList(listener.take().headers());
+        final var headers = TestUtil.toList(listener.take().headers());
 
         Assertions.assertEquals(2, headers.size());
 
@@ -107,7 +107,7 @@ class HeaderTest {
 
         this.case02.header(value);
 
-        final var headers = OneUtil.toList(listener.take().headers());
+        final var headers = TestUtil.toList(listener.take().headers());
 
         Assertions.assertEquals(3, headers.size());
 
@@ -126,7 +126,7 @@ class HeaderTest {
     void event_01() throws InterruptedException, ExecutionException {
         this.case03.methodName();
 
-        final var headers = OneUtil.toList(listener.take().headers());
+        final var headers = TestUtil.toList(listener.take().headers());
 
         Assertions.assertEquals(1, headers.size());
         Assertions.assertEquals(AufKafkaConstant.EVENT_HEADER, headers.get(0).key());

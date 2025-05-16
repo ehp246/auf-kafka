@@ -30,7 +30,7 @@ public final class EventMDCContext {
         MDC.put(InboundContextName.AufKafkaFrom.name(), OneUtil.toString(event.topic()));
         MDC.put(InboundContextName.AufKafkaKey.name(), event.key());
 
-        final var propertyNames = OneUtil.toList(event.headers());
+        final var propertyNames = event.headerList();
         if (propertyNames == null) {
             return closeable;
         }
@@ -42,8 +42,8 @@ public final class EventMDCContext {
         return closeable;
     }
 
-    public static void clear(final InboundEvent msg) {
-        if (msg == null) {
+    public static void clear(final InboundEvent event) {
+        if (event == null) {
             return;
         }
 
@@ -51,7 +51,7 @@ public final class EventMDCContext {
             MDC.remove(value.name());
         }
 
-        final var propertyNames = OneUtil.toList(msg.headers());
+        final var propertyNames = event.headerList();
         if (propertyNames == null) {
             return;
         }

@@ -60,7 +60,7 @@ class BasicTest {
         final var received = listener.take();
 
         Assertions.assertEquals(true, received.consumerRecord().topic().equals("embedded"));
-        Assertions.assertEquals("NewEvent", received.lastHeader(AufKafkaConstant.EVENT_HEADER));
+        Assertions.assertEquals("NewEvent", received.lastHeader(AufKafkaConstant.EVENT_HEADER).orElse(null));
     }
 
     @Test
@@ -71,7 +71,7 @@ class BasicTest {
         final var received = listener.take();
 
         Assertions.assertEquals(true, received.consumerRecord().topic().equals("embedded"));
-        Assertions.assertEquals(eventType, received.lastHeader(AufKafkaConstant.EVENT_HEADER));
+        Assertions.assertEquals(eventType, received.lastHeader(AufKafkaConstant.EVENT_HEADER).orElse(null));
     }
 
     @Test
@@ -92,7 +92,7 @@ class BasicTest {
         final var received = listener.take();
 
         Assertions.assertEquals(true, received.topic().equals("embedded"));
-        Assertions.assertEquals("NewEvent", received.lastHeader(AufKafkaConstant.EVENT_HEADER));
+        Assertions.assertEquals("NewEvent", received.lastHeader(AufKafkaConstant.EVENT_HEADER).orElse(null));
         Assertions.assertEquals(true, received.key().equals(companyId));
     }
 
