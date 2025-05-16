@@ -3,7 +3,7 @@ package me.ehp246.aufkafka.api.consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 /**
- * Internal abstraction that creates an {@linkplain Invocable} given a
+ * Internal abstraction that creates an {@linkplain EventInvocable} given a
  * {@linkplain ConsumerRecord}.
  *
  * @author Lei Yang
@@ -11,5 +11,5 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
  */
 @FunctionalInterface
 public interface InvocableFactory {
-    Invocable get(InboundEvent event);
+    EventInvocable get(InboundEvent event);
 }

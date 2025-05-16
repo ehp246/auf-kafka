@@ -2,7 +2,7 @@ package me.ehp246.test.mock;
 
 import java.lang.reflect.Method;
 
-import me.ehp246.aufkafka.api.consumer.Invocable;
+import me.ehp246.aufkafka.api.consumer.EventInvocable;
 import me.ehp246.aufkafka.api.consumer.InvocationModel;
 
 /**
@@ -10,7 +10,7 @@ import me.ehp246.aufkafka.api.consumer.InvocationModel;
  *
  */
 public record InvocableRecord(Object instance, Method method, AutoCloseable closeable,
-        InvocationModel invocationModel) implements Invocable {
+        InvocationModel invocationModel) implements EventInvocable {
     public InvocableRecord {
         // Instance could be null for static invocation.
         if (method == null) {

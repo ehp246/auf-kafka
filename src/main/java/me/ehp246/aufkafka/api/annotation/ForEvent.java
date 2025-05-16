@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
-import me.ehp246.aufkafka.api.consumer.Invocable;
+import me.ehp246.aufkafka.api.consumer.EventInvocable;
 
 /**
  * Indicates that the class defines methods that should be invoked on an event
@@ -49,7 +49,7 @@ public @interface ForEvent {
     String[] value() default {};
 
     /**
-     * Specifies the execution model of the {@linkplain Invocable}.
+     * Specifies the execution model of the {@linkplain EventInvocable}.
      * 
      */
     Execution execution() default @Execution();

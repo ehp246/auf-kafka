@@ -8,12 +8,12 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
-import me.ehp246.aufkafka.api.consumer.Invocable;
+import me.ehp246.aufkafka.api.consumer.EventInvocable;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.consumer.InvocationModel;
 
 /**
- * Creates {@linkplain Invocable} instance by
+ * Creates {@linkplain EventInvocable} instance by
  * {@linkplain AutowireCapableBeanFactory}.
  *
  * @author Lei Yang
@@ -31,7 +31,7 @@ final class AutowireCapableInvocableFactory implements InvocableFactory {
     }
 
     @Override
-    public Invocable get(final InboundEvent event) {
+    public EventInvocable get(final InboundEvent event) {
         Objects.requireNonNull(event);
 
         final var registered = this.registry.resolve(event);
@@ -43,7 +43,7 @@ final class AutowireCapableInvocableFactory implements InvocableFactory {
                 ? autowireCapableBeanFactory.getBean(registered.instanceType())
                 : autowireCapableBeanFactory.createBean(registered.instanceType());
 
-        return new Invocable() {
+        return new EventInvocable() {
 
             @Override
             public Object instance() {

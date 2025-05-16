@@ -6,12 +6,13 @@ import me.ehp246.aufkafka.api.annotation.Applying;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 
 /**
- * The abstraction of an object and a method that are ready to be invoked.
+ * The abstraction of an object and a method that is ready to be bound to an
+ * {@linkplain InboundEvent} and invoked.
  * 
  * @author Lei Yang
  * @since 1.0
  */
-public interface Invocable extends AutoCloseable {
+public interface EventInvocable extends AutoCloseable {
     Object instance();
 
     Method method();
@@ -26,7 +27,7 @@ public interface Invocable extends AutoCloseable {
      * normally or aborts by throwing an exception.
      * <p>
      * The API is intended for best-effort clean-up purpose. Exception from
-     * {@linkplain Invocable#close()} execution will be logged and suppressed so
+     * {@linkplain EventInvocable#close()} execution will be logged and suppressed so
      * that it does not impact further execution of the {@linkplain ForKey}.
      */
     @Override

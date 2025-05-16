@@ -39,10 +39,10 @@ class DefaultEventInvocableBinderTest {
         final var invocable = new InvocableRecord(arg01, method);
         final var bound = binder.bind(invocable, new InboundEvent(new MockConsumerRecord()));
 
-        Assertions.assertEquals(arg01, bound.invocable().instance());
-        Assertions.assertEquals(method, bound.invocable().method());
+        Assertions.assertEquals(arg01, bound.eventInvocable().instance());
+        Assertions.assertEquals(method, bound.eventInvocable().method());
         Assertions.assertEquals(0, bound.arguments().length);
-        Assertions.assertEquals(invocable.invocationModel(), bound.invocable().invocationModel());
+        Assertions.assertEquals(invocable.invocationModel(), bound.eventInvocable().invocationModel());
     }
 
     @Test

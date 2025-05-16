@@ -15,7 +15,7 @@ import org.springframework.lang.Nullable;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
-import me.ehp246.aufkafka.api.consumer.Invocable;
+import me.ehp246.aufkafka.api.consumer.EventInvocable;
 import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 import me.ehp246.aufkafka.api.consumer.EventInvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
@@ -58,7 +58,7 @@ final class DefaultEventInvocableDispatcher implements EventInvocableDispatcher 
     }
 
     @Override
-    public void dispatch(final Invocable invocable, final InboundEvent event) {
+    public void dispatch(final EventInvocable eventInvocable, final InboundEvent event) {
         /*
          * The runnable returned is expected to handle all execution and exception. The
          * caller simply invokes this runnable without further processing.
@@ -66,7 +66,7 @@ final class DefaultEventInvocableDispatcher implements EventInvocableDispatcher 
         final var boundRef = new BoundInvocable[] { null };
         final var runnable = (Runnable) () -> {
             try {
-                boundRef[0] = binder.bind(invocable, event);
+                boundRef[0] = binder.bind(eventInvocable, event);
 
                 final var bound = boundRef[0];
 
@@ -96,7 +96,7 @@ final class DefaultEventInvocableDispatcher implements EventInvocableDispatcher 
                 final var completed = (Completed) outcome;
                 DefaultEventInvocableDispatcher.this.completed.forEach(listener -> listener.onCompleted(completed));
             } finally {
-                try (invocable) {
+                try (eventInvocable) {
                 } catch (final Exception e) {
                     LOGGER.atWarn().setCause(e).addMarker(AufKafkaConstant.EXCEPTION).setMessage("Ignored: {}")
                             .addArgument(e::getMessage).log();
@@ -106,7 +106,7 @@ final class DefaultEventInvocableDispatcher implements EventInvocableDispatcher 
             }
         };
 
-        if (executor == null || invocable.invocationModel() == InvocationModel.INLINE) {
+        if (executor == null || eventInvocable.invocationModel() == InvocationModel.INLINE) {
 
             runnable.run();
 
