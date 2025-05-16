@@ -85,7 +85,7 @@ final class DefaultEventInvocableRegistry implements EventInvocableRegistry {
         /**
          * Look up by event type header first.
          */
-        final var eventType = OneUtil.getLastHeaderAsString(event.consumerRecord(), this.eventHeader);
+        final var eventType = event.lastHeader(this.eventHeader).orElse(null);
 
         final var lookupkey = eventType != null ? eventType : OneUtil.toString(event.key(), "");
         final var keyType = eventType != null ? EventInvocableKeyType.EVENT_HEADER : EventInvocableKeyType.KEY;

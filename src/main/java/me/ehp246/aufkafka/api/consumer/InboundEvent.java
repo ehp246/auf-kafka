@@ -64,9 +64,10 @@ public final class InboundEvent {
     }
 
     /**
-     * Returns an empty {@linkplain Optional} if the key does not exist.
+     * Returns an {@linkplain Optional} containing the the last value if the key
+     * exists. Note the value could be <code>null</code> for an existing key.
      * <p>
-     * Note the value could be <code>null</code> for an existing key.
+     * If the key does not exist, the {@linkplain Optional} will empty.
      */
     public Optional<String> lastHeader(final String key) {
         final var values = this.headerMap.get(key);
@@ -96,5 +97,9 @@ public final class InboundEvent {
 
     public Headers headers() {
         return this.consumerRecord.headers();
+    }
+
+    public List<Header> headerList() {
+        return StreamSupport.stream(this.consumerRecord.headers().spliterator(), false).toList();
     }
 }

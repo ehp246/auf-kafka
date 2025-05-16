@@ -14,7 +14,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
-import me.ehp246.aufkafka.core.util.OneUtil;
+import me.ehp246.test.TestUtil;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 import me.ehp246.test.mock.StringHeader;
 
@@ -53,7 +53,7 @@ class HeaderInjectionTest {
 
         final var received = action.take();
 
-        Assertions.assertEquals(1, OneUtil.toList(received.headers()).size());
+        Assertions.assertEquals(1, TestUtil.toList(received.headers()).size());
         Assertions.assertEquals(null, received.headerList());
         Assertions.assertEquals(header1Value, received.header1());
     }
