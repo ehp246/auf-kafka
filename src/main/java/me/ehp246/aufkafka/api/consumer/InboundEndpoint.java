@@ -1,5 +1,6 @@
 package me.ehp246.aufkafka.api.consumer;
 
+import java.time.Duration;
 import java.util.Map;
 
 /**
@@ -30,6 +31,10 @@ public interface InboundEndpoint {
 
     default boolean autoStartup() {
         return true;
+    }
+
+    default Duration pollDuration() {
+        return Duration.ofMillis(100);
     }
 
     default InvocationListener invocationListener() {

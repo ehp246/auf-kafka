@@ -13,7 +13,7 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
  *
  */
 @EnableKafka
-@EnableForKafka({ @Inbound(value = @From("embedded")) })
+@EnableForKafka({ @Inbound(@From("embedded")), @Inbound(value = @From("embedded"),pollDuration = "PT1S") })
 @EnableConfigurationProperties({ AppConfig.KafkaConfig.class })
 class AppConfig {
     @ConfigurationProperties(prefix = "kafka.config")

@@ -1,5 +1,7 @@
 package me.ehp246.test.embedded.consumer.bean;
 
+import java.time.Duration;
+
 import org.apache.kafka.clients.consumer.Consumer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,7 +16,6 @@ import org.springframework.util.PlaceholderResolutionException;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerRegistry;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
-import me.ehp246.test.embedded.consumer.bean.AppConfig.KafkaConfig;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
 /**
@@ -30,16 +31,18 @@ class BeanTest {
     private ListableBeanFactory beanFactory;
     @Autowired
     private ExpressionResolver resolver;
-    @Autowired
-    private KafkaConfig config;
 
     @Test
     void inbound_01() {
         final var endpointMap = beanFactory.getBeansOfType(InboundEndpoint.class);
         final var registry = beanFactory.getBean(InboundConsumerRegistry.class);
 
-        Assertions.assertEquals(1, endpointMap.size());
+        Assertions.assertEquals(2, endpointMap.size());
         Assertions.assertEquals(true, endpointMap.containsKey("inboundEndpoint-0"));
+        
+        Assertions.assertEquals(Duration.ofMillis(100), endpointMap.get("inboundEndpoint-0").pollDuration());
+        Assertions.assertEquals(Duration.ofMillis(1000), endpointMap.get("inboundEndpoint-1").pollDuration());
+        
         Assertions.assertEquals(true, registry.get("inboundEndpoint-0").consumer() instanceof Consumer<String, String>);
     }
 

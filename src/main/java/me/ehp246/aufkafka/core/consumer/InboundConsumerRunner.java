@@ -10,10 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
+import me.ehp246.aufkafka.api.consumer.EventInvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InboundEndpointConsumer;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
-import me.ehp246.aufkafka.api.consumer.EventInvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
 import me.ehp246.aufkafka.api.exception.UnknownEventException;
