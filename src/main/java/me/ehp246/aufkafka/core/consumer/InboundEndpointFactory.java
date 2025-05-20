@@ -1,5 +1,6 @@
 package me.ehp246.aufkafka.core.consumer;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -59,8 +60,11 @@ public final class InboundEndpointFactory {
         final var consumerProperties = consumerProperties(
                 Arrays.asList((String[]) inboundAttributes.get("consumerProperties")), beanName);
 
-        final boolean autoStartup = Boolean
+        final var autoStartup = Boolean
                 .parseBoolean(expressionResolver.apply(inboundAttributes.get("autoStartup").toString()));
+
+        final var pollDuration = Duration
+                .parse(expressionResolver.apply(inboundAttributes.get("pollDuration").toString()));
 
         final InboundEndpoint.From from = new InboundEndpoint.From() {
             private final String topic = expressionResolver.apply(fromAttribute.get("value").toString());
@@ -128,6 +132,11 @@ public final class InboundEndpointFactory {
             @Override
             public ConsumerExceptionListener consumerExceptionListener() {
                 return exceptionListener;
+            }
+
+            @Override
+            public Duration pollDuration() {
+                return pollDuration;
             }
         };
     }

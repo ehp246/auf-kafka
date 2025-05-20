@@ -16,8 +16,8 @@ import org.springframework.context.annotation.Import;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
 import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
-import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.consumer.EventInvocable;
+import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
@@ -114,6 +114,12 @@ public @interface EnableForKafka {
          * Supports Spring property placeholder and SpEL expression.
          */
         String autoStartup() default "true";
+
+        /**
+         * Specifies the duration passed to
+         * {@linkplain Consumer#poll(java.time.Duration)}.
+         */
+        String pollDuration() default "PT0.1S";
 
         /**
          * The bean name of the endpoint. Must be unique if specified.

@@ -16,7 +16,7 @@ final class DefaultInboundConsumerRegistry implements InboundConsumerRegistry {
 
     @Override
     public InboundEndpointConsumer get(final String name) {
-	return this.map.get(name);
+        return this.map.get(name);
     }
 
     /**
@@ -24,7 +24,7 @@ final class DefaultInboundConsumerRegistry implements InboundConsumerRegistry {
      * @return existing mapping if present. Otherwise <code>null</code>.
      */
     InboundEndpointConsumer remove(final String name) {
-	return this.map.remove(name);
+        return this.map.remove(name);
     }
 
     /**
@@ -35,7 +35,7 @@ final class DefaultInboundConsumerRegistry implements InboundConsumerRegistry {
      * @return existing mapping if present. Otherwise <code>null</code>.
      */
     InboundEndpointConsumer put(final String name, final InboundEndpointConsumer consumer) {
-	return this.map.put(name, consumer);
+        return this.map.put(name, consumer);
     }
 
     /**
@@ -43,6 +43,6 @@ final class DefaultInboundConsumerRegistry implements InboundConsumerRegistry {
      * @return a copy of the key set.
      */
     Set<String> getNames() {
-	return new HashSet<>(this.map.keySet());
+        return new HashSet<>(this.map.keySet());
     }
 }
