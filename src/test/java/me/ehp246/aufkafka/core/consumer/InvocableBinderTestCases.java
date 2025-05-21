@@ -1,9 +1,12 @@
 package me.ehp246.aufkafka.core.consumer;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
+
 import java.util.List;
 import java.util.Map;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -13,6 +16,7 @@ import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfMDC;
 import me.ehp246.aufkafka.api.annotation.OfMDC.Op;
 import me.ehp246.aufkafka.api.annotation.OfValue;
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.serializer.json.FromJson;
 import me.ehp246.aufkafka.api.spi.ValueView;
 
@@ -46,13 +50,19 @@ interface InvocableBinderTestCases {
         }
     }
 
-    static class ArgCase01 {
+    /**
+     * Type-based injection
+     */
+    static class TypeCase01 {
         public void m01() {
         }
 
         public void m01(final String value) {
         }
 
+        public void m01(final InboundEvent event) {
+        }
+        
         public ConsumerRecord<String, String> m01(final ConsumerRecord<String, String> msg) {
             return msg;
         }
@@ -65,6 +75,10 @@ interface InvocableBinderTestCases {
         public Object[] m01(@OfValue final List<Integer> integers,
                 final ConsumerRecord<String, String> msg) {
             return new Object[] { integers, msg };
+        }
+        
+        public Object[]  header(final Headers headers) {
+            return new Object[] {headers};
         }
     }
 

@@ -41,7 +41,8 @@ import me.ehp246.aufkafka.core.reflection.ReflectedType;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
- *
+ * The binding involves creating the arguments and inject values from the event.
+ * 
  * @author Lei Yang
  * @since 1.0
  */
@@ -135,8 +136,10 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
             } else if (type.isAssignableFrom(FromJson.class)) {
                 paramBinders.put(i, event -> fromJson);
                 continue;
+            } else if (type.isAssignableFrom(Headers.class)) {
+                paramBinders.put(i, InboundEvent::headers);
+                continue;
             }
-
             /*
              * Annotated properties.
              */
@@ -157,10 +160,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
                 final var key = OneUtil.getIfBlank(parameter.getAnnotation(OfHeader.class).value(),
                         () -> OneUtil.firstUpper(parameter.getName()));
 
-                if (type.isAssignableFrom(Headers.class)) {
-                    paramBinders.put(i, InboundEvent::headers);
-                    continue;
-                } else if (type.isAssignableFrom(Header.class)) {
+                if (type.isAssignableFrom(Header.class)) {
                     paramBinders.put(i, event -> event.headers().lastHeader(key));
                     continue;
                 } else if (type.isAssignableFrom(Iterable.class)) {
@@ -203,8 +203,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
                     paramBinders.put(i, event -> event.lastHeader(key, UUID::fromString));
                     continue;
                 } else if (type.isEnum()) {
-                    paramBinders.put(i,
-                            event -> event.lastHeader(key, str -> Enum.valueOf((Class<Enum>) type, str)));
+                    paramBinders.put(i, event -> event.lastHeader(key, str -> Enum.valueOf((Class<Enum>) type, str)));
                     continue;
                 }
                 throw new RuntimeException("Un-supported " + OfHeader.class.getSimpleName() + " parameter type: "

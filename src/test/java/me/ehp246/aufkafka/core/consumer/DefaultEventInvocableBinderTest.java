@@ -5,10 +5,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 import me.ehp246.aufkafka.api.exception.UnboundParameterException;
@@ -33,8 +35,8 @@ class DefaultEventInvocableBinderTest {
 
     @Test
     void bound_01() {
-        final var method = new ReflectedType<>(InvocableBinderTestCases.ArgCase01.class).findMethod("m01");
-        final var arg01 = new InvocableBinderTestCases.ArgCase01();
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("m01");
+        final var arg01 = new InvocableBinderTestCases.TypeCase01();
         final var invocable = new InvocableRecord(arg01, method);
         final var bound = binder.bind(invocable, new InboundRecord(new MockConsumerRecord()));
 
@@ -46,10 +48,10 @@ class DefaultEventInvocableBinderTest {
 
     @Test
     void arg_01() {
-        final var method = new ReflectedType<>(InvocableBinderTestCases.ArgCase01.class).findMethod("m01",
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("m01",
                 ConsumerRecord.class);
         final var msg = new InboundRecord(new MockConsumerRecord());
-        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.ArgCase01(), method), msg);
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(), method), msg);
 
         Assertions.assertEquals(1, bound.arguments().length);
         Assertions.assertEquals(msg.consumerRecord(), bound.arguments()[0]);
@@ -58,8 +60,8 @@ class DefaultEventInvocableBinderTest {
     @Test
     void arg_02() {
         Assertions.assertThrows(UnboundParameterException.class,
-                () -> binder.bind(new InvocableRecord(new InvocableBinderTestCases.ArgCase01(),
-                        new ReflectedType<>(InvocableBinderTestCases.ArgCase01.class).findMethod("m01", String.class)),
+                () -> binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(),
+                        new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("m01", String.class)),
                         new InboundRecord(new MockConsumerRecord())));
         ;
     }
@@ -67,10 +69,10 @@ class DefaultEventInvocableBinderTest {
     @Test
     void arg_03() {
         final var event = new InboundRecord(new MockConsumerRecord());
-        final var method = new ReflectedType<>(InvocableBinderTestCases.ArgCase01.class).findMethod("m01",
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("m01",
                 ConsumerRecord.class, FromJson.class);
 
-        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.ArgCase01(), method), event);
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(), method), event);
 
         Assertions.assertEquals(2, bound.arguments().length);
         Assertions.assertEquals(event.consumerRecord(), bound.arguments()[0]);
@@ -79,12 +81,12 @@ class DefaultEventInvocableBinderTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    void arg_04() {
+    void type_04() {
         final var event = MockConsumerRecord.withValue(jackson.apply(List.of(1, 2, 3), null)).toEvent();
-        final var method = new ReflectedType<>(InvocableBinderTestCases.ArgCase01.class).findMethod("m01", List.class,
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("m01", List.class,
                 ConsumerRecord.class);
 
-        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.ArgCase01(), method), event);
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(), method), event);
 
         Assertions.assertEquals(2, bound.arguments().length);
 
@@ -96,6 +98,32 @@ class DefaultEventInvocableBinderTest {
         Assertions.assertEquals(3, firstArg.get(2));
 
         Assertions.assertEquals(event.consumerRecord(), bound.arguments()[1]);
+    }
+
+    @Test
+    void type_05() {
+        final var event = MockConsumerRecord.withValue(jackson.apply(List.of(1, 2, 3), null)).toEvent();
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("m01", InboundEvent.class);
+
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(), method), event);
+
+        Assertions.assertEquals(1, bound.arguments().length);
+        Assertions.assertEquals(event, bound.arguments()[0]);
+    }
+    
+    @Test
+    void type_06() {
+        final var event = MockConsumerRecord.withHeaders("h1", "v1", "headerSingle", "v2", "h1", "v2").toEvent();
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("header", Headers.class);
+
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(), method), event);
+
+        Assertions.assertEquals(1, bound.arguments().length);
+        Assertions.assertEquals(event.headers(), bound.arguments()[0]);
+        
+        final var returned = (Object[]) ((Completed) bound.invoke()).returned();
+
+        Assertions.assertEquals(event.headers(), returned[0]);
     }
 
     @Test
