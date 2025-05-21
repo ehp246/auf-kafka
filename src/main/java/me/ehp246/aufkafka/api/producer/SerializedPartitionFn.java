@@ -11,7 +11,7 @@ import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.utils.Utils;
 
 /**
- * Maps a {@linkplain OutboundRecord#partitionKey()} to
+ * Maps a {@linkplain OutboundEvent#partitionKey()} to
  * {@linkplain ProducerRecord#partition()} deterministically by converting the
  * object to a byte array via {@linkplain Serializable}.
  * 

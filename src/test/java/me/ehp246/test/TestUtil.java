@@ -15,7 +15,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.mrbean.MrBeanModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
-import me.ehp246.aufkafka.api.producer.OutboundRecord.Header;
+import me.ehp246.aufkafka.api.producer.OutboundEvent.Header;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**

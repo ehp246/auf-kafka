@@ -12,7 +12,7 @@ import me.ehp246.aufkafka.api.serializer.ObjectOf;
  * @author Lei Yang
  * @since 1.0
  */
-public interface OutboundRecord {
+public interface OutboundEvent {
     String topic();
 
     default String key() {

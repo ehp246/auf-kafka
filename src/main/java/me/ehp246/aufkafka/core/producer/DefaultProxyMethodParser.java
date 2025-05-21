@@ -18,7 +18,7 @@ import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
-import me.ehp246.aufkafka.api.producer.OutboundRecord;
+import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.HeaderParam;
 import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.ValueParam;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
@@ -110,14 +110,14 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
         return headerBinder;
     }
 
-    private List<OutboundRecord.Header> headerStatic(final ReflectedMethod reflected, final ByKafka byKafka) {
+    private List<OutboundEvent.Header> headerStatic(final ReflectedMethod reflected, final ByKafka byKafka) {
         final var headers = byKafka.headers();
         if ((headers.length & 1) != 0) {
             throw new IllegalArgumentException(
                     "Headers are not in name/value pairs on " + reflected.method().getDeclaringClass());
         }
 
-        final List<OutboundRecord.Header> headerStatic = new ArrayList<>();
+        final List<OutboundEvent.Header> headerStatic = new ArrayList<>();
 
         if (!byKafka.methodAsHeader().isEmpty()) {
             headerStatic
