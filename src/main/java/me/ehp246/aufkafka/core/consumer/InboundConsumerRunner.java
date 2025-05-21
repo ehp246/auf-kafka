@@ -14,7 +14,6 @@ import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
 import me.ehp246.aufkafka.api.consumer.EventInvocableDispatcher;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InboundEndpointConsumer;
-import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
 import me.ehp246.aufkafka.api.exception.UnknownEventException;
@@ -59,7 +58,7 @@ final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
 				LOGGER.atWarn().setMessage("Polled count: {}").addArgument(polled::count).log();
 			}
 
-			StreamSupport.stream(polled.spliterator(), false).map(InboundEvent::new).forEach(event -> {
+			StreamSupport.stream(polled.spliterator(), false).map(InboundRecord::new).forEach(event -> {
 				try (final var closeble = EventMDCContext.set(event);) {
 					this.onDispatching.stream().forEach(l -> l.onDispatching(event));
 

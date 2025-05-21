@@ -10,13 +10,13 @@ class InboundEventTest {
 
     @Test
     void test_01() {
-        Assertions.assertThrows(NullPointerException.class, () -> new InboundEvent(null));
+        Assertions.assertThrows(NullPointerException.class, () -> new InboundRecord(null));
     }
 
     @Test
     void test_02() {
         final var expected = MockConsumerRecord.withHeaders("h.1", "v.1");
-        final var event = expected.toEvent();
+        final InboundEvent event = expected.toEvent();
         final var headerMap = event.headerMap();
 
         Assertions.assertEquals(expected, event.consumerRecord());
