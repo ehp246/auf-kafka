@@ -139,6 +139,12 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
             } else if (type.isAssignableFrom(Headers.class)) {
                 paramBinders.put(i, InboundEvent::headers);
                 continue;
+            } else if (type.isAssignableFrom(Header.class)) {
+                final var key = OneUtil.getIfBlank(Optional.ofNullable(parameter.getAnnotation(OfHeader.class)).map(OfHeader::value).orElse(null),
+                        () -> OneUtil.firstUpper(parameter.getName()));
+                
+                paramBinders.put(i, event -> event.headers().lastHeader(key));
+                continue;
             }
             /*
              * Annotated properties.
@@ -160,10 +166,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
                 final var key = OneUtil.getIfBlank(parameter.getAnnotation(OfHeader.class).value(),
                         () -> OneUtil.firstUpper(parameter.getName()));
 
-                if (type.isAssignableFrom(Header.class)) {
-                    paramBinders.put(i, event -> event.headers().lastHeader(key));
-                    continue;
-                } else if (type.isAssignableFrom(Iterable.class)) {
+                if (type.isAssignableFrom(Iterable.class)) {
                     paramBinders.put(i, event -> event.headers().headers(key));
                     continue;
                 } else if (type.isAssignableFrom(List.class)) {

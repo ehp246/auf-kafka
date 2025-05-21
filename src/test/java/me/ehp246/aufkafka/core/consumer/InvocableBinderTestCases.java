@@ -77,8 +77,8 @@ interface InvocableBinderTestCases {
             return new Object[] { integers, msg };
         }
         
-        public Object[]  header(final Headers headers) {
-            return new Object[] {headers};
+        public Object[]  header(final Headers headers, final Header myHeader) {
+            return new Object[] {headers, myHeader};
         }
     }
 

@@ -2,6 +2,7 @@ package me.ehp246.test;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -86,5 +87,9 @@ public final class TestUtil {
                     l.addAll(r);
                     return l;
                 })).get(key).getLast());
+    }
+    
+    public static String valueString(final org.apache.kafka.common.header.Header header) {
+        return new String(header.value(), StandardCharsets.UTF_8);
     }
 }

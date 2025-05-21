@@ -113,17 +113,19 @@ class DefaultEventInvocableBinderTest {
     
     @Test
     void type_06() {
-        final var event = MockConsumerRecord.withHeaders("h1", "v1", "headerSingle", "v2", "h1", "v2").toEvent();
-        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("header", Headers.class);
+        final var event = MockConsumerRecord.withHeaders("h1", "v1", "MyHeader", "myHeader.v1", "h1", "v2", "MyHeader", "myHeader.v2").toEvent();
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("header", Headers.class, Header.class);
 
         final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(), method), event);
 
-        Assertions.assertEquals(1, bound.arguments().length);
+        Assertions.assertEquals(2, bound.arguments().length);
         Assertions.assertEquals(event.headers(), bound.arguments()[0]);
         
         final var returned = (Object[]) ((Completed) bound.invoke()).returned();
 
         Assertions.assertEquals(event.headers(), returned[0]);
+        Assertions.assertEquals(true, ((Header)returned[1]).key().equals("MyHeader"));
+        Assertions.assertEquals(true, "myHeader.v2".equals(TestUtil.valueString((Header)returned[1])));
     }
 
     @Test
