@@ -8,17 +8,17 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
-import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
+import me.ehp246.aufkafka.api.producer.ProducerProxyInvocationBinder;
 import me.ehp246.aufkafka.api.serializer.ObjectOf;
 
 /**
  * @author Lei Yang
  *
  */
-record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Function<Object[], String> keyBinder,
+record DefaultProducerProxyInvocationBinder(Function<Object[], String> topicBinder, Function<Object[], String> keyBinder,
         Function<Object[], Object> partitionBinder, Function<Object[], Instant> timestampBinder,
         Function<Object[], String> correlIdBinder, ValueParam valueParam, Map<Integer, HeaderParam> headerBinder,
-        List<OutboundEvent.Header> headerStatic) implements ProxyInvocationBinder {
+        List<OutboundEvent.Header> headerStatic) implements ProducerProxyInvocationBinder {
 
     @Override
     public Bound apply(final Object target, final Object[] args) throws Throwable {

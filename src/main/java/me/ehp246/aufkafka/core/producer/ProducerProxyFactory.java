@@ -15,6 +15,7 @@ import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.EnableByKafka;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider.ProducerFnConfig;
+import me.ehp246.aufkafka.api.producer.ProducerProxyInvocationBinder;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 
@@ -26,73 +27,73 @@ import me.ehp246.aufkafka.api.spi.ExpressionResolver;
  * @since 1.0
  */
 public final class ProducerProxyFactory {
-	private static final Map<Method, ProxyMethodParser.Parsed> parsedCache = new ConcurrentHashMap<>();
+    private static final Map<Method, ProducerProxyInvocationBinder> parsedCache = new ConcurrentHashMap<>();
 
-	private final ProxyMethodParser methodParser;
-	private final ProducerFnProvider producerFnProvider;
-	private final ExpressionResolver expressionResolver;
+    private final ProxyMethodParser methodParser;
+    private final ProducerFnProvider producerFnProvider;
+    private final ExpressionResolver expressionResolver;
 
-	public ProducerProxyFactory(final ProxyMethodParser methodParser, final ProducerFnProvider producerFnProvider,
-			final ExpressionResolver expressionResolver) {
-		super();
-		this.methodParser = methodParser;
-		this.producerFnProvider = producerFnProvider;
-		this.expressionResolver = expressionResolver;
-	}
+    public ProducerProxyFactory(final ProxyMethodParser methodParser, final ProducerFnProvider producerFnProvider,
+            final ExpressionResolver expressionResolver) {
+        super();
+        this.methodParser = methodParser;
+        this.producerFnProvider = producerFnProvider;
+        this.expressionResolver = expressionResolver;
+    }
 
-	@SuppressWarnings("unchecked")
-	public <T> T newInstance(final Class<T> proxyInterface) {
-		final var byKafka = proxyInterface.getAnnotation(ByKafka.class);
+    @SuppressWarnings("unchecked")
+    public <T> T newInstance(final Class<T> proxyInterface) {
+        final var byKafka = proxyInterface.getAnnotation(ByKafka.class);
 
-		final var producerFn = producerFnProvider
-				.get(new ProducerFnConfig(byKafka.producerConfigName(), byKafka.partitionFn(),
-						producerProperties(Arrays.asList(byKafka.producerProperties()), byKafka.name())));
+        final var producerFn = producerFnProvider
+                .get(new ProducerFnConfig(byKafka.producerConfigName(), byKafka.partitionFn(),
+                        producerProperties(Arrays.asList(byKafka.producerProperties()), byKafka.name())));
 
-		return (T) Proxy.newProxyInstance(proxyInterface.getClassLoader(), new Class[] { proxyInterface },
-				new InvocationHandler() {
-					private final int hashCode = new Object().hashCode();
+        return (T) Proxy.newProxyInstance(proxyInterface.getClassLoader(), new Class[] { proxyInterface },
+                new InvocationHandler() {
+                    private final int hashCode = new Object().hashCode();
 
-					@Override
-					public Object invoke(final Object proxy, final Method method, final Object[] args)
-							throws Throwable {
-						if (method.getName().equals("toString")) {
-							return proxyInterface.toString();
-						}
-						if (method.getName().equals("hashCode")) {
-							return hashCode;
-						}
-						if (method.getName().equals("equals")) {
-							return proxy == args[0];
-						}
+                    @Override
+                    public Object invoke(final Object proxy, final Method method, final Object[] args)
+                            throws Throwable {
+                        if (method.getName().equals("toString")) {
+                            return proxyInterface.toString();
+                        }
+                        if (method.getName().equals("hashCode")) {
+                            return hashCode;
+                        }
+                        if (method.getName().equals("equals")) {
+                            return proxy == args[0];
+                        }
 
-						if (method.isDefault()) {
-							return MethodHandles.privateLookupIn(proxyInterface, MethodHandles.lookup())
-									.findSpecial(proxyInterface, method.getName(),
-											MethodType.methodType(method.getReturnType(), method.getParameterTypes()),
-											proxyInterface)
-									.bindTo(proxy).invokeWithArguments(args);
-						}
+                        if (method.isDefault()) {
+                            return MethodHandles.privateLookupIn(proxyInterface, MethodHandles.lookup())
+                                    .findSpecial(proxyInterface, method.getName(),
+                                            MethodType.methodType(method.getReturnType(), method.getParameterTypes()),
+                                            proxyInterface)
+                                    .bindTo(proxy).invokeWithArguments(args);
+                        }
 
-						final var bound = parsedCache.computeIfAbsent(method, m -> methodParser.parse(method))
-								.invocationBinder().apply(proxy, args);
+                        final var bound = parsedCache.computeIfAbsent(method, m -> methodParser.parse(method))
+                                .apply(proxy, args);
 
-						producerFn.send(bound.message());
+                        producerFn.send(bound.message());
 
-						return null;
-					}
-				});
-	}
+                        return null;
+                    }
+                });
+    }
 
-	private Map<String, Object> producerProperties(final List<String> properties, final String beanName) {
-		if ((properties.size() & 1) != 0) {
-			throw new IllegalArgumentException(
-					"Producer properties should be in name/value pair on '" + beanName + "'");
-		}
+    private Map<String, Object> producerProperties(final List<String> properties, final String beanName) {
+        if ((properties.size() & 1) != 0) {
+            throw new IllegalArgumentException(
+                    "Producer properties should be in name/value pair on '" + beanName + "'");
+        }
 
-		final Map<String, Object> resolvedProperties = new HashMap<>();
-		for (int i = 0; i < properties.size(); i += 2) {
-			resolvedProperties.put(properties.get(i), expressionResolver.apply(properties.get(i + 1)));
-		}
-		return resolvedProperties;
-	}
+        final Map<String, Object> resolvedProperties = new HashMap<>();
+        for (int i = 0; i < properties.size(); i += 2) {
+            resolvedProperties.put(properties.get(i), expressionResolver.apply(properties.get(i + 1)));
+        }
+        return resolvedProperties;
+    }
 }
