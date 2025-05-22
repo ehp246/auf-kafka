@@ -15,7 +15,7 @@ import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.EnableByKafka;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider.ProducerFnConfig;
-import me.ehp246.aufkafka.api.producer.ProducerProxyInvocationBinder;
+import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 
@@ -27,7 +27,7 @@ import me.ehp246.aufkafka.api.spi.ExpressionResolver;
  * @since 1.0
  */
 public final class ProducerProxyFactory {
-    private static final Map<Method, ProducerProxyInvocationBinder> parsedCache = new ConcurrentHashMap<>();
+    private static final Map<Method, ProxyInvocationBinder> parsedCache = new ConcurrentHashMap<>();
 
     private final ProxyMethodParser methodParser;
     private final ProducerFnProvider producerFnProvider;
@@ -74,10 +74,10 @@ public final class ProducerProxyFactory {
                                     .bindTo(proxy).invokeWithArguments(args);
                         }
 
-                        final var bound = parsedCache.computeIfAbsent(method, m -> methodParser.parse(method))
+                        final var event = parsedCache.computeIfAbsent(method, m -> methodParser.parse(method))
                                 .apply(proxy, args);
 
-                        producerFn.send(bound.message());
+                        producerFn.send(event);
 
                         return null;
                     }

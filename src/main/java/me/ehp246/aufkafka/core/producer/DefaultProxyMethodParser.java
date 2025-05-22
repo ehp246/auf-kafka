@@ -19,9 +19,9 @@ import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
-import me.ehp246.aufkafka.api.producer.ProducerProxyInvocationBinder;
-import me.ehp246.aufkafka.api.producer.ProducerProxyInvocationBinder.HeaderParam;
-import me.ehp246.aufkafka.api.producer.ProducerProxyInvocationBinder.ValueParam;
+import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
+import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.HeaderParam;
+import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.ValueParam;
 import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
 import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
@@ -41,7 +41,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
     }
 
     @Override
-    public ProducerProxyInvocationBinder parse(final Method method) {
+    public ProxyInvocationBinder parse(final Method method) {
         final var reflected = new ReflectedMethod(method);
         final var byKafka = reflected.method().getDeclaringClass().getAnnotation(ByKafka.class);
 
@@ -95,7 +95,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                         parameter.getType()))
                 .orElse(null);
 
-        return new DefaultProducerProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder, null,
+        return new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder, null,
                 valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, objectOf), headerBinder(reflected),
                 headerStatic(reflected, byKafka));
     }

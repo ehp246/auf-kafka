@@ -8,20 +8,20 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
-import me.ehp246.aufkafka.api.producer.ProducerProxyInvocationBinder;
+import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
 import me.ehp246.aufkafka.api.serializer.ObjectOf;
 
 /**
  * @author Lei Yang
  *
  */
-record DefaultProducerProxyInvocationBinder(Function<Object[], String> topicBinder, Function<Object[], String> keyBinder,
+record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Function<Object[], String> keyBinder,
         Function<Object[], Object> partitionBinder, Function<Object[], Instant> timestampBinder,
         Function<Object[], String> correlIdBinder, ValueParam valueParam, Map<Integer, HeaderParam> headerBinder,
-        List<OutboundEvent.Header> headerStatic) implements ProducerProxyInvocationBinder {
+        List<OutboundEvent.Header> headerStatic) implements ProxyInvocationBinder {
 
     @Override
-    public Bound apply(final Object target, final Object[] args) throws Throwable {
+    public OutboundEvent apply(final Object target, final Object[] args) throws Throwable {
         final var topic = topicBinder.apply(args);
         final var key = keyBinder.apply(args);
         final var partition = partitionBinder.apply(args);
@@ -34,7 +34,7 @@ record DefaultProducerProxyInvocationBinder(Function<Object[], String> topicBind
                                 .map(entry -> new OutboundHeader(entry.getValue().name(), args[entry.getKey()])))
                 .collect(Collectors.toList());
 
-        return new Bound(new OutboundEvent() {
+        return new OutboundEvent() {
 
             @Override
             public String topic() {
@@ -71,6 +71,6 @@ record DefaultProducerProxyInvocationBinder(Function<Object[], String> topicBind
                 return headers;
             }
 
-        });
+        };
     }
 }

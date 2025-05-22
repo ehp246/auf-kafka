@@ -9,5 +9,5 @@ import java.lang.reflect.Method;
  */
 @FunctionalInterface
 public interface ProxyMethodParser {
-    ProducerProxyInvocationBinder parse(Method method);
+    ProxyInvocationBinder parse(Method method);
 }
