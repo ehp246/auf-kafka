@@ -1,7 +1,5 @@
 package me.ehp246.aufkafka.core.consumer;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.head;
-
 import java.util.List;
 import java.util.Map;
 
@@ -62,23 +60,21 @@ interface InvocableBinderTestCases {
 
         public void m01(final InboundEvent event) {
         }
-        
+
         public ConsumerRecord<String, String> m01(final ConsumerRecord<String, String> msg) {
             return msg;
         }
 
-        public ConsumerRecord<String, String> m01(final ConsumerRecord<String, String> msg,
-                final FromJson fromJson) {
+        public ConsumerRecord<String, String> m01(final ConsumerRecord<String, String> msg, final FromJson fromJson) {
             return msg;
         }
 
-        public Object[] m01(@OfValue final List<Integer> integers,
-                final ConsumerRecord<String, String> msg) {
+        public Object[] m01(@OfValue final List<Integer> integers, final ConsumerRecord<String, String> msg) {
             return new Object[] { integers, msg };
         }
-        
-        public Object[]  header(final Headers headers, final Header myHeader) {
-            return new Object[] {headers, myHeader};
+
+        public Object[] header(final Headers headers, final Header myHeader) {
+            return new Object[] { headers, myHeader };
         }
     }
 
@@ -100,8 +96,7 @@ interface InvocableBinderTestCases {
             return value;
         }
 
-        public String[] m01(@OfHeader("prop1") final String value1,
-                @OfHeader("prop2") final String value2) {
+        public String[] m01(@OfHeader("prop1") final String value1, @OfHeader("prop2") final String value2) {
             return new String[] { value1, value2 };
         }
 
@@ -121,6 +116,10 @@ interface InvocableBinderTestCases {
             return value;
         }
 
+        public Object[] iterableList(@OfHeader final Iterable<Header> iterable, @OfHeader() final List<String> list) {
+            return new Object[] { iterable, list };
+        }
+
         enum PropertyEnum {
             Enum1
         }
@@ -137,8 +136,7 @@ interface InvocableBinderTestCases {
         public void get(@OfMDC @OfValue final String name, @OfMDC("SSN") @OfHeader final int id) {
         }
 
-        public void get(@OfMDC @OfValue final String name,
-                @OfMDC("SSN") @OfHeader final Integer id) {
+        public void get(@OfMDC @OfValue final String name, @OfMDC("SSN") @OfHeader final Integer id) {
         }
 
         public void getOnBody(@OfMDC @OfValue final Name name) {
@@ -155,8 +153,7 @@ interface InvocableBinderTestCases {
         public void getOnBodyIntro(@OfMDC(op = Op.Introspect) @OfValue Name name) {
         }
 
-        public void getOnBodyIntroNamed(
-                @OfMDC(value = "Name.", op = Op.Introspect) @OfValue final Name name) {
+        public void getOnBodyIntroNamed(@OfMDC(value = "Name.", op = Op.Introspect) @OfValue final Name name) {
         }
 
         public void getInBody(@OfValue final Name name) {
@@ -176,9 +173,8 @@ interface InvocableBinderTestCases {
     }
 
     static class PerfCase {
-        public Object[] m01(@OfKey final String type, @OfHeader final String id,
-                @OfHeader("prop1") final String prop1, final Integer body,
-                final ConsumerRecord<String, String> msg, final FromJson fromJson) {
+        public Object[] m01(@OfKey final String type, @OfHeader final String id, @OfHeader("prop1") final String prop1,
+                final Integer body, final ConsumerRecord<String, String> msg, final FromJson fromJson) {
             return new Object[] { type, id, prop1, body };
         }
 
