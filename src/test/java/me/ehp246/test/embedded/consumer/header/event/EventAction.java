@@ -9,7 +9,6 @@ import me.ehp246.aufkafka.api.annotation.Execution;
 import me.ehp246.aufkafka.api.annotation.ForEvent;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
-import me.ehp246.aufkafka.core.consumer.InboundRecord;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
@@ -22,7 +21,7 @@ public class EventAction {
             new CompletableFuture<>());
 
     public void apply(final ConsumerRecord<String, String> consumerRecord) {
-        ref.get().complete(new InboundRecord(consumerRecord));
+        ref.get().complete(new InboundEvent(consumerRecord));
     }
 
     public synchronized InboundEvent take() {

@@ -8,7 +8,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
-import me.ehp246.aufkafka.core.consumer.InboundRecord;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
@@ -26,7 +25,7 @@ class MsgListener {
 
     @KafkaListener(topics = "embedded")
     void onMsg(final ConsumerRecord<String, String> received) {
-        ref.get().complete(new InboundRecord(received));
+        ref.get().complete(new InboundEvent(received));
     }
 
     InboundEvent take() {

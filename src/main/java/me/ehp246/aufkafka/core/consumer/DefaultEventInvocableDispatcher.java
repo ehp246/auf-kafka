@@ -14,10 +14,10 @@ import org.springframework.lang.Nullable;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
-import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.EventInvocable;
 import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 import me.ehp246.aufkafka.api.consumer.EventInvocableDispatcher;
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.InvocationModel;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
@@ -38,8 +38,8 @@ final class DefaultEventInvocableDispatcher implements EventInvocableDispatcher 
     private final List<InvocationListener.CompletedListener> completed = new ArrayList<>();
     private final List<InvocationListener.FailedListener> failed = new ArrayList<>();
 
-    public DefaultEventInvocableDispatcher(final EventInvocableBinder binder, @Nullable final List<InvocationListener> listeners,
-            @Nullable final Executor executor) {
+    public DefaultEventInvocableDispatcher(final EventInvocableBinder binder,
+            @Nullable final List<InvocationListener> listeners, @Nullable final Executor executor) {
         super();
         this.binder = binder;
         this.executor = executor;

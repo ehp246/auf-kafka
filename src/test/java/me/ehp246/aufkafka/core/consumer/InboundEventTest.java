@@ -10,7 +10,7 @@ class InboundEventTest {
 
     @Test
     void test_01() {
-        Assertions.assertThrows(NullPointerException.class, () -> new InboundRecord(null));
+        Assertions.assertThrows(NullPointerException.class, () -> new InboundEvent(null));
     }
 
     @Test
