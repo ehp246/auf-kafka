@@ -7,7 +7,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import me.ehp246.aufkafka.api.producer.OutboundRecord;
+import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
 import me.ehp246.aufkafka.api.serializer.ObjectOf;
 
@@ -18,7 +18,7 @@ import me.ehp246.aufkafka.api.serializer.ObjectOf;
 record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Function<Object[], String> keyBinder,
         Function<Object[], Object> partitionBinder, Function<Object[], Instant> timestampBinder,
         Function<Object[], String> correlIdBinder, ValueParam valueParam, Map<Integer, HeaderParam> headerBinder,
-        List<OutboundRecord.Header> headerStatic) implements ProxyInvocationBinder {
+        List<OutboundEvent.Header> headerStatic) implements ProxyInvocationBinder {
 
     @Override
     public Bound apply(final Object target, final Object[] args) throws Throwable {
@@ -34,7 +34,7 @@ record DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Func
                                 .map(entry -> new OutboundHeader(entry.getValue().name(), args[entry.getKey()])))
                 .collect(Collectors.toList());
 
-        return new Bound(new OutboundRecord() {
+        return new Bound(new OutboundEvent() {
 
             @Override
             public String topic() {

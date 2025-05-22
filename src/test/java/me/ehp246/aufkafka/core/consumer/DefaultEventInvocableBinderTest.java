@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -34,23 +35,25 @@ class DefaultEventInvocableBinderTest {
 
     @Test
     void bound_01() {
-        final var method = new ReflectedType<>(InvocableBinderTestCases.ArgCase01.class).findMethod("m01");
-        final var arg01 = new InvocableBinderTestCases.ArgCase01();
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("m01");
+        final var arg01 = new InvocableBinderTestCases.TypeCase01();
         final var invocable = new InvocableRecord(arg01, method);
-        final var bound = binder.bind(invocable, new InboundEvent(new MockConsumerRecord()));
+        InboundEvent event = new InboundEvent(new MockConsumerRecord());
+        final var bound = binder.bind(invocable, event);
 
         Assertions.assertEquals(arg01, bound.eventInvocable().instance());
         Assertions.assertEquals(method, bound.eventInvocable().method());
         Assertions.assertEquals(0, bound.arguments().length);
         Assertions.assertEquals(invocable.invocationModel(), bound.eventInvocable().invocationModel());
+        Assertions.assertEquals(true, bound.event() == event);
     }
 
     @Test
     void arg_01() {
-        final var method = new ReflectedType<>(InvocableBinderTestCases.ArgCase01.class).findMethod("m01",
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("m01",
                 ConsumerRecord.class);
         final var msg = new InboundEvent(new MockConsumerRecord());
-        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.ArgCase01(), method), msg);
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(), method), msg);
 
         Assertions.assertEquals(1, bound.arguments().length);
         Assertions.assertEquals(msg.consumerRecord(), bound.arguments()[0]);
@@ -59,8 +62,8 @@ class DefaultEventInvocableBinderTest {
     @Test
     void arg_02() {
         Assertions.assertThrows(UnboundParameterException.class,
-                () -> binder.bind(new InvocableRecord(new InvocableBinderTestCases.ArgCase01(),
-                        new ReflectedType<>(InvocableBinderTestCases.ArgCase01.class).findMethod("m01", String.class)),
+                () -> binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(),
+                        new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("m01", String.class)),
                         new InboundEvent(new MockConsumerRecord())));
         ;
     }
@@ -68,10 +71,10 @@ class DefaultEventInvocableBinderTest {
     @Test
     void arg_03() {
         final var event = new InboundEvent(new MockConsumerRecord());
-        final var method = new ReflectedType<>(InvocableBinderTestCases.ArgCase01.class).findMethod("m01",
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("m01",
                 ConsumerRecord.class, FromJson.class);
 
-        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.ArgCase01(), method), event);
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(), method), event);
 
         Assertions.assertEquals(2, bound.arguments().length);
         Assertions.assertEquals(event.consumerRecord(), bound.arguments()[0]);
@@ -80,12 +83,12 @@ class DefaultEventInvocableBinderTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    void arg_04() {
+    void type_04() {
         final var event = MockConsumerRecord.withValue(jackson.apply(List.of(1, 2, 3), null)).toEvent();
-        final var method = new ReflectedType<>(InvocableBinderTestCases.ArgCase01.class).findMethod("m01", List.class,
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("m01", List.class,
                 ConsumerRecord.class);
 
-        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.ArgCase01(), method), event);
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(), method), event);
 
         Assertions.assertEquals(2, bound.arguments().length);
 
@@ -97,6 +100,37 @@ class DefaultEventInvocableBinderTest {
         Assertions.assertEquals(3, firstArg.get(2));
 
         Assertions.assertEquals(event.consumerRecord(), bound.arguments()[1]);
+    }
+
+    @Test
+    void type_05() {
+        final var event = MockConsumerRecord.withValue(jackson.apply(List.of(1, 2, 3), null)).toEvent();
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("m01",
+                InboundEvent.class);
+
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(), method), event);
+
+        Assertions.assertEquals(1, bound.arguments().length);
+        Assertions.assertEquals(event, bound.arguments()[0]);
+    }
+
+    @Test
+    void type_06() {
+        final var event = MockConsumerRecord
+                .withHeaders("h1", "v1", "MyHeader", "myHeader.v1", "h1", "v2", "MyHeader", "myHeader.v2").toEvent();
+        final var method = new ReflectedType<>(InvocableBinderTestCases.TypeCase01.class).findMethod("header",
+                Headers.class, Header.class);
+
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(), method), event);
+
+        Assertions.assertEquals(2, bound.arguments().length);
+        Assertions.assertEquals(event.headers(), bound.arguments()[0]);
+
+        final var returned = (Object[]) ((Completed) bound.invoke()).returned();
+
+        Assertions.assertEquals(event.headers(), returned[0]);
+        Assertions.assertEquals(true, ((Header) returned[1]).key().equals("MyHeader"));
+        Assertions.assertEquals(true, "myHeader.v2".equals(TestUtil.valueString((Header) returned[1])));
     }
 
     @Test
@@ -317,6 +351,56 @@ class DefaultEventInvocableBinderTest {
         Assertions.assertEquals(1, bound.arguments().length);
 
         Assertions.assertEquals(true, mq.headers() == (Headers) bound.arguments()[0]);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void header_10() {
+        final var v1 = UUID.randomUUID().toString();
+        final var v2 = UUID.randomUUID().toString();
+        final var event = MockConsumerRecord.withHeaders("Iterable", v1, "Iterable", v2).toEvent();
+
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.HeaderCase01(),
+                new ReflectedType<>(InvocableBinderTestCases.HeaderCase01.class).findMethod("iterableList",
+                        Iterable.class, List.class)),
+                event);
+
+        final var outcome = bound.invoke();
+        final var returned = (Object[]) ((Completed) outcome).returned();
+
+        Assertions.assertEquals(2, returned.length);
+
+        final var iterable = TestUtil.toList(((Iterable<Header>) returned[0]));
+        Assertions.assertEquals(2, iterable.size());
+        Assertions.assertEquals(v1, TestUtil.valueString(iterable.get(0)));
+        Assertions.assertEquals(v2, TestUtil.valueString(iterable.get(1)));
+        Assertions.assertEquals(null, returned[1]);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void header_11() {
+        final var v1 = UUID.randomUUID().toString();
+        final var v2 = UUID.randomUUID().toString();
+        final var event = MockConsumerRecord.withHeaders("Iterable", v1, "Iterable", v2, "List", v2).toEvent();
+
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.HeaderCase01(),
+                new ReflectedType<>(InvocableBinderTestCases.HeaderCase01.class).findMethod("iterableList",
+                        Iterable.class, List.class)),
+                event);
+
+        final var outcome = bound.invoke();
+        final var returned = (Object[]) ((Completed) outcome).returned();
+
+        Assertions.assertEquals(2, returned.length);
+
+        final var iterable = TestUtil.toList(((Iterable<Header>) returned[0]));
+        Assertions.assertEquals(2, iterable.size());
+        Assertions.assertEquals(v1, TestUtil.valueString(iterable.get(0)));
+        Assertions.assertEquals(v2, TestUtil.valueString(iterable.get(1)));
+
+        final var list = (List<String>) returned[1];
+        Assertions.assertEquals(v2, list.get(0));
     }
 
     @Test

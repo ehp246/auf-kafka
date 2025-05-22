@@ -21,7 +21,7 @@ import org.apache.kafka.common.header.Headers;
  * 
  * @author Lei Yang
  */
-public final class InboundEvent {
+public class InboundEvent {
     private final ConsumerRecord<String, String> consumerRecord;
     private final Map<String, List<String>> headerMap;
 

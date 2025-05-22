@@ -8,5 +8,5 @@ import org.apache.kafka.clients.producer.ProducerRecord;
  */
 @FunctionalInterface
 public interface ProducerRecordBuilder {
-    ProducerRecord<String, String> apply(OutboundRecord outboundRecord);
+    ProducerRecord<String, String> apply(OutboundEvent outboundEvent);
 }

@@ -9,7 +9,7 @@ import me.ehp246.aufkafka.api.serializer.ObjectOf;
 public interface ProxyInvocationBinder {
     Bound apply(Object target, Object[] args) throws Throwable;
 
-    record Bound(OutboundRecord message) {
+    record Bound(OutboundEvent message) {
     }
 
     record HeaderParam(String name, Class<?> type) {

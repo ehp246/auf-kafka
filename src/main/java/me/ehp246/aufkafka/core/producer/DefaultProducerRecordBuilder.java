@@ -12,7 +12,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.header.Header;
 
-import me.ehp246.aufkafka.api.producer.OutboundRecord;
+import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.PartitionFn;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
 import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
@@ -36,7 +36,7 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
     }
 
     @Override
-    public ProducerRecord<String, String> apply(OutboundRecord outboundRecord) {
+    public ProducerRecord<String, String> apply(OutboundEvent outboundRecord) {
         return new ProducerRecord<String, String>(outboundRecord.topic(),
                 partitionFn.apply(this.infoProvider.apply(outboundRecord.topic()), outboundRecord.partitionKey()),
                 Optional.ofNullable(outboundRecord.timestamp()).map(Instant::toEpochMilli).orElse(null),
@@ -45,7 +45,7 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
                 headers(outboundRecord));
     }
 
-    private Iterable<Header> headers(final OutboundRecord outboundRecord) {
+    private Iterable<Header> headers(final OutboundEvent outboundRecord) {
         final var headers = new ArrayList<Header>();
         /**
          * Populate application headers first.

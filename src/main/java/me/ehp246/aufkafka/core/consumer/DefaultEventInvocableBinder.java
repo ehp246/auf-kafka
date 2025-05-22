@@ -40,7 +40,8 @@ import me.ehp246.aufkafka.core.reflection.ReflectedType;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
- *
+ * The binding involves creating the arguments and inject values from the event.
+ * 
  * @author Lei Yang
  * @since 1.0
  */
@@ -119,27 +120,34 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
         final var valueParamRef = new ReflectedParameter[] { null };
 
         for (int i = 0; i < parameters.length; i++) {
-            final var parameter = parameters[i];
-            final var type = parameter.getType();
+            final var reflectedParam = new ReflectedParameter(parameters[i], i);
 
             /*
              * Bindings in descending priorities.
              */
-            if (type.isAssignableFrom(InboundEvent.class)) {
+            if (reflectedParam.isType(InboundEvent.class)) {
                 paramBinders.put(i, event -> event);
                 continue;
-            } else if (type.isAssignableFrom(ConsumerRecord.class)) {
+            } else if (reflectedParam.isType(ConsumerRecord.class)) {
                 paramBinders.put(i, InboundEvent::consumerRecord);
                 continue;
-            } else if (type.isAssignableFrom(FromJson.class)) {
+            } else if (reflectedParam.isType(FromJson.class)) {
                 paramBinders.put(i, event -> fromJson);
                 continue;
-            }
+            } else if (reflectedParam.isType(Headers.class)) {
+                paramBinders.put(i, InboundEvent::headers);
+                continue;
+            } else if (reflectedParam.isType(Header.class)) {
+                final var key = OneUtil.getIfBlank(Optional.ofNullable(reflectedParam.getAnnotation(OfHeader.class))
+                        .map(OfHeader::value).orElse(null), () -> OneUtil.firstUpper(reflectedParam.getName()));
 
+                paramBinders.put(i, event -> event.headers().lastHeader(key));
+                continue;
+            }
             /*
              * Annotated properties.
              */
-            final var annotations = parameter.getAnnotations();
+            final var annotations = reflectedParam.getAnnotations();
             final var propertyAnnotation = Stream.of(annotations)
                     .filter(annotation -> PROPERTY_ANNOTATIONS.contains(annotation.annotationType())).findAny();
             if (propertyAnnotation.isPresent()) {
@@ -153,61 +161,62 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
              */
             final var headerAnnotation = Stream.of(annotations).filter(OfHeader.class::isInstance).findAny();
             if (headerAnnotation.isPresent()) {
-                final var key = OneUtil.getIfBlank(parameter.getAnnotation(OfHeader.class).value(),
-                        () -> OneUtil.firstUpper(parameter.getName()));
+                final var key = OneUtil.getIfBlank(reflectedParam.getAnnotation(OfHeader.class).value(),
+                        () -> OneUtil.firstUpper(reflectedParam.getName()));
 
-                if (type.isAssignableFrom(Headers.class)) {
-                    paramBinders.put(i, InboundEvent::headers);
-                    continue;
-                } else if (type.isAssignableFrom(Header.class)) {
-                    paramBinders.put(i, event -> event.headers().lastHeader(key));
-                    continue;
-                } else if (type.isAssignableFrom(Iterable.class)) {
+                if (reflectedParam.isParameterizedType(Iterable.class)
+                        && reflectedParam.isTypeArgumentClass(Header.class)) {
                     paramBinders.put(i, event -> event.headers().headers(key));
                     continue;
-                } else if (type.isAssignableFrom(List.class)) {
+                } else if (reflectedParam.isParameterizedType(List.class)
+                        && reflectedParam.isTypeArgumentClass(String.class)) {
                     paramBinders.put(i, event -> event.headerValues(key));
                     continue;
-                } else if (type.isAssignableFrom(Map.class)) {
+                } else if (reflectedParam.isAssignableFrom(Map.class)) {
                     paramBinders.put(i, InboundEvent::headerMap);
                     continue;
-                } else if (type.isAssignableFrom(String.class)) {
+                } else if (reflectedParam.isAssignableFrom(String.class)) {
                     paramBinders.put(i, event -> event.lastHeader(key).orElse(null));
                     continue;
-                } else if (type.isAssignableFrom(Boolean.class) || type.isAssignableFrom(boolean.class)) {
+                } else if (reflectedParam.isAssignableFrom(Boolean.class)
+                        || reflectedParam.isAssignableFrom(boolean.class)) {
                     paramBinders.put(i, event -> event.lastHeader(key, Boolean::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Byte.class) || type.isAssignableFrom(byte.class)) {
+                } else if (reflectedParam.isAssignableFrom(Byte.class) || reflectedParam.isAssignableFrom(byte.class)) {
                     paramBinders.put(i, event -> event.lastHeader(key, Byte::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Short.class) || type.isAssignableFrom(short.class)) {
+                } else if (reflectedParam.isAssignableFrom(Short.class)
+                        || reflectedParam.isAssignableFrom(short.class)) {
                     paramBinders.put(i, event -> event.lastHeader(key, Short::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Integer.class) || type.isAssignableFrom(int.class)) {
+                } else if (reflectedParam.isAssignableFrom(Integer.class)
+                        || reflectedParam.isAssignableFrom(int.class)) {
                     paramBinders.put(i, event -> event.lastHeader(key, Integer::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Long.class) || type.isAssignableFrom(long.class)) {
+                } else if (reflectedParam.isAssignableFrom(Long.class) || reflectedParam.isAssignableFrom(long.class)) {
                     paramBinders.put(i, event -> event.lastHeader(key, Long::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Double.class) || type.isAssignableFrom(double.class)) {
+                } else if (reflectedParam.isAssignableFrom(Double.class)
+                        || reflectedParam.isAssignableFrom(double.class)) {
                     paramBinders.put(i, event -> event.lastHeader(key, Double::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Float.class) || type.isAssignableFrom(float.class)) {
+                } else if (reflectedParam.isAssignableFrom(Float.class)
+                        || reflectedParam.isAssignableFrom(float.class)) {
                     paramBinders.put(i, event -> event.lastHeader(key, Float::valueOf));
                     continue;
-                } else if (type.isAssignableFrom(Instant.class)) {
+                } else if (reflectedParam.isAssignableFrom(Instant.class)) {
                     paramBinders.put(i, event -> event.lastHeader(key, Instant::parse));
                     continue;
-                } else if (type.isAssignableFrom(UUID.class)) {
+                } else if (reflectedParam.isAssignableFrom(UUID.class)) {
                     paramBinders.put(i, event -> event.lastHeader(key, UUID::fromString));
                     continue;
-                } else if (type.isEnum()) {
-                    paramBinders.put(i,
-                            event -> event.lastHeader(key, str -> Enum.valueOf((Class<Enum>) type, str)));
+                } else if (reflectedParam.isEnum()) {
+                    paramBinders.put(i, event -> event.lastHeader(key,
+                            str -> Enum.valueOf((Class<Enum>) reflectedParam.getType(), str)));
                     continue;
                 }
                 throw new RuntimeException("Un-supported " + OfHeader.class.getSimpleName() + " parameter type: "
-                        + parameter + " on " + method);
+                        + reflectedParam + " on " + method);
             }
 
             /*
@@ -216,16 +225,16 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
             final var ofValueAnnotation = Stream.of(annotations).filter(OfValue.class::isInstance).findAny();
             if (ofValueAnnotation.isPresent()) {
                 final var bodyOf = JacksonObjectOfBuilder
-                        .ofView(Optional.ofNullable(parameter.getAnnotation(JsonView.class)).map(JsonView::value)
-                                .map(OneUtil::firstOrNull).orElse(null), parameter.getType());
+                        .ofView(Optional.ofNullable(reflectedParam.getAnnotation(JsonView.class)).map(JsonView::value)
+                                .map(OneUtil::firstOrNull).orElse(null), reflectedParam.getType());
 
                 paramBinders.put(i, msg -> msg.value() == null ? null : fromJson.apply(msg.value(), bodyOf));
-                valueParamRef[0] = new ReflectedParameter(parameters[i], i);
+                valueParamRef[0] = reflectedParam;
 
                 continue;
             }
 
-            throw new UnboundParameterException(parameter, method);
+            throw new UnboundParameterException(reflectedParam.parameter(), method);
         }
 
         /*
