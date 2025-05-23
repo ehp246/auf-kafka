@@ -3,6 +3,7 @@ package me.ehp246.aufkafka.core.producer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -38,13 +39,13 @@ final class DefaultProducerRecordBuilder implements ProducerRecordBuilder {
     }
 
     @Override
-    public ProducerRecord<String, String> apply(OutboundEvent outboundRecord) {
-        return new ProducerRecord<String, String>(outboundRecord.topic(),
-                partitionFn.apply(this.infoProvider.apply(outboundRecord.topic()), outboundRecord.partitionKey()),
-                Optional.ofNullable(outboundRecord.timestamp()).map(Instant::toEpochMilli).orElse(null),
-                outboundRecord.key(),
-                this.toJson.apply(outboundRecord.value(), (JacksonObjectOf<?>) outboundRecord.objectOf()),
-                headers(outboundRecord));
+    public ProducerRecord<String, String> apply(OutboundEvent outboundEvent) {
+        return new ProducerRecord<String, String>(outboundEvent.topic(),
+                partitionFn.apply(this.infoProvider.apply(outboundEvent.topic()), outboundEvent.partitionKey()),
+                Optional.ofNullable(outboundEvent.timestamp()).map(Instant::toEpochMilli).orElse(null),
+                outboundEvent.key(),
+                this.toJson.apply(outboundEvent.value(), (JacksonObjectOf<?>) outboundEvent.objectOf()),
+                headers(outboundEvent));
     }
 
     private Iterable<Header> headers(final OutboundEvent outboundEvent) {
@@ -53,11 +54,11 @@ final class DefaultProducerRecordBuilder implements ProducerRecordBuilder {
          * Populate application headers first.
          */
         final var pairs = outboundEvent.headers();
-        var hasCorrelId = false;
+        final var keySet = new HashSet<String>();
         if (pairs != null && !pairs.isEmpty()) {
             for (var pair : pairs) {
                 final var key = pair.key();
-                hasCorrelId = this.correlIdHeader.equals(key);
+                keySet.add(key);
                 headers.add(new Header() {
                     private final byte[] value = pair.value() == null ? null
                             : pair.value().toString().getBytes(StandardCharsets.UTF_8);
@@ -78,7 +79,7 @@ final class DefaultProducerRecordBuilder implements ProducerRecordBuilder {
         /**
          * Reserved headers to the last position.
          */
-        if (!hasCorrelId) {
+        if (!keySet.contains(this.correlIdHeader)) {
             headers.add(new Header() {
                 final byte[] value = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
 
