@@ -1,5 +1,7 @@
 package me.ehp246.test.embedded.producer.header;
 
+import java.util.UUID;
+
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
@@ -31,5 +33,14 @@ interface TestCases {
     @ByKafka(value = "embedded", methodAsHeader = "my.own.event")
     interface Case04 {
         void methodName();
+    }
+
+    @ByKafka(value = "embedded")
+    interface CorrelIdCase01 {
+        void ping();
+
+        void ping(@OfHeader(AufKafkaConstant.CORRELATIONID_HEADER) String correlId);
+
+        void ping(@OfHeader("trace.id") UUID correlId);
     }
 }

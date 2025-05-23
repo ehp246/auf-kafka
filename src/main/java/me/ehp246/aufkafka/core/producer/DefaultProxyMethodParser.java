@@ -95,7 +95,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                         parameter.getType()))
                 .orElse(null);
 
-        return new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder, null,
+        return new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder,
                 valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, objectOf), headerBinder(reflected),
                 headerStatic(reflected, byKafka));
     }
