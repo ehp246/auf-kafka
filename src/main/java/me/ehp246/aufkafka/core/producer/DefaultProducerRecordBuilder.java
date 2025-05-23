@@ -12,6 +12,7 @@ import java.util.function.Function;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.internals.RecordHeader;
 
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.PartitionFn;
@@ -59,20 +60,8 @@ final class DefaultProducerRecordBuilder implements ProducerRecordBuilder {
             for (var pair : pairs) {
                 final var key = pair.key();
                 keySet.add(key);
-                headers.add(new Header() {
-                    private final byte[] value = pair.value() == null ? null
-                            : pair.value().toString().getBytes(StandardCharsets.UTF_8);
-
-                    @Override
-                    public String key() {
-                        return key;
-                    }
-
-                    @Override
-                    public byte[] value() {
-                        return value;
-                    }
-                });
+                headers.add(new RecordHeader(key,
+                        pair.value() == null ? null : pair.value().toString().getBytes(StandardCharsets.UTF_8)));
             }
         }
 
@@ -80,19 +69,8 @@ final class DefaultProducerRecordBuilder implements ProducerRecordBuilder {
          * Reserved headers to the last position.
          */
         if (!keySet.contains(this.correlIdHeader)) {
-            headers.add(new Header() {
-                final byte[] value = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
-
-                @Override
-                public byte[] value() {
-                    return value;
-                }
-
-                @Override
-                public String key() {
-                    return correlIdHeader;
-                }
-            });
+            headers.add(new RecordHeader(this.correlIdHeader,
+                    UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)));
         }
 
         return headers;
