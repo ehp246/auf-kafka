@@ -7,10 +7,12 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Parameter;
 import java.nio.charset.StandardCharsets;
 
+import me.ehp246.aufkafka.api.consumer.EventInvocable;
+
 /**
  * Specifies the binding point for a custom header. The annotation can be
  * applied on both the producer side, i.e., {@linkplain ByKafka} interfaces, and
- * the consumer side, i.e., {@linkplain ForKey} classes.
+ * the consumer side, i.e., {@linkplain EventInvocable} classes.
  * <p>
  * On the producer side, applied to a parameter on a {@linkplain ByKafka}
  * interface, it specifies the name and argument of a header for the out-going
@@ -24,9 +26,9 @@ import java.nio.charset.StandardCharsets;
  * If the argument is <code>null</code>, the header will have a value of
  * zero-length <code>byte []</code>.
  * <p>
- * On the consumer side, applied to a parameter of a {@linkplain ForKey}
+ * On the consumer side, applied to a parameter of a {@linkplain ForEvent}
  * {@linkplain Applying} method, it specifies the injection point for the value
- * of the named header of the in-coming message.
+ * of the named header of the inbound message.
  * <p>
  * For {@linkplain String} parameters, <code>byte []</code> values are converted
  * by {@linkplain StandardCharsets#UTF_8}.
@@ -47,6 +49,8 @@ import java.nio.charset.StandardCharsets;
 public @interface OfHeader {
     /**
      * The name of the header.
+     * <p>
+     * Does not support placeholder.
      */
     String value() default "";
 }
