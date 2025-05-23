@@ -7,6 +7,6 @@
   {
     "name": "me.ehp246.aufkafka.header.correlation-id",
     "type": "java.lang.String",
-    "description": "Specifies the header key for correlation id. On producers, one UUID will be generated for the value if none is provided. On consumers, the header value, if present, will be set to SLF4J's MDC."
+    "description": "Specifies the header key for correlation id. Producers generate a UUID for the value if none is provided. Consumers add the header value, if present, to SLF4J's MDC."
   }
 ]}

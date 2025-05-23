@@ -10,11 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
+import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InboundDispatchingLogger;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
-import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 
 /**
  * @author Lei Yang
@@ -56,8 +56,9 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
                     endpoint.consumerProperties());
             consumer.subscribe(Set.of(endpoint.from().topic()));
 
-            final var consumerRunner = new InboundConsumerRunner(consumer, endpoint::pollDuration, new DefaultEventInvocableDispatcher(this.binder,
-                    endpoint.invocationListener() == null ? null : List.of(endpoint.invocationListener()), null),
+            final var consumerRunner = new InboundConsumerRunner(consumer, endpoint::pollDuration,
+                    new DefaultEventInvocableRunnableBuilder(this.binder,
+                            endpoint.invocationListener() == null ? null : List.of(endpoint.invocationListener())),
                     new AutowireCapableInvocableFactory(autowireCapableBeanFactory, endpoint.invocableRegistry()),
                     this.onDispatching, endpoint.unmatchedConsumer(), endpoint.consumerExceptionListener());
 
