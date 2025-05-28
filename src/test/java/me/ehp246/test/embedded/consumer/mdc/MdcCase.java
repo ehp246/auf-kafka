@@ -12,7 +12,7 @@ import me.ehp246.aufkafka.api.annotation.OfValue;
  *
  */
 @ByKafka("embedded")
-interface MDCCase {
+interface MdcCase {
     void ping(@OfHeader String aufKafkaEventMDCOrderId);
 
     void ping(@OfMDC Name name);

@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 
-import me.ehp246.test.embedded.consumer.mdc.MDCCase.Order;
+import me.ehp246.test.embedded.consumer.mdc.MdcCase.Order;
 
 /**
  * @author Lei Yang
@@ -20,9 +20,9 @@ import me.ehp246.test.embedded.consumer.mdc.MDCCase.Order;
  */
 @SpringBootTest(classes = { AppConfig.class }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { "embedded" }, partitions = 1)
-class MDCTest {
+class MdcTest {
     @Autowired
-    private MDCCase case1;
+    private MdcCase case1;
     @Autowired
     private OnPing onPing;
     @Autowired
@@ -45,7 +45,7 @@ class MDCTest {
 
         case1.ping(expected);
 
-        Assertions.assertEquals(expected, onPing.take().get("OrderId"));
+        Assertions.assertEquals("[" + expected + "]", onPing.take().get("OrderId"));
     }
 
     @Test

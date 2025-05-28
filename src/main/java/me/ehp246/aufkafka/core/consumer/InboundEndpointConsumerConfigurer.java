@@ -8,13 +8,16 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InboundDispatchingLogger;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
+import me.ehp246.aufkafka.api.spi.EventMdcContext;
 
 /**
  * @author Lei Yang
@@ -30,12 +33,15 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
     private final List<InboundConsumerListener.DispatchingListener> onDispatching;
     private final AutowireCapableBeanFactory autowireCapableBeanFactory;
     private final DefaultInboundConsumerRegistry consumerRegistry;
+    private final String correlIdHeader;
 
     public InboundEndpointConsumerConfigurer(final List<InboundEndpoint> endpoints,
             final InboundConsumerExecutorProvider executorProvider, final ConsumerProvider consumerProvider,
             final EventInvocableBinder binder, final InboundDispatchingLogger inboundDispatchingLogger,
             final AutowireCapableBeanFactory autowireCapableBeanFactory,
-            final DefaultInboundConsumerRegistry consumerRegistry) {
+            final DefaultInboundConsumerRegistry consumerRegistry,
+            @Value("${" + AufKafkaConstant.PROPERTY_HEADER_CORRELATIONID + ":" + AufKafkaConstant.CORRELATIONID_HEADER
+                    + "}") final String correlIdHeader) {
         super();
         this.endpoints = endpoints;
         this.executorProvider = executorProvider;
@@ -44,6 +50,7 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
         this.onDispatching = inboundDispatchingLogger == null ? List.of() : List.of(inboundDispatchingLogger);
         this.autowireCapableBeanFactory = autowireCapableBeanFactory;
         this.consumerRegistry = consumerRegistry;
+        this.correlIdHeader = correlIdHeader;
     }
 
     @Override
@@ -63,8 +70,11 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
                     this.onDispatching, endpoint.unmatchedConsumer(), endpoint.consumerExceptionListener());
 
             this.consumerRegistry.put(endpoint.name(), consumerRunner);
-
-            this.executorProvider.get().execute(consumerRunner);
+            this.executorProvider.get().execute(() -> {
+                EventMdcContext.setMdcHeaders(Set.of(this.correlIdHeader));
+                consumerRunner.run();
+                EventMdcContext.clearMdcHeaders();
+            });
         }
     }
 
