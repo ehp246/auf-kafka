@@ -135,7 +135,8 @@ class EventMdcContextTest {
     void mdcHeaders_07() {
         final var completed = new CompletableFuture<String>();
         final var missingHeder = UUID.randomUUID().toString();
-        final var event = MockConsumerRecord.withHeaders(UUID.randomUUID().toString(), UUID.randomUUID().toString()).toEvent();
+        final var event = MockConsumerRecord.withHeaders(UUID.randomUUID().toString(), UUID.randomUUID().toString())
+                .toEvent();
 
         executor.execute(() -> {
             EventMdcContext.setMdcHeaders(Set.of(missingHeder));
@@ -145,5 +146,17 @@ class EventMdcContextTest {
 
         Assertions.assertEquals((String) null, OneUtil.orThrow(completed::get));
         Assertions.assertEquals((String) null, MDC.get(missingHeder));
+    }
+
+    @Test
+    void mdcHeaders_08() {
+        final var completed = new CompletableFuture<String>();
+        executor.execute(() -> {
+            EventMdcContext.setMdcHeaders(null);
+            EventMdcContext.set(null);
+            completed.complete("");
+        });
+
+        Assertions.assertEquals("", OneUtil.orThrow(completed::get));
     }
 }

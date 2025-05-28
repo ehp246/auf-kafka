@@ -75,7 +75,7 @@ public final class EventMdcContext {
         }
 
         final var propertyNames = event.headerList();
-        if (propertyNames == null) {
+        if (propertyNames == null || propertyNames.isEmpty()) {
             return;
         }
 
