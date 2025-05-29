@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 
 import me.ehp246.aufkafka.api.annotation.Execution;
 import me.ehp246.aufkafka.api.annotation.ForEvent;
-import me.ehp246.aufkafka.api.annotation.OfMDC;
-import me.ehp246.aufkafka.api.annotation.OfMDC.Op;
+import me.ehp246.aufkafka.api.annotation.OfMdc;
+import me.ehp246.aufkafka.api.annotation.OfMdc.Op;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
 
@@ -25,7 +25,7 @@ public class OnPingOnBody {
     private final AtomicReference<CompletableFuture<Map<String, String>>> ref = new AtomicReference<>(
             new CompletableFuture<>());
 
-    public void apply(@OfMDC(value = "Order_", op = Op.Introspect) @OfValue final Order order) {
+    public void apply(@OfMdc(value = "Order_", op = Op.Introspect) @OfValue final Order order) {
         this.ref.get().complete(ThreadContext.getContext());
     }
 
@@ -40,6 +40,6 @@ public class OnPingOnBody {
         return received;
     }
 
-    public record Order(@OfMDC("OrderId") int id, @OfMDC int amount) {
+    public record Order(@OfMdc("OrderId") int id, @OfMdc int amount) {
     }
 }

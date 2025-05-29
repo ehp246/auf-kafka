@@ -11,8 +11,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
-import me.ehp246.aufkafka.api.annotation.OfMDC;
-import me.ehp246.aufkafka.api.annotation.OfMDC.Op;
+import me.ehp246.aufkafka.api.annotation.OfMdc;
+import me.ehp246.aufkafka.api.annotation.OfMdc.Op;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.serializer.json.FromJson;
@@ -129,43 +129,43 @@ interface InvocableBinderTestCases {
         public void get() {
         }
 
-        public void get(@OfMDC("name") @OfHeader final String firstName,
-                @OfMDC("name") @OfHeader final String lastName) {
+        public void get(@OfMdc("name") @OfHeader final String firstName,
+                @OfMdc("name") @OfHeader final String lastName) {
         }
 
-        public void get(@OfMDC @OfValue final String name, @OfMDC("SSN") @OfHeader final int id) {
+        public void get(@OfMdc @OfValue final String name, @OfMdc("SSN") @OfHeader final int id) {
         }
 
-        public void get(@OfMDC @OfValue final String name, @OfMDC("SSN") @OfHeader final Integer id) {
+        public void get(@OfMdc @OfValue final String name, @OfMdc("SSN") @OfHeader final Integer id) {
         }
 
-        public void getOnBody(@OfMDC @OfValue final Name name) {
+        public void getOnBody(@OfMdc @OfValue final Name name) {
         }
 
-        public void getOnBodyPrec(@OfMDC(op = Op.Introspect) @OfValue final Name name,
-                @OfMDC("firstName") @OfHeader("firstName") final String nameProperty) {
+        public void getOnBodyPrec(@OfMdc(op = Op.Introspect) @OfValue final Name name,
+                @OfMdc("firstName") @OfHeader("firstName") final String nameProperty) {
         }
 
-        public void getOnBodyNamed(@OfMDC("newName") @OfValue final Name name,
-                @OfHeader @OfMDC final String firstName) {
+        public void getOnBodyNamed(@OfMdc("newName") @OfValue final Name name,
+                @OfHeader @OfMdc final String firstName) {
         }
 
-        public void getOnBodyIntro(@OfMDC(op = Op.Introspect) @OfValue Name name) {
+        public void getOnBodyIntro(@OfMdc(op = Op.Introspect) @OfValue Name name) {
         }
 
-        public void getOnBodyIntroNamed(@OfMDC(value = "Name.", op = Op.Introspect) @OfValue final Name name) {
+        public void getOnBodyIntroNamed(@OfMdc(value = "Name.", op = Op.Introspect) @OfValue final Name name) {
         }
 
         public void getInBody(@OfValue final Name name) {
         }
 
-        record Name(@OfMDC String firstName, @OfMDC String lastName) {
-            @OfMDC
+        record Name(@OfMdc String firstName, @OfMdc String lastName) {
+            @OfMdc
             String fullName() {
                 return firstName + lastName;
             }
 
-            @OfMDC(op = Op.Introspect)
+            @OfMdc(op = Op.Introspect)
             String middleName() {
                 return null;
             }
