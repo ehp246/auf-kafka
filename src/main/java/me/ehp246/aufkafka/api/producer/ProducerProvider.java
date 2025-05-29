@@ -10,5 +10,5 @@ import org.apache.kafka.clients.producer.Producer;
  */
 @FunctionalInterface
 public interface ProducerProvider {
-	Producer<String, String> get(String configName, Map<String, Object> custom);
+	Producer<String, String> get(String name, Map<String, Object> custom);
 }

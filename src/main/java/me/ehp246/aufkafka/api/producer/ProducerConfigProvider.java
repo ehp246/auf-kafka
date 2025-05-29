@@ -8,5 +8,5 @@ import java.util.Map;
  */
 @FunctionalInterface
 public interface ProducerConfigProvider {
-    Map<String, Object> get(String name);
+    Map<String, Object> get(String producerName);
 }

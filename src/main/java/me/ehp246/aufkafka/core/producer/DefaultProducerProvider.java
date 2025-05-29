@@ -30,13 +30,13 @@ final class DefaultProducerProvider implements ProducerProvider, AutoCloseable {
     }
 
     @Override
-    public Producer<String, String> get(String configName, Map<String, Object> custom) {
-        if (configName == null) {
+    public Producer<String, String> get(String name, Map<String, Object> custom) {
+        if (name == null) {
             throw new IllegalArgumentException("Configuration name can't be null");
         }
-        return producers.computeIfAbsent(configName, name -> {
+        return producers.computeIfAbsent(name, n -> {
             // Global provider first.
-            final var configMap = new HashMap<>(configProvider.get(name));
+            final var configMap = new HashMap<>(configProvider.get(n));
 
             // Custom overwrites global
             if (custom != null) {

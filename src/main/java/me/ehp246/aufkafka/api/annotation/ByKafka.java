@@ -99,7 +99,7 @@ public @interface ByKafka {
      * @see ProducerProvider
      * @see ProducerFnProvider
      */
-    String producerConfigName() default "";
+    String producerName() default "";
 
     /**
      * Defines {@linkplain KafkaProducer} property names and values in pairs. E.g.,
