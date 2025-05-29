@@ -27,7 +27,7 @@ public final class AufKafkaConstant {
     /**
      * MDC
      */
-    public static final String MDC_HEADER_PREFIX = "AufKafkaEventMDC";
+    public static final String MDC_HEADER_PREFIX = HEADER_PREFIX + "mdc_";
     public final static Marker HEADERS = MarkerFactory.getMarker("HEADERS");
     public final static Marker VALUE = MarkerFactory.getMarker("VALUE");
     public final static Marker EXCEPTION = MarkerFactory.getMarker("EXCEPTION");

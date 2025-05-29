@@ -56,7 +56,7 @@ public final class EventMdcContext {
         final var keyNames = headerMap.keySet();
 
         keyNames.stream().filter(name -> name.startsWith(AufKafkaConstant.MDC_HEADER_PREFIX)).forEach(name -> MDC
-                .put(name.replaceFirst(AufKafkaConstant.MDC_HEADER_PREFIX, ""), headerMap.get(name).toString()));
+                .put(name.replaceFirst(AufKafkaConstant.MDC_HEADER_PREFIX, ""), OneUtil.toString(headerMap.get(name))));
 
         MDC_HEADERS.get().stream().forEach(name -> MDC.put(name, OneUtil.toString(headerMap.get(name))));
 
