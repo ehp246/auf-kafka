@@ -3,25 +3,29 @@ package me.ehp246.aufkafka.core.producer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
 import me.ehp246.aufkafka.api.producer.ProducerProvider;
 
 final class DefaultProducerProvider implements ProducerProvider, AutoCloseable {
     private final static Logger LOGGER = LoggerFactory.getLogger(DefaultProducerProvider.class);
 
+    private final Function<Map<String, Object>, Producer<String, String>> producerSupplier;
     private final ProducerConfigProvider configProvider;
     private final Map<String, Producer<String, String>> producers = new ConcurrentHashMap<>();
 
-    DefaultProducerProvider(final ProducerConfigProvider configProvider) {
+    DefaultProducerProvider(final Function<Map<String, Object>, Producer<String, String>> producerSupplier,
+            final ProducerConfigProvider configProvider) {
         super();
+        this.producerSupplier = producerSupplier;
         this.configProvider = configProvider;
     }
 
@@ -43,7 +47,7 @@ final class DefaultProducerProvider implements ProducerProvider, AutoCloseable {
             configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
             configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
-            return new KafkaProducer<String, String>(configMap);
+            return producerSupplier.apply(configMap);
         });
     }
 
@@ -52,7 +56,11 @@ final class DefaultProducerProvider implements ProducerProvider, AutoCloseable {
         LOGGER.atTrace().setMessage("Closing producers").log();
 
         for (final var producer : producers.values()) {
-            producer.close();
+            try (producer) {
+            } catch (Exception e) {
+                LOGGER.atError().setCause(e).addMarker(AufKafkaConstant.EXCEPTION)
+                        .setMessage("Producer failed to close, ignored.").log();
+            }
         }
         this.producers.clear();
     }

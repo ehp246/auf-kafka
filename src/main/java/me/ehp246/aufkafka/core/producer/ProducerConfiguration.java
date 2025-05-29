@@ -1,5 +1,6 @@
 package me.ehp246.aufkafka.core.producer;
 
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -44,6 +45,6 @@ public final class ProducerConfiguration {
 
     @Bean
     ProducerProvider producerProvider(final ProducerConfigProvider configProvider) {
-        return new DefaultProducerProvider(configProvider);
+        return new DefaultProducerProvider(KafkaProducer::new, configProvider);
     }
 }
