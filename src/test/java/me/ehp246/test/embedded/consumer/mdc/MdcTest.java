@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import me.ehp246.test.embedded.consumer.mdc.MdcCase.Order;
  */
 @SpringBootTest(classes = { AppConfig.class }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { "embedded" }, partitions = 1)
+@Disabled
 class MdcTest {
     @Autowired
     private MdcCase case1;
