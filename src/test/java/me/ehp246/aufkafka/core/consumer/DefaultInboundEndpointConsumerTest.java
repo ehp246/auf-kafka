@@ -22,7 +22,7 @@ import me.ehp246.test.mock.MockConsumerRecord;
  * @author Lei Yang
  *
  */
-class InboundConsumerRunnerTest {
+class DefaultInboundEndpointConsumerTest {
     private final EventInvocableRunnableBuilder dispatcher = (i, r) -> () -> {
     };
     private final InvocableFactory factory = r -> null;
@@ -42,12 +42,12 @@ class InboundConsumerRunnerTest {
 
         final var thrown = new RuntimeException();
 
-        final var task = new InboundConsumerRunner(consumer, Duration.ofDays(1)::abs, dispatcher,
+        final var task = new DefaultInboundEndpointConsumer(consumer, Duration.ofDays(1)::abs, dispatcher,
                 (InvocableFactory) (r -> {
                     throw thrown;
                 }), null, null, (ConsumerExceptionListener) (c -> ref.complete(c)));
 
-        Executors.newVirtualThreadPerTaskExecutor().execute(task);
+        Executors.newVirtualThreadPerTaskExecutor().execute(task::run);
 
         final var context = ref.get();
 
@@ -66,7 +66,8 @@ class InboundConsumerRunnerTest {
         final var consumer = Mockito.mock(Consumer.class);
         Mockito.when(consumer.poll(Mockito.any())).thenReturn(Mockito.mock(ConsumerRecords.class));
 
-        final var task = new InboundConsumerRunner(consumer, () -> expected, dispatcher, factory, null, null, null);
+        final var task = new DefaultInboundEndpointConsumer(consumer, () -> expected, dispatcher, factory, null, null,
+                null);
 
         final var ref = new CompletableFuture<Exception>();
         Executors.newVirtualThreadPerTaskExecutor().execute(() -> {

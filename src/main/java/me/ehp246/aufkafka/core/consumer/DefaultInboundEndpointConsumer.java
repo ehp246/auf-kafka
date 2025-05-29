@@ -24,8 +24,8 @@ import me.ehp246.aufkafka.api.spi.EventMdcContext;
  * @author Lei Yang
  * @since 1.0
  */
-final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
-    private final static Logger LOGGER = LoggerFactory.getLogger(InboundConsumerRunner.class);
+final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
+    private final static Logger LOGGER = LoggerFactory.getLogger(DefaultInboundEndpointConsumer.class);
 
     private final Consumer<String, String> consumer;
     private final Supplier<Duration> pollDurationSupplier;
@@ -37,8 +37,9 @@ final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
     private volatile boolean closed = false;
     private final CompletableFuture<Boolean> closedFuture = new CompletableFuture<Boolean>();
 
-    InboundConsumerRunner(final Consumer<String, String> consumer, final Supplier<Duration> pollDurationSupplier,
-            final EventInvocableRunnableBuilder dispatcher, final InvocableFactory invocableFactory,
+    DefaultInboundEndpointConsumer(final Consumer<String, String> consumer,
+            final Supplier<Duration> pollDurationSupplier, final EventInvocableRunnableBuilder dispatcher,
+            final InvocableFactory invocableFactory,
             final List<InboundConsumerListener.DispatchingListener> onDispatching, final UnmatchedConsumer onUnmatched,
             final ConsumerExceptionListener onException) {
         super();
@@ -51,7 +52,6 @@ final class InboundConsumerRunner implements Runnable, InboundEndpointConsumer {
         this.onException = onException;
     }
 
-    @Override
     public void run() {
         while (!this.closed) {
             final var polled = consumer.poll(pollDurationSupplier.get());

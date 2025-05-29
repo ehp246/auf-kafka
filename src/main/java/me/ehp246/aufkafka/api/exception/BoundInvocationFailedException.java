@@ -1,11 +1,10 @@
 package me.ehp246.aufkafka.api.exception;
 
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
-import me.ehp246.aufkafka.api.consumer.EventInvocableRunnableBuilder;
 
 /**
  * Indicates the invocation on {@linkplain BoundInvocable} has failed wrapping
- * the cause. Thrown by {@linkplain EventInvocableRunnableBuilder}.
+ * the cause.
  *
  * @author Lei Yang
  * @since 1.0

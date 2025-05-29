@@ -63,7 +63,7 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
                     endpoint.consumerProperties());
             consumer.subscribe(Set.of(endpoint.from().topic()));
 
-            final var consumerRunner = new InboundConsumerRunner(consumer, endpoint::pollDuration,
+            final var consumerRunner = new DefaultInboundEndpointConsumer(consumer, endpoint::pollDuration,
                     new DefaultEventInvocableRunnableBuilder(this.binder,
                             endpoint.invocationListener() == null ? null : List.of(endpoint.invocationListener())),
                     new AutowireCapableInvocableFactory(autowireCapableBeanFactory, endpoint.invocableRegistry()),
@@ -85,7 +85,7 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
         final var closedFuture = new ArrayList<CompletableFuture<Boolean>>(this.consumerRegistry.getNames().size());
 
         for (String name : this.consumerRegistry.getNames()) {
-            if (!(this.consumerRegistry.get(name) instanceof InboundConsumerRunner runner)) {
+            if (!(this.consumerRegistry.get(name) instanceof DefaultInboundEndpointConsumer runner)) {
                 LOGGER.atWarn().setMessage("Unknown InboundConsumer of type: {}")
                         .addArgument(this.consumerRegistry.get(name).consumer()).log();
                 continue;
