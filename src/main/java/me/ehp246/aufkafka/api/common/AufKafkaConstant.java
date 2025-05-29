@@ -20,8 +20,8 @@ public final class AufKafkaConstant {
     public static final String PROPERTY_INBOUND_MESSAGELOGGING_ENABLED = "me.ehp246.aufkafka.inbound.messagelogging.enabled";
     public static final String PROPERTY_HEADER_CORRELATIONID = "me.ehp246.aufkafka.header.correlation-id";
 
-    public static final String EVENT_HEADER = "AufKafkaEvent";
     public static final String HEADER_PREFIX = "aufkafka_";
+    public static final String EVENT_HEADER = HEADER_PREFIX + "event";
     public static final String CORRELATIONID_HEADER = HEADER_PREFIX + "correlation_id";
 
     /**
