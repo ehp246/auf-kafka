@@ -68,7 +68,7 @@ import org.slf4j.MDC;
  */
 @Retention(RUNTIME)
 @Target({ METHOD, PARAMETER })
-public @interface OfMDC {
+public @interface OfMdc {
     /**
      * Specifies the name of {@linkplain MDC} key.
      * <p>

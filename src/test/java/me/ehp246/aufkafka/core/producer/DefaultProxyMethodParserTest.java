@@ -26,8 +26,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m01();
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals("c26d1201-a956-4a45-a049-bc7fece18fff", message.topic());
     }
@@ -38,8 +38,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(null);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, message.topic());
     }
@@ -51,8 +51,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(expected);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(expected, message.topic());
     }
@@ -63,8 +63,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m01();
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals("bc5beb1b-569c-4055-bedf-3b06f9af2e5d", message.topic());
     }
@@ -75,8 +75,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m01();
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, message.key());
     }
@@ -88,8 +88,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(expected);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(expected.toString(), message.key());
     }
@@ -100,8 +100,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(null);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, message.key());
     }
@@ -112,8 +112,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m03();
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, message.key(), "should supress");
     }
@@ -124,8 +124,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m04();
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals("887114e5-5770-4f7f-b0c6-e0803753eb58", message.key(), "should follow annotation");
     }
@@ -136,8 +136,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m01();
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals("M01", TestUtil.getLastValue(message.headers(), AufKafkaConstant.EVENT_HEADER));
     }
@@ -149,8 +149,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(expected);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(expected.toString(),
                 TestUtil.getLastValue(message.headers(), AufKafkaConstant.EVENT_HEADER));
@@ -162,8 +162,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(null);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, TestUtil.getLastValue(message.headers(), AufKafkaConstant.EVENT_HEADER));
     }
@@ -174,8 +174,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m01();
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, message.partitionKey());
     }
@@ -187,8 +187,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(expected);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(true, message.partitionKey() == expected);
     }
@@ -199,8 +199,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(null);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, message.partitionKey());
     }
@@ -211,8 +211,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m01();
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, message.timestamp());
     }
@@ -224,8 +224,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(expected);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(expected, message.timestamp());
     }
@@ -236,8 +236,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(null);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, message.timestamp());
     }
@@ -249,8 +249,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m03(expected);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(expected, message.timestamp().toEpochMilli());
     }
@@ -261,8 +261,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m03(null);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, message.timestamp());
     }
@@ -273,8 +273,8 @@ class DefaultProxyMethodParserTest {
         final var expected = Instant.now();
         captor.proxy().m04(expected.toEpochMilli());
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(expected.toEpochMilli(), message.timestamp().toEpochMilli());
     }
@@ -285,8 +285,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m01();
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, message.value());
     }
@@ -298,8 +298,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(expected);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(expected, message.value());
     }
@@ -310,8 +310,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(null);
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, message.value());
     }
@@ -322,8 +322,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m03(UUID.randomUUID());
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(null, message.value(), "should ignore un-annotated");
     }
@@ -334,8 +334,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m04(UUID.randomUUID(), UUID.randomUUID());
 
-        final var message = parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message();
+        final var message = parser.parse(captor.invocation().method()).apply(captor.invocation().target(),
+                captor.invocation().args());
 
         Assertions.assertEquals(captor.invocation().args()[1], message.value(), "should ignore un-annotated");
     }
@@ -346,8 +346,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m01();
 
-        final var headers = TestUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message().headers());
+        final var headers = TestUtil.toList(parser.parse(captor.invocation().method())
+                .apply(captor.invocation().target(), captor.invocation().args()).headers());
 
         Assertions.assertEquals(3, headers.size());
         Assertions.assertEquals("header1", headers.get(0).key());
@@ -366,8 +366,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(UUID.randomUUID());
 
-        final var headers = TestUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message().headers());
+        final var headers = TestUtil.toList(parser.parse(captor.invocation().method())
+                .apply(captor.invocation().target(), captor.invocation().args()).headers());
 
         Assertions.assertEquals(4, headers.size());
 
@@ -390,8 +390,8 @@ class DefaultProxyMethodParserTest {
 
         captor.proxy().m02(null);
 
-        final var headers = TestUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message().headers());
+        final var headers = TestUtil.toList(parser.parse(captor.invocation().method())
+                .apply(captor.invocation().target(), captor.invocation().args()).headers());
 
         Assertions.assertEquals(4, headers.size());
 
@@ -404,8 +404,8 @@ class DefaultProxyMethodParserTest {
         final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.HeaderCase02.class);
         captor.proxy().m01();
 
-        final var headers = TestUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message().headers());
+        final var headers = TestUtil.toList(parser.parse(captor.invocation().method())
+                .apply(captor.invocation().target(), captor.invocation().args()).headers());
 
         Assertions.assertEquals(0, headers.size());
     }
@@ -415,8 +415,8 @@ class DefaultProxyMethodParserTest {
         final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.HeaderCase02.class);
         captor.proxy().m03(UUID.randomUUID(), UUID.randomUUID());
 
-        final var headers = TestUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message().headers());
+        final var headers = TestUtil.toList(parser.parse(captor.invocation().method())
+                .apply(captor.invocation().target(), captor.invocation().args()).headers());
 
         Assertions.assertEquals(2, headers.size());
 
@@ -432,8 +432,8 @@ class DefaultProxyMethodParserTest {
         final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.HeaderCase02.class);
         captor.proxy().m03(null, UUID.randomUUID());
 
-        final var headers = TestUtil.toList(parser.parse(captor.invocation().method()).invocationBinder()
-                .apply(captor.invocation().target(), captor.invocation().args()).message().headers());
+        final var headers = TestUtil.toList(parser.parse(captor.invocation().method())
+                .apply(captor.invocation().target(), captor.invocation().args()).headers());
 
         Assertions.assertEquals(2, headers.size());
 
@@ -452,8 +452,7 @@ class DefaultProxyMethodParserTest {
 
         final var headers = TestUtil.toList(new DefaultProxyMethodParser(new MockEnvironment().withProperty("value1",
                 "bc5beb1b-569c-4055-bedf-3b06f9af2e5d")::resolvePlaceholders).parse(captor.invocation().method())
-                .invocationBinder().apply(captor.invocation().target(), captor.invocation().args()).message()
-                .headers());
+                .apply(captor.invocation().target(), captor.invocation().args()).headers());
 
         Assertions.assertEquals(2, headers.size());
 

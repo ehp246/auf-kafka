@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
-import me.ehp246.aufkafka.api.annotation.OfMDC;
+import me.ehp246.aufkafka.api.annotation.OfMdc;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
@@ -242,10 +242,10 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
          */
         final var mdcMapBinders = new HashMap<String, Function<Object[], String>>();
 
-        mdcMapBinders.putAll(new ReflectedMethod(method).allParametersWith(OfMDC.class).stream()
-                .filter(p -> p.parameter().getAnnotation(OfMDC.class).op() == OfMDC.Op.Default)
+        mdcMapBinders.putAll(new ReflectedMethod(method).allParametersWith(OfMdc.class).stream()
+                .filter(p -> p.parameter().getAnnotation(OfMdc.class).op() == OfMdc.Op.Default)
                 .collect(Collectors.toMap(p -> {
-                    final var name = p.parameter().getAnnotation(OfMDC.class).value();
+                    final var name = p.parameter().getAnnotation(OfMdc.class).value();
                     return OneUtil.hasValue(name) ? name : p.parameter().getName();
                 }, p -> {
                     final var index = p.index();
@@ -257,7 +257,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
          */
         final var valueReflectedParam = valueParamRef[0];
 
-        if (valueReflectedParam == null || valueReflectedParam.parameter().getAnnotation(OfMDC.class) == null) {
+        if (valueReflectedParam == null || valueReflectedParam.parameter().getAnnotation(OfMdc.class) == null) {
             return new EventBinders(paramBinders, mdcMapBinders);
         }
 
@@ -266,7 +266,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
          */
         final var valueParam = valueReflectedParam.parameter();
         final var valueParamIndex = valueReflectedParam.index();
-        final var ofMDC = valueParam.getAnnotation(OfMDC.class);
+        final var ofMDC = valueParam.getAnnotation(OfMdc.class);
 
         switch (ofMDC.op()) {
         case Introspect:
@@ -274,11 +274,11 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
              * Duplicated names will overwrite each other un-deterministically.
              */
             final var bodyParamContextName = ofMDC.value();
-            final var bodyFieldBinders = new ReflectedType<>(valueParam.getType()).streamSuppliersWith(OfMDC.class)
-                    .filter(m -> m.getAnnotation(OfMDC.class).op() == OfMDC.Op.Default)
+            final var bodyFieldBinders = new ReflectedType<>(valueParam.getType()).streamSuppliersWith(OfMdc.class)
+                    .filter(m -> m.getAnnotation(OfMdc.class).op() == OfMdc.Op.Default)
                     .collect(
                             Collectors.toMap(
-                                    m -> bodyParamContextName + Optional.of(m.getAnnotation(OfMDC.class).value())
+                                    m -> bodyParamContextName + Optional.of(m.getAnnotation(OfMdc.class).value())
                                             .filter(OneUtil::hasValue).orElseGet(m::getName),
                                     Function.identity(), (l, r) -> r))
                     .entrySet().stream().collect(Collectors.toMap(Entry::getKey, entry -> {
@@ -300,7 +300,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
             break;
         default:
             mdcMapBinders.put(
-                    Optional.ofNullable(valueParam.getAnnotation(OfMDC.class)).map(OfMDC::value)
+                    Optional.ofNullable(valueParam.getAnnotation(OfMdc.class)).map(OfMdc::value)
                             .filter(OneUtil::hasValue).orElseGet(valueParam::getName),
                     args -> args[valueParamIndex] == null ? null : args[valueParamIndex] + "");
             break;

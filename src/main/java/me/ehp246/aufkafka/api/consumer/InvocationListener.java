@@ -19,17 +19,18 @@ public sealed interface InvocationListener {
     }
 
     /**
-     * When an invocation fails on a {@linkplain BoundInvocable},
-     * {@linkplain EventInvocableDispatcher} makes the best effort to call all
-     * {@linkplain FailedListener} listeners in turn passing in the failure.
+     * When an invocation fails on a {@linkplain BoundInvocable}, the best effort
+     * will be made to call all {@linkplain FailedListener} listeners in turn
+     * passing in the failure.
      * <p>
-     * If a {@linkplain FailedListener} throws an exception, the exception will not be
-     * propagated. Instead it will be added to the
+     * If a {@linkplain FailedListener} throws an exception, the exception will not
+     * be propagated. Instead it will be added to the
      * {@linkplain Throwable#getSuppressed()} of the invocation failure which will
      * be passed to the next {@linkplain FailedListener}.
      * <p>
-     * After all {@linkplain FailedListener} have been executed, the original invocation
-     * failure will be thrown with suppressed exceptions from the listeners.
+     * After all {@linkplain FailedListener} have been executed, the original
+     * invocation failure will be thrown with suppressed exceptions from the
+     * listeners.
      */
     @FunctionalInterface
     public non-sealed interface FailedListener extends InvocationListener {

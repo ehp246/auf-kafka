@@ -3,5 +3,10 @@
     "name": "me.ehp246.aufkafka.inbound.messagelogging.enabled",
     "type": "java.lang.String",
     "description": "Set to 'true' to enable logging of in-bound messages fetched by consumers. See LoggingDispatchingListener for details."
+  },
+  {
+    "name": "me.ehp246.aufkafka.header.correlation-id",
+    "type": "java.lang.String",
+    "description": "Specifies the header key for correlation id. Producers generate a UUID for the value if none is provided. Consumers add the header value, if present, to SLF4J's MDC."
   }
 ]}

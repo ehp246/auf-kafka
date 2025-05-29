@@ -1,5 +1,7 @@
 package me.ehp246.test.embedded.producer.header;
 
+import java.util.UUID;
+
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
@@ -9,12 +11,12 @@ import me.ehp246.aufkafka.api.common.AufKafkaConstant;
  *
  */
 interface TestCases {
-    @ByKafka(value = "embedded", methodAsHeader = "")
+    @ByKafka(value = "embedded", methodAsEvent = "")
     interface Case01 {
         void header(@OfHeader Object header, @OfHeader("header02") Object value, @OfHeader("header02") Object value2);
     }
 
-    @ByKafka(value = "embedded", headers = { "header", "${static.1}", "header2", "static.2" }, methodAsHeader = "")
+    @ByKafka(value = "embedded", headers = { "header", "${static.1}", "header2", "static.2" }, methodAsEvent = "")
     interface Case02 {
         void header();
 
@@ -28,8 +30,17 @@ interface TestCases {
         void paramHeader(@OfHeader(AufKafkaConstant.EVENT_HEADER) Object header);
     }
 
-    @ByKafka(value = "embedded", methodAsHeader = "my.own.event")
+    @ByKafka(value = "embedded", methodAsEvent = "my.own.event")
     interface Case04 {
         void methodName();
+    }
+
+    @ByKafka(value = "embedded")
+    interface CorrelIdCase01 {
+        void ping();
+
+        void ping(@OfHeader(AufKafkaConstant.CORRELATIONID_HEADER) String correlId);
+
+        void ping(@OfHeader("trace.id") UUID correlId);
     }
 }

@@ -35,6 +35,8 @@ class HeaderTest {
 
     @Autowired
     private TestCases.Case04 case04;
+    @Autowired
+    private TestCases.CorrelIdCase01 correlIdCase01;
 
     @Autowired
     private MsgListener listener;
@@ -49,8 +51,6 @@ class HeaderTest {
         this.case01.header(null, null, null);
 
         final var headers = TestUtil.toList(listener.take().headers());
-
-        Assertions.assertEquals(3, headers.size());
 
         Assertions.assertEquals("Header", headers.get(0).key());
         Assertions.assertEquals(null, headers.get(0).value());
@@ -71,8 +71,6 @@ class HeaderTest {
 
         final var headers = TestUtil.toList(listener.take().headers());
 
-        Assertions.assertEquals(3, headers.size());
-
         Assertions.assertEquals("Header", headers.get(0).key());
         Assertions.assertEquals(true,
                 new String(headers.get(0).value(), StandardCharsets.UTF_8).equals(header1.toString()));
@@ -91,8 +89,6 @@ class HeaderTest {
 
         final var headers = TestUtil.toList(listener.take().headers());
 
-        Assertions.assertEquals(2, headers.size());
-
         Assertions.assertEquals("header", headers.get(0).key());
         Assertions.assertEquals(true, new String(headers.get(0).value(), StandardCharsets.UTF_8)
                 .equals("234e3609-3edd-4059-b685-fa8a0bed19d3"));
@@ -108,8 +104,6 @@ class HeaderTest {
         this.case02.header(value);
 
         final var headers = TestUtil.toList(listener.take().headers());
-
-        Assertions.assertEquals(3, headers.size());
 
         Assertions.assertEquals("header", headers.get(0).key());
         Assertions.assertEquals("234e3609-3edd-4059-b685-fa8a0bed19d3",
@@ -128,7 +122,6 @@ class HeaderTest {
 
         final var headers = TestUtil.toList(listener.take().headers());
 
-        Assertions.assertEquals(1, headers.size());
         Assertions.assertEquals(AufKafkaConstant.EVENT_HEADER, headers.get(0).key());
         Assertions.assertEquals("MethodName", new String(headers.get(0).value(), StandardCharsets.UTF_8));
     }
@@ -140,7 +133,6 @@ class HeaderTest {
 
         final var headers = listener.takeInboud().headerMap();
 
-        Assertions.assertEquals(1, headers.size());
         Assertions.assertEquals(2, headers.get(AufKafkaConstant.EVENT_HEADER).size());
         Assertions.assertEquals("ParamHeader", headers.get(AufKafkaConstant.EVENT_HEADER).get(0));
         Assertions.assertEquals(expected, headers.get(AufKafkaConstant.EVENT_HEADER).get(1));
@@ -152,8 +144,28 @@ class HeaderTest {
 
         final var headers = listener.takeInboud().headerMap();
 
-        Assertions.assertEquals(1, headers.size());
         Assertions.assertEquals(1, headers.get("my.own.event").size());
         Assertions.assertEquals("MethodName", headers.get("my.own.event").get(0));
+    }
+
+    @Test
+    void correlId_01() {
+        this.correlIdCase01.ping();
+
+        final var headers = listener.takeInboud().headerMap();
+
+        Assertions.assertEquals(1, headers.get(AufKafkaConstant.CORRELATIONID_HEADER).size());
+        Assertions.assertEquals(true, !headers.get(AufKafkaConstant.CORRELATIONID_HEADER).get(0).isBlank());
+    }
+
+    @Test
+    void correlId_02() {
+        final var expected = UUID.randomUUID().toString();
+        this.correlIdCase01.ping(expected);
+
+        final var headers = listener.takeInboud().headerMap();
+
+        Assertions.assertEquals(1, headers.get(AufKafkaConstant.CORRELATIONID_HEADER).size());
+        Assertions.assertEquals(expected, headers.get(AufKafkaConstant.CORRELATIONID_HEADER).get(0));
     }
 }

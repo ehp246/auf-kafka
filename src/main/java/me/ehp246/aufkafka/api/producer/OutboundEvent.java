@@ -1,6 +1,7 @@
 package me.ehp246.aufkafka.api.producer;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 
@@ -35,7 +36,7 @@ public interface OutboundEvent {
         return null;
     }
 
-    default Iterable<Header> headers() {
+    default List<Header> headers() {
         return null;
     }
 

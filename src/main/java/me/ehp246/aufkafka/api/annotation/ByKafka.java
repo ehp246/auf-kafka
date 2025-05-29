@@ -61,7 +61,7 @@ public @interface ByKafka {
      * <p>
      * If set empty string, no such header will be included.
      */
-    String methodAsHeader() default AufKafkaConstant.EVENT_HEADER;
+    String methodAsEvent() default AufKafkaConstant.EVENT_HEADER;
 
     /**
      * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs for

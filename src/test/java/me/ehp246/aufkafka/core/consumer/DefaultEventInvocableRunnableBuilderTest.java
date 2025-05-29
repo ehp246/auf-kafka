@@ -6,9 +6,6 @@ import static org.mockito.Mockito.times;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import org.apache.logging.log4j.ThreadContext;
@@ -41,7 +38,7 @@ import me.ehp246.test.mock.MockConsumerRecord;
  *
  */
 @ExtendWith(TimingExtension.class)
-class DefaultEventInvocableDispatcherTest {
+class DefaultEventInvocableRunnableBuilderTest {
     private final static int LOOP = 1_000_000;
     private final EventInvocable eventInvocable = Mockito.mock(EventInvocable.class);
 
@@ -79,40 +76,18 @@ class DefaultEventInvocableDispatcherTest {
     }
 
     @Test
-    void invoking_01() throws InterruptedException, ExecutionException {
-        final var threadRef = new Thread[1];
-        final var invokingThread = new Thread[1];
-        final var bound = Mockito.mock(BoundInvocable.class);
-        final var boundRef = new BoundInvocable[1];
-        final var executor = Executors.newSingleThreadExecutor();
-
-        threadRef[0] = executor.submit(Thread::currentThread).get();
-
-        new DefaultEventInvocableDispatcher(bindToBound(bound, Mockito.mock(Completed.class)),
-                List.of((InvocationListener.InvokingListener) b -> {
-                    boundRef[0] = b;
-                    invokingThread[0] = Thread.currentThread();
-                }), executor).dispatch(eventInvocable, new MockConsumerRecord().toEvent());
-
-        executor.shutdown();
-        executor.awaitTermination(10, TimeUnit.SECONDS);
-
-        Assertions.assertEquals(threadRef[0], invokingThread[0]);
-        Assertions.assertEquals(bound, boundRef[0]);
-    }
-
-    @Test
     void invoking_02() throws Throwable {
         final var expected = new RuntimeException();
         final var invoking = Mockito.mock(InvokingListener.class);
         final var completed = Mockito.mock(CompletedListener.class);
         final var failed = Mockito.mock(FailedListener.class);
         final var actual = Assertions.assertThrows(RuntimeException.class,
-                () -> new DefaultEventInvocableDispatcher(
+                new DefaultEventInvocableRunnableBuilder(
                         bindToBound(Mockito.mock(BoundInvocable.class), Mockito.mock(Completed.class)),
                         List.of((InvocationListener.InvokingListener) b -> {
                             throw expected;
-                        }, invoking, completed, failed), null).dispatch(eventInvocable, new MockConsumerRecord().toEvent()));
+                        }, invoking, completed, failed))
+                        .apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
 
         Assertions.assertEquals(actual, expected, "should be the thrown from invocable");
 
@@ -126,8 +101,8 @@ class DefaultEventInvocableDispatcherTest {
         final var expected = new RuntimeException();
 
         final var actual = Assertions.assertThrows(RuntimeException.class,
-                () -> new DefaultEventInvocableDispatcher(bindToFail(expected), null, null).dispatch(eventInvocable,
-                        new MockConsumerRecord().toEvent()));
+                new DefaultEventInvocableRunnableBuilder(bindToFail(expected), null).apply(eventInvocable,
+                        new MockConsumerRecord().toEvent())::run);
 
         Assertions.assertEquals(actual, expected, "should be the thrown from invocable");
     }
@@ -140,9 +115,9 @@ class DefaultEventInvocableDispatcherTest {
         final var binder = bindToFail(expected);
 
         final var threw = Assertions.assertThrows(RuntimeException.class,
-                () -> new DefaultEventInvocableDispatcher(binder, List.of((InvocationListener.FailedListener) m -> {
+                new DefaultEventInvocableRunnableBuilder(binder, List.of((InvocationListener.FailedListener) m -> {
                     ref[0] = m;
-                }), null).dispatch(eventInvocable, new MockConsumerRecord().toEvent()));
+                })).apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
 
         final var failed = ref[0];
 
@@ -156,10 +131,10 @@ class DefaultEventInvocableDispatcherTest {
         final var expected = new NullPointerException();
 
         final var actual = Assertions.assertThrows(RuntimeException.class,
-                () -> new DefaultEventInvocableDispatcher(bindToFail(new IllegalArgumentException()),
+                new DefaultEventInvocableRunnableBuilder(bindToFail(new IllegalArgumentException()),
                         List.of((InvocationListener.FailedListener) m -> {
                             throw expected;
-                        }), null).dispatch(eventInvocable, new MockConsumerRecord().toEvent()),
+                        })).apply(eventInvocable, new MockConsumerRecord().toEvent())::run,
                 "should allow the listener to throw back to the broker");
 
         Assertions.assertEquals(expected, actual.getSuppressed()[0], "should have it as suppressed");
@@ -172,14 +147,14 @@ class DefaultEventInvocableDispatcherTest {
         final var supressed = new NullPointerException();
 
         final var actual = Assertions.assertThrows(RuntimeException.class,
-                () -> new DefaultEventInvocableDispatcher(bindToFail(failure),
+                new DefaultEventInvocableRunnableBuilder(bindToFail(failure),
                         List.of((InvocationListener.FailedListener) m -> {
                             ref[0] = m;
                             throw supressed;
                         }, (InvocationListener.FailedListener) m -> {
                             ref[1] = m;
                             throw supressed;
-                        }), null).dispatch(eventInvocable, new MockConsumerRecord().toEvent()));
+                        })).apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
 
         Assertions.assertEquals(failure, actual, "should be from the invoker");
         Assertions.assertEquals(actual, ref[0].thrown(), "should call with best effort");
@@ -194,7 +169,7 @@ class DefaultEventInvocableDispatcherTest {
         // Binder, listeners
         final var threadRef = new Thread[2];
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultEventInvocableDispatcher((i, m) -> {
+        Assertions.assertThrows(IllegalArgumentException.class, new DefaultEventInvocableRunnableBuilder((i, m) -> {
             threadRef[0] = Thread.currentThread();
             final var bound = Mockito.mock(BoundInvocable.class);
             Mockito.when(bound.invoke()).thenReturn(new Failed() {
@@ -213,56 +188,9 @@ class DefaultEventInvocableDispatcherTest {
             return bound;
         }, List.of((InvocationListener.FailedListener) m -> {
             threadRef[1] = Thread.currentThread();
-        }), null).dispatch(eventInvocable, new MockConsumerRecord().toEvent()));
+        })).apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
 
         Assertions.assertEquals(threadRef[0], threadRef[1], "should be the same thread for binder, failed listener");
-    }
-
-    @Test
-    void thread_02() throws InterruptedException, ExecutionException {
-        // Executor, binder, listener
-        final var threadRef = new Thread[3];
-
-        final var executor = Executors.newSingleThreadExecutor();
-        threadRef[0] = executor.submit(Thread::currentThread).get();
-
-        new DefaultEventInvocableDispatcher((i, m) -> {
-            threadRef[1] = Thread.currentThread();
-            final var bound = Mockito.mock(BoundInvocable.class);
-            Mockito.when(bound.invoke()).thenReturn(Mockito.mock(Completed.class));
-            return bound;
-        }, List.of((InvocationListener.CompletedListener) m -> {
-            threadRef[2] = Thread.currentThread();
-        }), executor).dispatch(eventInvocable, new MockConsumerRecord().toEvent());
-
-        executor.shutdown();
-        executor.awaitTermination(100, TimeUnit.SECONDS);
-
-        Assertions.assertEquals(threadRef[0], threadRef[1],
-                "should be the same thread for binding, action, failed msg consumer");
-        Assertions.assertEquals(threadRef[1], threadRef[2]);
-    }
-
-    @Test
-    void completed_01() throws InterruptedException, ExecutionException {
-        final var threadRef = new Thread[1];
-        final var completedThread = new Thread[1];
-        final var completed = Mockito.mock(Completed.class);
-        final var completedRef = new Completed[1];
-
-        final var executor = Executors.newSingleThreadExecutor();
-        threadRef[0] = executor.submit(Thread::currentThread).get();
-
-        new DefaultEventInvocableDispatcher(bindToComplete(completed), List.of((InvocationListener.CompletedListener) c -> {
-            completedRef[0] = c;
-            completedThread[0] = Thread.currentThread();
-        }), executor).dispatch(eventInvocable, new MockConsumerRecord().toEvent());
-
-        executor.shutdown();
-        executor.awaitTermination(10, TimeUnit.SECONDS);
-
-        Assertions.assertEquals(threadRef[0], completedThread[0]);
-        Assertions.assertEquals(completed, completedRef[0]);
     }
 
     @Test
@@ -270,10 +198,10 @@ class DefaultEventInvocableDispatcherTest {
         final var expected = new RuntimeException("Completed");
 
         final var actual = Assertions.assertThrows(RuntimeException.class,
-                () -> new DefaultEventInvocableDispatcher(bindToComplete(Mockito.mock(Completed.class)),
+                new DefaultEventInvocableRunnableBuilder(bindToComplete(Mockito.mock(Completed.class)),
                         List.of((InvocationListener.CompletedListener) c -> {
                             throw expected;
-                        }), null).dispatch(eventInvocable, new MockConsumerRecord().toEvent()));
+                        })).apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
 
         Assertions.assertEquals(expected, actual, "should be thrown the broker");
     }
@@ -284,8 +212,8 @@ class DefaultEventInvocableDispatcherTest {
 
         Mockito.doThrow(new IllegalStateException("Don't close me")).when(eventInvocable).close();
 
-        new DefaultEventInvocableDispatcher(bindToComplete(Mockito.mock(Completed.class)), List.of(completed), null)
-                .dispatch(eventInvocable, new MockConsumerRecord().toEvent());
+        new DefaultEventInvocableRunnableBuilder(bindToComplete(Mockito.mock(Completed.class)), List.of(completed))
+                .apply(eventInvocable, new MockConsumerRecord().toEvent()).run();
 
         Mockito.verify(eventInvocable, times(1)).close();
         // Exception from the close should be suppressed.
@@ -294,8 +222,8 @@ class DefaultEventInvocableDispatcherTest {
 
     @Test
     void close_01() throws Exception {
-        new DefaultEventInvocableDispatcher(bindToComplete(Mockito.mock(Completed.class)), null, null).dispatch(eventInvocable,
-                new MockConsumerRecord().toEvent());
+        new DefaultEventInvocableRunnableBuilder(bindToComplete(Mockito.mock(Completed.class)), null)
+                .apply(eventInvocable, new MockConsumerRecord().toEvent()).run();
 
         // Should close on completed invocation
         Mockito.verify(eventInvocable, times(1)).close();
@@ -304,8 +232,8 @@ class DefaultEventInvocableDispatcherTest {
     @Test
     void close_02() throws Exception {
         Assertions.assertThrows(RuntimeException.class,
-                () -> new DefaultEventInvocableDispatcher(bindToFail(new RuntimeException()), null, null).dispatch(eventInvocable,
-                        new MockConsumerRecord().toEvent()));
+                new DefaultEventInvocableRunnableBuilder(bindToFail(new RuntimeException()), null).apply(eventInvocable,
+                        new MockConsumerRecord().toEvent())::run);
 
         // Should close on failed invocation
         Mockito.verify(eventInvocable, times(1)).close();
@@ -313,8 +241,8 @@ class DefaultEventInvocableDispatcherTest {
 
     @Test
     void close_03() throws Exception {
-        Assertions.assertThrows(RuntimeException.class, () -> new DefaultEventInvocableDispatcher((i, m) -> null, null, null)
-                .dispatch(eventInvocable, new MockConsumerRecord().toEvent()));
+        Assertions.assertThrows(RuntimeException.class, new DefaultEventInvocableRunnableBuilder((i, m) -> null, null)
+                .apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
 
         // Should close on wrong data
         Mockito.verify(eventInvocable, times(1)).close();
@@ -322,9 +250,9 @@ class DefaultEventInvocableDispatcherTest {
 
     @Test
     void close_04() throws Exception {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultEventInvocableDispatcher((i, m) -> {
+        Assertions.assertThrows(IllegalArgumentException.class, new DefaultEventInvocableRunnableBuilder((i, m) -> {
             throw new IllegalArgumentException();
-        }, null, null).dispatch(eventInvocable, new MockConsumerRecord().toEvent()));
+        }, null).apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
 
         // Should close on binder exception
         Mockito.verify(eventInvocable, times(1)).close();
@@ -334,12 +262,12 @@ class DefaultEventInvocableDispatcherTest {
     @EnabledIfSystemProperty(named = "me.ehp246.perf", matches = "true")
     void perf_01() {
         final var binder = new DefaultEventInvocableBinder(new JsonByObjectMapper(TestUtil.OBJECT_MAPPER));
-        final var dispatcher = new DefaultEventInvocableDispatcher(binder, null, null);
+        final var dispatcher = new DefaultEventInvocableRunnableBuilder(binder, null);
         final var msg = new MockConsumerRecord();
         final var invocable = new InvocableRecord(new InvocableBinderTestCases.PerfCase(),
                 new ReflectedType<>(InvocableBinderTestCases.PerfCase.class).findMethods("m01").get(0));
 
-        IntStream.range(0, LOOP).forEach(i -> dispatcher.dispatch(invocable, msg.toEvent()));
+        IntStream.range(0, LOOP).forEach(i -> dispatcher.apply(invocable, msg.toEvent()).run());
     }
 
     @Test
@@ -348,33 +276,34 @@ class DefaultEventInvocableDispatcherTest {
         final var key = UUID.randomUUID().toString();
         final var context = Map.of(key, UUID.randomUUID().toString());
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultEventInvocableDispatcher((i, m) -> {
-            final var bound = Mockito.mock(BoundInvocable.class);
-            Mockito.when(bound.mdcMap()).thenReturn(context);
-            Mockito.when(bound.invoke()).then(new Answer<Object>() {
-
-                @Override
-                public Object answer(final InvocationOnMock invocation) throws Throwable {
-                    contextRef[0] = ThreadContext.getContext();
-                    return new Failed() {
-                        private final Exception e = new IllegalArgumentException();
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new DefaultEventInvocableRunnableBuilder((i, m) -> {
+                    final var bound = Mockito.mock(BoundInvocable.class);
+                    Mockito.when(bound.mdcMap()).thenReturn(context);
+                    Mockito.when(bound.invoke()).then(new Answer<Object>() {
 
                         @Override
-                        public BoundInvocable bound() {
-                            return bound;
-                        }
+                        public Object answer(final InvocationOnMock invocation) throws Throwable {
+                            contextRef[0] = ThreadContext.getContext();
+                            return new Failed() {
+                                private final Exception e = new IllegalArgumentException();
 
-                        @Override
-                        public Throwable thrown() {
-                            return e;
+                                @Override
+                                public BoundInvocable bound() {
+                                    return bound;
+                                }
+
+                                @Override
+                                public Throwable thrown() {
+                                    return e;
+                                }
+                            };
                         }
-                    };
-                }
-            });
-            return bound;
-        }, List.of((InvocationListener.FailedListener) m -> {
-            contextRef[1] = ThreadContext.getContext();
-        }), null).dispatch(eventInvocable, new MockConsumerRecord().toEvent()));
+                    });
+                    return bound;
+                }, List.of((InvocationListener.FailedListener) m -> {
+                    contextRef[1] = ThreadContext.getContext();
+                })).apply(eventInvocable, new MockConsumerRecord().toEvent()).run());
 
         Assertions.assertEquals(null, ThreadContext.get(key), "should clean up");
         Assertions.assertEquals(context.get(key), contextRef[0].get(key), "should be there for the invoke");
@@ -385,32 +314,33 @@ class DefaultEventInvocableDispatcherTest {
     void log4jConext_02() {
         final var contextRef = new Map[2];
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> new DefaultEventInvocableDispatcher((i, m) -> {
-            final var bound = Mockito.mock(BoundInvocable.class);
-            Mockito.when(bound.invoke()).then(new Answer<Object>() {
-
-                @Override
-                public Object answer(final InvocationOnMock invocation) throws Throwable {
-                    contextRef[0] = ThreadContext.getContext();
-                    return new Failed() {
-                        private final Exception e = new IllegalArgumentException();
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> new DefaultEventInvocableRunnableBuilder((i, m) -> {
+                    final var bound = Mockito.mock(BoundInvocable.class);
+                    Mockito.when(bound.invoke()).then(new Answer<Object>() {
 
                         @Override
-                        public BoundInvocable bound() {
-                            return bound;
-                        }
+                        public Object answer(final InvocationOnMock invocation) throws Throwable {
+                            contextRef[0] = ThreadContext.getContext();
+                            return new Failed() {
+                                private final Exception e = new IllegalArgumentException();
 
-                        @Override
-                        public Throwable thrown() {
-                            return e;
+                                @Override
+                                public BoundInvocable bound() {
+                                    return bound;
+                                }
+
+                                @Override
+                                public Throwable thrown() {
+                                    return e;
+                                }
+                            };
                         }
-                    };
-                }
-            });
-            return bound;
-        }, List.of((InvocationListener.FailedListener) m -> {
-            contextRef[1] = ThreadContext.getContext();
-        }), null).dispatch(eventInvocable, new MockConsumerRecord().toEvent()));
+                    });
+                    return bound;
+                }, List.of((InvocationListener.FailedListener) m -> {
+                    contextRef[1] = ThreadContext.getContext();
+                })).apply(eventInvocable, new MockConsumerRecord().toEvent()).run());
 
         Assertions.assertEquals(0, ThreadContext.getContext().size());
         Assertions.assertEquals(0, contextRef[0].size());
