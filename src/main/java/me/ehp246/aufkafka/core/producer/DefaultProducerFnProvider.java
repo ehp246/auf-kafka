@@ -30,7 +30,7 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider {
     @Override
     public ProducerFn get(final ProducerFnConfig config) {
         final var producer = producerProvider.get(config.producerConfigName(), config.producerProperties());
-        final var recordBuilder = recordBuilderProvider.apply(topic -> producer.partitionsFor(topic),
+        final var recordBuilder = recordBuilderProvider.get(topic -> producer.partitionsFor(topic),
                 this.partitionKeyMapProvider.get(config.partitionMapType()));
 
         return outboundEvent -> {

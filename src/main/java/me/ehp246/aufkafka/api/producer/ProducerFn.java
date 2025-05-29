@@ -11,7 +11,7 @@ import org.apache.kafka.clients.producer.RecordMetadata;
  */
 @FunctionalInterface
 public interface ProducerFn {
-    CompletableFuture<Sent> send(OutboundEvent message);
+    CompletableFuture<Sent> send(OutboundEvent event);
 
     record Sent(ProducerRecord<String, String> producerRecord, RecordMetadata metadata) {
     }

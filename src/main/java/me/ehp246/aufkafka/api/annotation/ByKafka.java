@@ -18,6 +18,8 @@ import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
 import me.ehp246.aufkafka.api.producer.PartitionFn;
 import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
+import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
+import me.ehp246.aufkafka.api.producer.ProducerProvider;
 import me.ehp246.aufkafka.api.producer.SerializedPartitionFn;
 
 /**
@@ -90,7 +92,12 @@ public @interface ByKafka {
 
     /**
      * Specifies the name to pass to {@linkplain ProducerConfigProvider} to retrieve
-     * producer configuration with which to create a {@linkplain Producer}.
+     * producer configuration with which a {@linkplain Producer} is to be created.
+     * Each unique name will result in a single {@linkplain Producer} instance,
+     * i.e., the same instance will be re-used.
+     * 
+     * @see ProducerProvider
+     * @see ProducerFnProvider
      */
     String producerConfigName() default "";
 

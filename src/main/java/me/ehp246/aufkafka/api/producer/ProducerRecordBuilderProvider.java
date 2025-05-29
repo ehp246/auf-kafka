@@ -11,6 +11,6 @@ import org.apache.kafka.common.PartitionInfo;
  */
 @FunctionalInterface
 public interface ProducerRecordBuilderProvider {
-    ProducerRecordBuilder apply(Function<String, List<PartitionInfo>> paritionInfoProvider,
+    ProducerRecordBuilder get(Function<String, List<PartitionInfo>> paritionInfoProvider,
             PartitionFn partitionFn);
 }
