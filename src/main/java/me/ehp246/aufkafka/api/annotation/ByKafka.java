@@ -16,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonView;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
-import me.ehp246.aufkafka.api.producer.ProducerProvider;
 
 /**
  * Indicates that the annotated interface should be implemented by Auf Kafka as
@@ -55,12 +54,12 @@ public @interface ByKafka {
      * Specifies the name to pass to {@linkplain ProducerConfigProvider} to retrieve
      * producer configuration with which a {@linkplain Producer} is to be created.
      * Each unique name will result in a single {@linkplain Producer} instance,
-     * i.e., the same instance will be re-used.
+     * i.e., the same instance could be re-used by multiple proxies.
      * 
-     * @see ProducerProvider
      * @see ProducerFnProvider
+     * @see ProducerConfigProvider
      */
-    String producerName() default "";
+    String configName() default "";
 
     /**
      * Specifies the header key for the method name.
