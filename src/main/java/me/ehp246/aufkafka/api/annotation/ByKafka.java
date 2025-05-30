@@ -7,7 +7,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,12 +14,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
-import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
-import me.ehp246.aufkafka.api.producer.PartitionFn;
 import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 import me.ehp246.aufkafka.api.producer.ProducerProvider;
-import me.ehp246.aufkafka.api.producer.SerializedPartitionFn;
 
 /**
  * Indicates that the annotated interface should be implemented by Auf Kafka as
@@ -56,16 +52,6 @@ public @interface ByKafka {
     String name() default "";
 
     /**
-     * Specifies the header key for the method name.
-     * <p>
-     * The value of the header is the method name with the first letter changed to
-     * upper case.
-     * <p>
-     * If set empty string, no such header will be included.
-     */
-    String methodAsEvent() default AufKafkaConstant.EVENT_HEADER;
-
-    /**
      * Specifies the name to pass to {@linkplain ProducerConfigProvider} to retrieve
      * producer configuration with which a {@linkplain Producer} is to be created.
      * Each unique name will result in a single {@linkplain Producer} instance,
@@ -75,6 +61,16 @@ public @interface ByKafka {
      * @see ProducerFnProvider
      */
     String producerName() default "";
+
+    /**
+     * Specifies the header key for the method name.
+     * <p>
+     * The value of the header is the method name with the first letter changed to
+     * upper case.
+     * <p>
+     * If set empty string, no such header will be included.
+     */
+    String methodAsEvent() default AufKafkaConstant.EVENT_HEADER;
 
     /**
      * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs for
@@ -100,31 +96,4 @@ public @interface ByKafka {
      *
      */
     String[] headers() default {};
-
-    /**
-     * Defines {@linkplain KafkaProducer} property names and values in pairs. E.g.,
-     * <p>
-     * <code>
-     *     { "buffer.memory", "0", ... }
-     * </code>
-     * <p>
-     * These properties will be passed to
-     * {@linkplain KafkaProducer#KafkaProducer(java.util.Map)}.
-     * <p>
-     * Must be specified in pairs. Missing value will trigger an exception.
-     * <p>
-     * Spring property placeholder and SpEL expression are supported on values but
-     * not on names.
-     *
-     */
-    String[] producerProperties() default {};
-
-    /**
-     * Specifies the type of Spring bean that implements {@linkplain PartitionFn} to
-     * use with the interface to map partition key to partition.
-     * 
-     * @see SerializedPartitionFn
-     * @see DirectPartitionMap
-     */
-    Class<? extends PartitionFn> partitionFn() default SerializedPartitionFn.class;
 }

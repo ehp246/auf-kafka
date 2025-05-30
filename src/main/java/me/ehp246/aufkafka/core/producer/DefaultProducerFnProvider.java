@@ -1,37 +1,47 @@
 package me.ehp246.aufkafka.core.producer;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
-import me.ehp246.aufkafka.api.producer.PartitionMapProvider;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
+import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
 import me.ehp246.aufkafka.api.producer.ProducerFn;
 import me.ehp246.aufkafka.api.producer.ProducerFn.Sent;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
-import me.ehp246.aufkafka.api.producer.ProducerProvider;
-import me.ehp246.aufkafka.api.producer.ProducerRecordBuilderProvider;
+import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
 
 /**
  * @author Lei Yang
  *
  */
-public final class DefaultProducerFnProvider implements ProducerFnProvider {
-    private final ProducerProvider producerProvider;
-    private final ProducerRecordBuilderProvider recordBuilderProvider;
-    private final PartitionMapProvider partitionKeyMapProvider;
+public final class DefaultProducerFnProvider implements ProducerFnProvider, AutoCloseable {
+    private final static Logger LOGGER = LoggerFactory.getLogger(DefaultProducerFnProvider.class);
 
-    DefaultProducerFnProvider(final ProducerProvider producerProvider,
-            final PartitionMapProvider partitionKeyMapProvider,
-            final ProducerRecordBuilderProvider recordBuilderProvider) {
+    private final ProducerRecordBuilder recordBuilder;
+    private final Function<Map<String, Object>, Producer<String, String>> producerSupplier;
+    private final ProducerConfigProvider configProvider;
+    private final Map<String, Producer<String, String>> producers = new ConcurrentHashMap<>();
+
+    DefaultProducerFnProvider(final Function<Map<String, Object>, Producer<String, String>> producerSupplier,
+            final ProducerConfigProvider configProvider, final ProducerRecordBuilder recordBuilder) {
         super();
-        this.producerProvider = producerProvider;
-        this.partitionKeyMapProvider = partitionKeyMapProvider;
-        this.recordBuilderProvider = recordBuilderProvider;
+        this.producerSupplier = producerSupplier;
+        this.configProvider = configProvider;
+        this.recordBuilder = recordBuilder;
     }
 
     @Override
-    public ProducerFn get(final ProducerFnConfig config) {
-        final var producer = producerProvider.get(config.producerName(), config.producerProperties());
-        final var recordBuilder = recordBuilderProvider.get(topic -> producer.partitionsFor(topic),
-                this.partitionKeyMapProvider.get(config.partitionMapType()));
+    public ProducerFn get(final String name) {
+        final var producer = getProducer(name);
 
         return outboundEvent -> {
             final var producerRecord = recordBuilder.apply(outboundEvent);
@@ -47,5 +57,42 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider {
 
             return completeableFuture;
         };
+    }
+
+    private Producer<String, String> getProducer(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("Configuration name can't be null");
+        }
+
+        return this.producers.computeIfAbsent(name, n -> {
+            /*
+             * Global provider first.
+             */
+            final var configMap = new HashMap<>(configProvider.get(n));
+
+            /*
+             * Required overwrites all others
+             */
+            configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+            configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+            return producerSupplier.apply(configMap);
+        });
+    }
+
+    @Override
+    public void close() throws Exception {
+        LOGGER.atTrace().setMessage("Closing producers").log();
+
+        producers.forEach((name, producer) -> {
+            try {
+                producer.close();
+            } catch (Exception e) {
+                LOGGER.atError().setCause(e).addMarker(AufKafkaConstant.EXCEPTION)
+                        .setMessage("Producer {} failed to close, ignored.").addArgument(name).log();
+            }
+        });
+
+        this.producers.clear();
     }
 }

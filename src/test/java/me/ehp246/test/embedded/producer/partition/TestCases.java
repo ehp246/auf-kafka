@@ -3,7 +3,6 @@ package me.ehp246.test.embedded.producer.partition;
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfValue;
-import me.ehp246.aufkafka.api.producer.DirectPartitionMap;
 
 /**
  * @author Lei Yang
@@ -17,7 +16,7 @@ interface TestCases {
         void newEventWithPartition(@OfPartition Object partitionKey);
     }
 
-    @ByKafka(value = "embedded", partitionFn = DirectPartitionMap.class)
+    @ByKafka(value = "embedded")
     interface Case02 {
         void newEvent(@OfPartition Event event);
 
