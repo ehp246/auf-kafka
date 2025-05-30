@@ -1,5 +1,6 @@
 package me.ehp246.aufkafka.core.consumer;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,8 @@ import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfMdc;
 import me.ehp246.aufkafka.api.annotation.OfMdc.Op;
+import me.ehp246.aufkafka.api.annotation.OfPartition;
+import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.serializer.json.FromJson;
@@ -91,6 +94,34 @@ interface InvocableBinderTestCases {
         }
     }
 
+    static class ParititionCase01 {
+        public Object[] m01(final InboundEvent event, @OfPartition int partition) {
+            return new Object[] { event, partition };
+        }
+
+        public Object[] m01(@OfPartition Integer partition) {
+            return new Object[] { partition };
+        }
+
+        public Object[] m01(@OfPartition Number partition) {
+            return new Object[] { partition };
+        }
+    }
+
+    static class TimestampCase01 {
+        public Object[] m01(@OfTimestamp long timestamp) {
+            return new Object[] { timestamp };
+        }
+
+        public Object[] m01(@OfTimestamp Long timestamp) {
+            return new Object[] { timestamp };
+        }
+
+        public Object[] m01(@OfTimestamp Instant timestamp) {
+            return new Object[] { timestamp };
+        }
+    }
+
     static class HeaderCase01 {
         public String m01(@OfHeader("header1") final String value) {
             return value;
@@ -125,7 +156,7 @@ interface InvocableBinderTestCases {
         }
     }
 
-    static class MDCCase {
+    static class MdcCase {
         public void get() {
         }
 

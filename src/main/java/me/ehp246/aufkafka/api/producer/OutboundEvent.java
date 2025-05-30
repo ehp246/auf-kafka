@@ -20,7 +20,10 @@ public interface OutboundEvent {
         return null;
     }
 
-    default Object partitionKey() {
+    /**
+     * Maps to {@linkplain ProducerRecord#partition()}. Could be <code>null</code>.
+     */
+    default Integer partition() {
         return null;
     }
 

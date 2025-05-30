@@ -4,18 +4,16 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.internals.RecordHeader;
+import org.springframework.beans.factory.annotation.Value;
 
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
-import me.ehp246.aufkafka.api.producer.PartitionFn;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
 import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
 import me.ehp246.aufkafka.api.serializer.json.ToJson;
@@ -24,25 +22,21 @@ import me.ehp246.aufkafka.api.serializer.json.ToJson;
  * @author Lei Yang
  *
  */
-final class DefaultProducerRecordBuilder implements ProducerRecordBuilder {
-    private final PartitionFn partitionFn;
-    private final Function<String, List<PartitionInfo>> infoProvider;
+public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder {
     private final ToJson toJson;
     private final String correlIdHeader;
 
-    public DefaultProducerRecordBuilder(final Function<String, List<PartitionInfo>> partitionInfoProvider,
-            final PartitionFn partitionFn, final ToJson toJson, final String correlIdHeader) {
+    public DefaultProducerRecordBuilder(final ToJson toJson,
+            @Value("${" + AufKafkaConstant.PROPERTY_HEADER_CORRELATIONID + ":" + AufKafkaConstant.CORRELATIONID_HEADER
+                    + "}") final String correlIdHeader) {
         super();
-        this.partitionFn = partitionFn;
-        this.infoProvider = partitionInfoProvider;
         this.toJson = toJson;
         this.correlIdHeader = correlIdHeader;
     }
 
     @Override
     public ProducerRecord<String, String> apply(OutboundEvent outboundEvent) {
-        return new ProducerRecord<String, String>(outboundEvent.topic(),
-                partitionFn.apply(this.infoProvider.apply(outboundEvent.topic()), outboundEvent.partitionKey()),
+        return new ProducerRecord<String, String>(outboundEvent.topic(), outboundEvent.partition(),
                 Optional.ofNullable(outboundEvent.timestamp()).map(Instant::toEpochMilli).orElse(null),
                 outboundEvent.key(),
                 this.toJson.apply(outboundEvent.value(), (JacksonObjectOf<?>) outboundEvent.objectOf()),

@@ -22,6 +22,7 @@ import org.apache.kafka.common.errors.ProducerFencedException;
  *
  */
 public class MockProducer implements Producer<String, String> {
+    private boolean closed = false;
 
     @Override
     public void initTransactions() {
@@ -36,8 +37,8 @@ public class MockProducer implements Producer<String, String> {
     }
 
     @Override
-    public void sendOffsetsToTransaction(Map<TopicPartition, OffsetAndMetadata> offsets,
-            String consumerGroupId) throws ProducerFencedException {
+    public void sendOffsetsToTransaction(Map<TopicPartition, OffsetAndMetadata> offsets, String consumerGroupId)
+            throws ProducerFencedException {
         // TODO Auto-generated method stub
 
     }
@@ -93,14 +94,15 @@ public class MockProducer implements Producer<String, String> {
 
     @Override
     public void close() {
-        // TODO Auto-generated method stub
-
+        this.closed = true;
     }
 
     @Override
     public void close(Duration timeout) {
-        // TODO Auto-generated method stub
-
+        this.closed = true;
     }
 
+    public boolean isClosed() {
+        return this.closed;
+    }
 }

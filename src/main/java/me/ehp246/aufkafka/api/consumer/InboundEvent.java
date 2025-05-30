@@ -56,6 +56,22 @@ public class InboundEvent {
         return this.consumerRecord.value();
     }
 
+    public Long timestamp() {
+        return this.consumerRecord.timestamp();
+    }
+
+    public int partition() {
+        return this.consumerRecord.partition();
+    }
+
+    public long offset() {
+        return this.consumerRecord.offset();
+    }
+
+    public Headers headers() {
+        return this.consumerRecord.headers();
+    }
+
     /**
      * Returns {@linkplain Map} and {@linkplain List} that are not modifiable.
      */
@@ -81,22 +97,6 @@ public class InboundEvent {
 
     public List<String> headerValues(final String key) {
         return this.headerMap.get(key);
-    }
-
-    public Long timestamp() {
-        return this.consumerRecord.timestamp();
-    }
-
-    public int partition() {
-        return this.consumerRecord.partition();
-    }
-
-    public long offset() {
-        return this.consumerRecord.offset();
-    }
-
-    public Headers headers() {
-        return this.consumerRecord.headers();
     }
 
     public List<Header> headerList() {

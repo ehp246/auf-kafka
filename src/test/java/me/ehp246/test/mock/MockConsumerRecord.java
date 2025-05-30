@@ -33,7 +33,10 @@ public class MockConsumerRecord extends ConsumerRecord<String, String> {
     }
 
     public MockConsumerRecord() {
-        this(UUID.randomUUID().toString(), 0, 0, null, null);
+        this(UUID.randomUUID().toString(), (int) (Math.random() * 10000), (long) (Math.random() * 10000),
+                (long) (Math.random() * 100000), TimestampType.NO_TIMESTAMP_TYPE, 0, 0, UUID.randomUUID().toString(),
+                null, StringHeader.headers(UUID.randomUUID().toString(), UUID.randomUUID().toString()),
+                Optional.ofNullable(null));
     }
 
     public InboundEvent toEvent() {

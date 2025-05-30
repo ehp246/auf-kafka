@@ -17,8 +17,8 @@ import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.EnableByKafka;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
-public final class ProducerProxyRegistrar implements ImportBeanDefinitionRegistrar {
-    private final static Logger LOGGER = LoggerFactory.getLogger(ProducerProxyRegistrar.class);
+public final class ProxyRegistrar implements ImportBeanDefinitionRegistrar {
+    private final static Logger LOGGER = LoggerFactory.getLogger(ProxyRegistrar.class);
 
     @Override
     public void registerBeanDefinitions(final AnnotationMetadata metadata,
@@ -60,7 +60,7 @@ public final class ProducerProxyRegistrar implements ImportBeanDefinitionRegistr
         final var beanDef = new GenericBeanDefinition();
         beanDef.setBeanClass(byKafkaInterface);
         beanDef.setConstructorArgumentValues(args);
-        beanDef.setFactoryBeanName(ProducerProxyFactory.class.getName());
+        beanDef.setFactoryBeanName(ProxyFactory.class.getName());
         beanDef.setFactoryMethodName("newInstance");
         beanDef.setResourceDescription(byKafkaInterface.getCanonicalName());
 

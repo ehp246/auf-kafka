@@ -1,19 +1,21 @@
 package me.ehp246.aufkafka.api.producer;
 
-import java.util.Map;
+import org.apache.kafka.clients.producer.Producer;
 
 /**
+ * The abstraction that creates a {@linkplain ProducerFn} which is a highe-level
+ * {@linkplain Producer}.
+ * 
  * @author Lei Yang
- *
+ * @see ProducerFn
+ * @see OutboundEvent
  */
 @FunctionalInterface
 public interface ProducerFnProvider {
-	ProducerFn get(ProducerFnConfig config);
-
-	record ProducerFnConfig(String producerConfigName, Class<? extends PartitionFn> partitionMapType,
-			Map<String, Object> producerProperties) {
-		public ProducerFnConfig(String producerConfigName, Class<? extends PartitionFn> partitionMapType) {
-			this(producerConfigName, partitionMapType, Map.of());
-		}
-	}
+    /**
+     * Returns a {@linkplain ProducerFn} using the given <code>configName</code>.
+     * 
+     * @param configName
+     */
+    ProducerFn get(String configName);
 }
