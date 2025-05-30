@@ -66,6 +66,17 @@ public @interface ByKafka {
     String methodAsEvent() default AufKafkaConstant.EVENT_HEADER;
 
     /**
+     * Specifies the name to pass to {@linkplain ProducerConfigProvider} to retrieve
+     * producer configuration with which a {@linkplain Producer} is to be created.
+     * Each unique name will result in a single {@linkplain Producer} instance,
+     * i.e., the same instance will be re-used.
+     * 
+     * @see ProducerProvider
+     * @see ProducerFnProvider
+     */
+    String producerName() default "";
+
+    /**
      * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs for
      * out-going messages.
      * <p>
@@ -89,17 +100,6 @@ public @interface ByKafka {
      *
      */
     String[] headers() default {};
-
-    /**
-     * Specifies the name to pass to {@linkplain ProducerConfigProvider} to retrieve
-     * producer configuration with which a {@linkplain Producer} is to be created.
-     * Each unique name will result in a single {@linkplain Producer} instance,
-     * i.e., the same instance will be re-used.
-     * 
-     * @see ProducerProvider
-     * @see ProducerFnProvider
-     */
-    String producerName() default "";
 
     /**
      * Defines {@linkplain KafkaProducer} property names and values in pairs. E.g.,
