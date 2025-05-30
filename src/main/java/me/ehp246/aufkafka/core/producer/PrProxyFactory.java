@@ -18,16 +18,16 @@ import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
  *
  * @author Lei Yang
  * @see EnableByKafka
- * @see ProducerProxyRegistrar
+ * @see ProxyRegistrar
  * @since 1.0
  */
-public final class ProducerProxyFactory {
+public final class PrProxyFactory {
     private static final Map<Method, ProxyInvocationBinder> parsedCache = new ConcurrentHashMap<>();
 
     private final ProxyMethodParser methodParser;
     private final ProducerFnProvider producerFnProvider;
 
-    public ProducerProxyFactory(final ProxyMethodParser methodParser, final ProducerFnProvider producerFnProvider) {
+    public PrProxyFactory(final ProxyMethodParser methodParser, final ProducerFnProvider producerFnProvider) {
         super();
         this.methodParser = methodParser;
         this.producerFnProvider = producerFnProvider;

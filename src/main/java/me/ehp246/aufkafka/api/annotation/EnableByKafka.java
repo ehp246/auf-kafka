@@ -11,9 +11,9 @@ import org.springframework.context.annotation.Import;
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
 import me.ehp246.aufkafka.core.producer.DefaultProducerRecordBuilder;
 import me.ehp246.aufkafka.core.producer.DefaultProxyMethodParser;
-import me.ehp246.aufkafka.core.producer.ProducerConfiguration;
-import me.ehp246.aufkafka.core.producer.ProducerProxyFactory;
-import me.ehp246.aufkafka.core.producer.ProducerProxyRegistrar;
+import me.ehp246.aufkafka.core.producer.ProxyConfiguration;
+import me.ehp246.aufkafka.core.producer.PrProxyFactory;
+import me.ehp246.aufkafka.core.producer.ProxyRegistrar;
 
 /**
  * By default, the package and the sub-packages of the annotated class will be
@@ -24,8 +24,8 @@ import me.ehp246.aufkafka.core.producer.ProducerProxyRegistrar;
  */
 @Retention(RUNTIME)
 @Target(TYPE)
-@Import({ AufKafkaConfiguration.class, ProducerConfiguration.class, ProducerProxyRegistrar.class,
-        ProducerProxyFactory.class, DefaultProxyMethodParser.class, DefaultProducerRecordBuilder.class })
+@Import({ AufKafkaConfiguration.class, ProxyConfiguration.class, ProxyRegistrar.class,
+        PrProxyFactory.class, DefaultProxyMethodParser.class, DefaultProducerRecordBuilder.class })
 public @interface EnableByKafka {
     /**
      * Specifies the packages to scan for annotated {@link ByKafka} interfaces. The

@@ -29,7 +29,6 @@ import me.ehp246.aufkafka.core.consumer.DefaultEventInvocableBinder;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableScanner;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointConsumerConfigurer;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointFactory;
-import me.ehp246.aufkafka.core.producer.DefaultProducerRecordBuilder;
 
 /**
  * Enables the consumer-side capabilities of Auf Kafka.
@@ -45,7 +44,7 @@ import me.ehp246.aufkafka.core.producer.DefaultProducerRecordBuilder;
 @Target(ElementType.TYPE)
 @Import({ AufKafkaConfiguration.class, ConsumerConfiguration.class, AnnotatedInboundEndpointRegistrar.class,
         InboundEndpointFactory.class, InboundEndpointConsumerConfigurer.class, DefaultInvocableScanner.class,
-        DefaultEventInvocableBinder.class, DefaultProducerRecordBuilder.class })
+        DefaultEventInvocableBinder.class })
 public @interface EnableForKafka {
     /**
      * Specifies the topics to listen for in-bound messages and their

@@ -11,7 +11,7 @@ import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
  * @author Lei Yang
  *
  */
-public final class ProducerConfiguration {
+public final class ProxyConfiguration {
 
     @Bean
     ProducerFnProvider producerFnProvider(final ProducerConfigProvider configProvider,
