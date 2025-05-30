@@ -12,7 +12,7 @@ import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
 import me.ehp246.aufkafka.core.producer.DefaultProducerRecordBuilder;
 import me.ehp246.aufkafka.core.producer.DefaultProxyMethodParser;
 import me.ehp246.aufkafka.core.producer.ProxyConfiguration;
-import me.ehp246.aufkafka.core.producer.PrProxyFactory;
+import me.ehp246.aufkafka.core.producer.ProxyFactory;
 import me.ehp246.aufkafka.core.producer.ProxyRegistrar;
 
 /**
@@ -25,7 +25,7 @@ import me.ehp246.aufkafka.core.producer.ProxyRegistrar;
 @Retention(RUNTIME)
 @Target(TYPE)
 @Import({ AufKafkaConfiguration.class, ProxyConfiguration.class, ProxyRegistrar.class,
-        PrProxyFactory.class, DefaultProxyMethodParser.class, DefaultProducerRecordBuilder.class })
+        ProxyFactory.class, DefaultProxyMethodParser.class, DefaultProducerRecordBuilder.class })
 public @interface EnableByKafka {
     /**
      * Specifies the packages to scan for annotated {@link ByKafka} interfaces. The

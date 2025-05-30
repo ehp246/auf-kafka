@@ -60,7 +60,7 @@ public final class ProxyRegistrar implements ImportBeanDefinitionRegistrar {
         final var beanDef = new GenericBeanDefinition();
         beanDef.setBeanClass(byKafkaInterface);
         beanDef.setConstructorArgumentValues(args);
-        beanDef.setFactoryBeanName(PrProxyFactory.class.getName());
+        beanDef.setFactoryBeanName(ProxyFactory.class.getName());
         beanDef.setFactoryMethodName("newInstance");
         beanDef.setResourceDescription(byKafkaInterface.getCanonicalName());
 
