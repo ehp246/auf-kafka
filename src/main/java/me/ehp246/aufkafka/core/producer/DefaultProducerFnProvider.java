@@ -40,8 +40,8 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
     }
 
     @Override
-    public ProducerFn get(final String name) {
-        final var producer = getProducer(name);
+    public ProducerFn get(final String configName) {
+        final var producer = getProducer(configName);
 
         return outboundEvent -> {
             final var producerRecord = recordBuilder.apply(outboundEvent);
@@ -55,16 +55,18 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
                 }
             });
 
+            producer.flush();
+
             return completeableFuture;
         };
     }
 
-    private Producer<String, String> getProducer(String name) {
-        if (name == null) {
+    private Producer<String, String> getProducer(String configName) {
+        if (configName == null) {
             throw new IllegalArgumentException("Configuration name can't be null");
         }
 
-        return this.producers.computeIfAbsent(name, n -> {
+        return this.producers.computeIfAbsent(configName, n -> {
             /*
              * Global provider first.
              */

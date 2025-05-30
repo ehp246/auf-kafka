@@ -50,7 +50,14 @@ interface DefaultProxyMethodParserTestCases {
     interface PartitionCase01 {
         void m01();
 
-        void m02(@OfPartition Object partition);
+        void m02(@OfPartition Integer partition);
+
+        void m03(@OfPartition int partition);
+
+        /**
+         * Unsupported
+         */
+        void m04(@OfPartition String partition);
     }
 
     @ByKafka("topic")

@@ -36,7 +36,7 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
 
     @Override
     public ProducerRecord<String, String> apply(OutboundEvent outboundEvent) {
-        return new ProducerRecord<String, String>(outboundEvent.topic(), null,
+        return new ProducerRecord<String, String>(outboundEvent.topic(), outboundEvent.partition(),
                 Optional.ofNullable(outboundEvent.timestamp()).map(Instant::toEpochMilli).orElse(null),
                 outboundEvent.key(),
                 this.toJson.apply(outboundEvent.value(), (JacksonObjectOf<?>) outboundEvent.objectOf()),

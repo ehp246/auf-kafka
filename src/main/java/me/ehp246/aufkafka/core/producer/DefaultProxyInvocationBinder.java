@@ -19,14 +19,14 @@ import me.ehp246.aufkafka.api.serializer.ObjectOf;
 final class DefaultProxyInvocationBinder implements ProxyInvocationBinder {
     private final Function<Object[], String> topicBinder;
     private final Function<Object[], String> keyBinder;
-    private final Function<Object[], Object> partitionBinder;
+    private final Function<Object[], Integer> partitionBinder;
     private final Function<Object[], Instant> timestampBinder;
     private final ValueParam valueParam;
     private final Map<Integer, HeaderParam> headerBinder;
     private final List<OutboundEvent.Header> headerStatic;
 
     DefaultProxyInvocationBinder(Function<Object[], String> topicBinder, Function<Object[], String> keyBinder,
-            Function<Object[], Object> partitionBinder, Function<Object[], Instant> timestampBinder,
+            Function<Object[], Integer> partitionBinder, Function<Object[], Instant> timestampBinder,
             ValueParam valueParam, Map<Integer, HeaderParam> headerBinder, List<Header> headerStatic) {
         super();
         this.topicBinder = topicBinder;
@@ -60,7 +60,7 @@ final class DefaultProxyInvocationBinder implements ProxyInvocationBinder {
             }
 
             @Override
-            public Object partitionKey() {
+            public Integer partition() {
                 return partition;
             }
 

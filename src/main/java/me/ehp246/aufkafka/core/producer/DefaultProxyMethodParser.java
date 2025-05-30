@@ -66,7 +66,12 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
 
         final var partitionBinder = reflected.allParametersWith(OfPartition.class).stream().findFirst().map(p -> {
             final var index = p.index();
-            return (Function<Object[], Object>) args -> args[index];
+            final var type = p.parameter().getType();
+            if (!Integer.class.isAssignableFrom(type) && !int.class.isAssignableFrom(type)) {
+                throw new UnsupportedOperationException("Un-supported type on parameter " + index + " of " + method);
+            }
+            return (Function<Object[], Integer>) args -> (Integer) args[index];
+
         }).orElseGet(() -> args -> null);
 
         final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream().findFirst().map(p -> {
@@ -121,8 +126,8 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
         final List<OutboundEvent.Header> headerStatic = new ArrayList<>();
 
         if (!byKafka.methodAsEvent().isEmpty()) {
-            headerStatic.add(
-                    new OutboundHeader(byKafka.methodAsEvent(), OneUtil.firstUpper(reflected.method().getName())));
+            headerStatic
+                    .add(new OutboundHeader(byKafka.methodAsEvent(), OneUtil.firstUpper(reflected.method().getName())));
         }
 
         for (int i = 0; i < headers.length; i += 2) {
