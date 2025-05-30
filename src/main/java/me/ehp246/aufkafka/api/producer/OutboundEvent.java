@@ -22,8 +22,6 @@ public interface OutboundEvent {
 
     /**
      * Maps to {@linkplain ProducerRecord#partition()}. Could be <code>null</code>.
-     * 
-     * @return
      */
     default Integer partition() {
         return null;

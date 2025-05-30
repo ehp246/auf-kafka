@@ -16,7 +16,6 @@ public interface ProducerFnProvider {
      * Returns a {@linkplain ProducerFn} using the given <code>configName</code>.
      * 
      * @param configName
-     * @return
      */
     ProducerFn get(String configName);
 }
