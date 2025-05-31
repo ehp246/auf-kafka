@@ -19,12 +19,10 @@ import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
-import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder;
-import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.HeaderParam;
-import me.ehp246.aufkafka.api.producer.ProxyInvocationBinder.ValueParam;
-import me.ehp246.aufkafka.api.producer.ProxyMethodParser;
 import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
+import me.ehp246.aufkafka.core.producer.ProxyInvocationBinder.HeaderParam;
+import me.ehp246.aufkafka.core.producer.ProxyInvocationBinder.ValueParam;
 import me.ehp246.aufkafka.core.reflection.ReflectedMethod;
 import me.ehp246.aufkafka.core.reflection.ReflectedParameter;
 import me.ehp246.aufkafka.core.util.OneUtil;
@@ -37,106 +35,117 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
     private final ExpressionResolver expressionResolver;
 
     DefaultProxyMethodParser(final ExpressionResolver expressionResolver) {
-        this.expressionResolver = expressionResolver;
+	this.expressionResolver = expressionResolver;
     }
 
     @Override
-    public ProxyInvocationBinder parse(final Method method) {
-        final var reflected = new ReflectedMethod(method);
-        final var byKafka = reflected.method().getDeclaringClass().getAnnotation(ByKafka.class);
+    public Parsed parse(final Method method) {
+	final var reflected = new ReflectedMethod(method);
+	return new Parsed(parseInvocationBinder(reflected), parseReturnBinder(reflected));
+    }
 
-        final var topicBinder = reflected.allParametersWith(OfTopic.class).stream().findFirst()
-                .map(p -> (Function<Object[], String>) args -> {
-                    final Object value = args[p.index()];
-                    return value == null ? null : value + "";
-                }).orElseGet(() -> {
-                    final var topic = expressionResolver.apply(byKafka.value());
-                    return (Function<Object[], String>) args -> topic;
-                });
+    private ProxyInvocationBinder parseInvocationBinder(final ReflectedMethod reflected) {
+	final var byKafka = reflected.method().getDeclaringClass().getAnnotation(ByKafka.class);
 
-        final var keyBinder = reflected.allParametersWith(OfKey.class).stream().findFirst()
-                .map(p -> (Function<Object[], String>) args -> {
-                    final var value = args[p.index()];
-                    return value == null ? null : value + "";
-                }).orElseGet(() -> reflected.findOnMethodUp(OfKey.class).map(ofKey -> {
-                    final var key = ofKey.value();
-                    return key.isBlank() ? (Function<Object[], String>) args -> null
-                            : (Function<Object[], String>) args -> key;
-                }).orElseGet(() -> args -> null));
+	final var topicBinder = reflected.allParametersWith(OfTopic.class).stream().findFirst()
+		.map(p -> (Function<Object[], String>) args -> {
+		    final Object value = args[p.index()];
+		    return value == null ? null : value + "";
+		}).orElseGet(() -> {
+		    final var topic = expressionResolver.apply(byKafka.value());
+		    return (Function<Object[], String>) args -> topic;
+		});
 
-        final var partitionBinder = reflected.allParametersWith(OfPartition.class).stream().findFirst().map(p -> {
-            final var index = p.index();
-            final var type = p.parameter().getType();
-            if (!Integer.class.isAssignableFrom(type) && !int.class.isAssignableFrom(type)) {
-                throw new UnsupportedOperationException("Un-supported type on parameter " + index + " of " + method);
-            }
-            return (Function<Object[], Integer>) args -> (Integer) args[index];
+	final var keyBinder = reflected.allParametersWith(OfKey.class).stream().findFirst()
+		.map(p -> (Function<Object[], String>) args -> {
+		    final var value = args[p.index()];
+		    return value == null ? null : value + "";
+		}).orElseGet(() -> reflected.findOnMethodUp(OfKey.class).map(ofKey -> {
+		    final var key = ofKey.value();
+		    return key.isBlank() ? (Function<Object[], String>) args -> null
+			    : (Function<Object[], String>) args -> key;
+		}).orElseGet(() -> args -> null));
 
-        }).orElseGet(() -> args -> null);
+	final var partitionBinder = reflected.allParametersWith(OfPartition.class).stream().findFirst().map(p -> {
+	    final var index = p.index();
+	    final var type = p.parameter().getType();
+	    if (!Integer.class.isAssignableFrom(type) && !int.class.isAssignableFrom(type)) {
+		throw new UnsupportedOperationException(
+			"Un-supported type on parameter " + index + " of " + reflected.method());
+	    }
+	    return (Function<Object[], Integer>) args -> (Integer) args[index];
 
-        final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream().findFirst().map(p -> {
-            final var index = p.index();
-            final var type = p.parameter().getType();
-            if (type == Instant.class) {
-                return (Function<Object[], Instant>) args -> (Instant) args[index];
-            }
-            if (type == Long.class) {
-                return (Function<Object[], Instant>) args -> {
-                    final var value = args[index];
-                    return value == null ? null : Instant.ofEpochMilli((Long) value);
-                };
-            }
-            if (type == long.class) {
-                return (Function<Object[], Instant>) args -> Instant.ofEpochMilli((long) args[index]);
-            }
-            throw new IllegalArgumentException("Un-supported type " + type + " on " + p.parameter());
-        }).orElseGet(() -> args -> null);
+	}).orElseGet(() -> args -> null);
 
-        final var valueParamIndex = reflected.allParametersWith(OfValue.class).stream().findFirst()
-                .map(ReflectedParameter::index).orElse(-1);
-        final var objectOf = Optional.ofNullable(valueParamIndex == -1 ? null : reflected.getParameter(valueParamIndex))
-                .map(parameter -> new JacksonObjectOf<>(Optional.ofNullable(parameter.getAnnotation(JsonView.class))
-                        .map(JsonView::value).filter(OneUtil::hasValue).map(views -> views[0]).orElse(null),
-                        parameter.getType()))
-                .orElse(null);
+	final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream().findFirst().map(p -> {
+	    final var index = p.index();
+	    final var type = p.parameter().getType();
+	    if (type == Instant.class) {
+		return (Function<Object[], Instant>) args -> (Instant) args[index];
+	    }
+	    if (type == Long.class) {
+		return (Function<Object[], Instant>) args -> {
+		    final var value = args[index];
+		    return value == null ? null : Instant.ofEpochMilli((Long) value);
+		};
+	    }
+	    if (type == long.class) {
+		return (Function<Object[], Instant>) args -> Instant.ofEpochMilli((long) args[index]);
+	    }
+	    throw new IllegalArgumentException("Un-supported type " + type + " on " + p.parameter());
+	}).orElseGet(() -> args -> null);
 
-        return new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder,
-                valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, objectOf), headerBinder(reflected),
-                headerStatic(reflected, byKafka));
+	final var valueParamIndex = reflected.allParametersWith(OfValue.class).stream().findFirst()
+		.map(ReflectedParameter::index).orElse(-1);
+	final var objectOf = Optional.ofNullable(valueParamIndex == -1 ? null : reflected.getParameter(valueParamIndex))
+		.map(parameter -> new JacksonObjectOf<>(Optional.ofNullable(parameter.getAnnotation(JsonView.class))
+			.map(JsonView::value).filter(OneUtil::hasValue).map(views -> views[0]).orElse(null),
+			parameter.getType()))
+		.orElse(null);
+
+	return new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder,
+		valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, objectOf), headerBinder(reflected),
+		headerStatic(reflected, byKafka));
     }
 
     private Map<Integer, HeaderParam> headerBinder(final ReflectedMethod reflected) {
-        final var headerBinder = new HashMap<Integer, HeaderParam>();
-        for (final var reflectedParam : reflected.allParametersWith(OfHeader.class)) {
-            final var parameter = reflectedParam.parameter();
-            headerBinder.put(reflectedParam.index(),
-                    new HeaderParam(OneUtil.getIfBlank(parameter.getAnnotation(OfHeader.class).value(),
-                            () -> OneUtil.firstUpper(parameter.getName())), parameter.getType()));
-        }
-        return headerBinder;
+	final var headerBinder = new HashMap<Integer, HeaderParam>();
+	for (final var reflectedParam : reflected.allParametersWith(OfHeader.class)) {
+	    final var parameter = reflectedParam.parameter();
+	    headerBinder.put(reflectedParam.index(),
+		    new HeaderParam(OneUtil.getIfBlank(parameter.getAnnotation(OfHeader.class).value(),
+			    () -> OneUtil.firstUpper(parameter.getName())), parameter.getType()));
+	}
+	return headerBinder;
     }
 
     private List<OutboundEvent.Header> headerStatic(final ReflectedMethod reflected, final ByKafka byKafka) {
-        final var headers = byKafka.headers();
-        if ((headers.length & 1) != 0) {
-            throw new IllegalArgumentException(
-                    "Headers are not in name/value pairs on " + reflected.method().getDeclaringClass());
-        }
+	final var headers = byKafka.headers();
+	if ((headers.length & 1) != 0) {
+	    throw new IllegalArgumentException(
+		    "Headers are not in name/value pairs on " + reflected.method().getDeclaringClass());
+	}
 
-        final List<OutboundEvent.Header> headerStatic = new ArrayList<>();
+	final List<OutboundEvent.Header> headerStatic = new ArrayList<>();
 
-        if (!byKafka.methodAsEvent().isEmpty()) {
-            headerStatic
-                    .add(new OutboundHeader(byKafka.methodAsEvent(), OneUtil.firstUpper(reflected.method().getName())));
-        }
+	if (!byKafka.methodAsEvent().isEmpty()) {
+	    headerStatic
+		    .add(new OutboundHeader(byKafka.methodAsEvent(), OneUtil.firstUpper(reflected.method().getName())));
+	}
 
-        for (int i = 0; i < headers.length; i += 2) {
-            final var key = headers[i];
-            final var value = expressionResolver.apply(headers[i + 1]);
+	for (int i = 0; i < headers.length; i += 2) {
+	    final var key = headers[i];
+	    final var value = expressionResolver.apply(headers[i + 1]);
 
-            headerStatic.add(new OutboundHeader(key, value));
-        }
+	    headerStatic.add(new OutboundHeader(key, value));
+	}
 
-        return headerStatic;
+	return headerStatic;
+    }
+
+    private ProxyReturnBinder parseReturnBinder(final ReflectedMethod reflected) {
+	final var defLocal = (LocalReturnBinder) sent -> null;
+
+	return defLocal;
     }
 }

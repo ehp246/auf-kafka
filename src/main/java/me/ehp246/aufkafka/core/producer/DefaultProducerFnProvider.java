@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
 import me.ehp246.aufkafka.api.producer.ProducerFn;
-import me.ehp246.aufkafka.api.producer.ProducerFn.Sent;
+import me.ehp246.aufkafka.api.producer.ProducerFn.SendRecord;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
 
@@ -32,69 +32,67 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
     private final Map<String, Producer<String, String>> producers = new ConcurrentHashMap<>();
 
     DefaultProducerFnProvider(final Function<Map<String, Object>, Producer<String, String>> producerSupplier,
-            final ProducerConfigProvider configProvider, final ProducerRecordBuilder recordBuilder) {
-        super();
-        this.producerSupplier = producerSupplier;
-        this.configProvider = configProvider;
-        this.recordBuilder = recordBuilder;
+	    final ProducerConfigProvider configProvider, final ProducerRecordBuilder recordBuilder) {
+	super();
+	this.producerSupplier = producerSupplier;
+	this.configProvider = configProvider;
+	this.recordBuilder = recordBuilder;
     }
 
     @Override
     public ProducerFn get(final String configName) {
-        final var producer = getProducer(configName);
+	final var producer = getProducer(configName);
 
-        return outboundEvent -> {
-            final var producerRecord = recordBuilder.apply(outboundEvent);
-            final var completeableFuture = new CompletableFuture<Sent>();
+	return outboundEvent -> {
+	    final var producerRecord = recordBuilder.apply(outboundEvent);
+	    final var completeableFuture = new CompletableFuture<SendRecord>();
 
-            producer.send(producerRecord, (metadata, exception) -> {
-                if (exception == null) {
-                    completeableFuture.complete(new Sent(producerRecord, metadata));
-                } else {
-                    completeableFuture.completeExceptionally(exception);
-                }
-            });
+	    producer.send(producerRecord, (metadata, exception) -> {
+		if (exception == null) {
+		    completeableFuture.complete(new SendRecord(producerRecord, metadata));
+		} else {
+		    completeableFuture.completeExceptionally(exception);
+		}
+	    });
 
-            producer.flush();
+	    producer.flush();
 
-            return completeableFuture;
-        };
+	    return completeableFuture;
+	};
     }
 
     private Producer<String, String> getProducer(String configName) {
-        if (configName == null) {
-            throw new IllegalArgumentException("Configuration name can't be null");
-        }
+	if (configName == null) {
+	    throw new IllegalArgumentException("Configuration name can't be null");
+	}
 
-        return this.producers.computeIfAbsent(configName, n -> {
-            /*
-             * Global provider first.
-             */
-            final var configMap = new HashMap<>(configProvider.get(n));
+	return this.producers.computeIfAbsent(configName, n -> {
+	    /*
+	     * Global provider first.
+	     */
+	    final var configMap = new HashMap<>(configProvider.get(n));
 
-            /*
-             * Required overwrites all others
-             */
-            configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-            configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+	    /*
+	     * Required overwrites all others
+	     */
+	    configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+	    configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
-            return producerSupplier.apply(configMap);
-        });
+	    return producerSupplier.apply(configMap);
+	});
     }
 
     @Override
     public void close() throws Exception {
-        LOGGER.atTrace().setMessage("Closing producers").log();
+	producers.forEach((name, producer) -> {
+	    try {
+		producer.close();
+	    } catch (Exception e) {
+		LOGGER.atError().setCause(e).addMarker(AufKafkaConstant.EXCEPTION)
+			.setMessage("Producer {} failed to close, ignored.").addArgument(name).log();
+	    }
+	});
 
-        producers.forEach((name, producer) -> {
-            try {
-                producer.close();
-            } catch (Exception e) {
-                LOGGER.atError().setCause(e).addMarker(AufKafkaConstant.EXCEPTION)
-                        .setMessage("Producer {} failed to close, ignored.").addArgument(name).log();
-            }
-        });
-
-        this.producers.clear();
+	this.producers.clear();
     }
 }
