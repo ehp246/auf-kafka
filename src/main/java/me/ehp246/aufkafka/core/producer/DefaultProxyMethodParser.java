@@ -7,7 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+
+import org.apache.kafka.clients.producer.RecordMetadata;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -18,7 +21,9 @@ import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
+import me.ehp246.aufkafka.api.exception.ProxyReturnBindingException;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
+import me.ehp246.aufkafka.api.producer.ProducerFn;
 import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.aufkafka.core.producer.ProxyInvocationBinder.HeaderParam;
@@ -144,8 +149,27 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
     }
 
     private ProxyReturnBinder parseReturnBinder(final ReflectedMethod reflected) {
-	final var defLocal = (LocalReturnBinder) sent -> null;
-
-	return defLocal;
+	/*
+	 * Simple types first
+	 */
+	final var type = reflected.method().getReturnType();
+	if (type == RecordMetadata.class) {
+	    return (LocalReturnBinder) sent -> {
+		try {
+		    return sent.get().metadata();
+		} catch (InterruptedException | ExecutionException e) {
+		    throw new ProxyReturnBindingException(e);
+		}
+	    };
+	} else if (type == ProducerFn.SendRecord.class) {
+	    return (LocalReturnBinder) sent -> {
+		try {
+		    return sent.get();
+		} catch (InterruptedException | ExecutionException e) {
+		    throw new ProxyReturnBindingException(e);
+		}
+	    };
+	}
+	return (LocalReturnBinder) sent -> null;
     }
 }

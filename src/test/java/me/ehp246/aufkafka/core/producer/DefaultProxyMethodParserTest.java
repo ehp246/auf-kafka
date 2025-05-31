@@ -2,6 +2,7 @@ package me.ehp246.aufkafka.core.producer;
 
 import java.time.Instant;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import org.apache.kafka.common.Uuid;
 import org.junit.jupiter.api.Assertions;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.env.MockEnvironment;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
+import me.ehp246.aufkafka.api.producer.ProducerFn;
 import me.ehp246.test.TestUtil;
 
 /**
@@ -481,5 +483,72 @@ class DefaultProxyMethodParserTest {
 
 	Assertions.assertEquals("header2", headers.get(1).key());
 	Assertions.assertEquals("value2", headers.get(1).value());
+    }
+
+    @Test
+    void return_01() throws Throwable {
+	final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.ReturnCase01.class);
+
+	captor.proxy().m01();
+
+	final var binder = parser.parse(captor.invocation().method()).returnBinder();
+
+	Assertions.assertEquals(true, binder instanceof LocalReturnBinder);
+
+	Assertions.assertEquals(null,
+		((LocalReturnBinder) binder).apply(new CompletableFuture<ProducerFn.SendRecord>()));
+    }
+
+    @Test
+    void return_02() throws Throwable {
+	final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.ReturnCase01.class);
+
+	captor.proxy().m02();
+
+	final var binder = parser.parse(captor.invocation().method()).returnBinder();
+
+	Assertions.assertEquals(true, binder instanceof LocalReturnBinder);
+
+	Assertions.assertEquals(null,
+		((LocalReturnBinder) binder).apply(new CompletableFuture<ProducerFn.SendRecord>()));
+    }
+
+    @Test
+    void return_03() throws Throwable {
+	final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.ReturnCase01.class);
+
+	captor.proxy().m03();
+
+	final var binder = parser.parse(captor.invocation().method()).returnBinder();
+
+	// should throw
+    }
+
+    @Test
+    void return_04() throws Throwable {
+	final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.ReturnCase01.class);
+
+	captor.proxy().m07();
+
+	final var binder = (LocalReturnBinder) parser.parse(captor.invocation().method()).returnBinder();
+
+	final var sentFuture = new CompletableFuture<ProducerFn.SendRecord>();
+	sentFuture.complete(new ProducerFn.SendRecord(null, null));
+
+	Assertions.assertEquals(sentFuture.get().metadata(), binder.apply(sentFuture));
+    }
+
+    @Test
+    void return_05() throws Throwable {
+	final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.ReturnCase01.class);
+
+	captor.proxy().m09();
+
+	final var binder = (LocalReturnBinder) parser.parse(captor.invocation().method()).returnBinder();
+
+	final var sentFuture = new CompletableFuture<ProducerFn.SendRecord>();
+	sentFuture.complete(new ProducerFn.SendRecord(null, null));
+
+	Assertions.assertEquals(sentFuture.get(), binder.apply(sentFuture));
     }
 }

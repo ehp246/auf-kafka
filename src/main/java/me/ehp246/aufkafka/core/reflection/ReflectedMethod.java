@@ -20,51 +20,51 @@ public final class ReflectedMethod {
     private final List<Class<?>> exceptionTypes;
 
     public ReflectedMethod(final Method method) {
-        this.method = Objects.requireNonNull(method);
-        this.declaringType = method.getDeclaringClass();
-        this.parameters = method.getParameters();
-        this.exceptionTypes = List.of(method.getExceptionTypes());
+	this.method = Objects.requireNonNull(method);
+	this.declaringType = method.getDeclaringClass();
+	this.parameters = method.getParameters();
+	this.exceptionTypes = List.of(method.getExceptionTypes());
     }
 
     public Optional<ReflectedParameter> firstPayloadParameter(final Set<Class<? extends Annotation>> exclusions) {
-        for (var i = 0; i < parameters.length; i++) {
-            final var parameter = parameters[i];
-            if (exclusions.stream().filter(type -> parameter.isAnnotationPresent(type)).findAny().isEmpty()) {
-                return Optional.of(new ReflectedParameter(parameter, i));
-            }
-        }
+	for (var i = 0; i < parameters.length; i++) {
+	    final var parameter = parameters[i];
+	    if (exclusions.stream().filter(type -> parameter.isAnnotationPresent(type)).findAny().isEmpty()) {
+		return Optional.of(new ReflectedParameter(parameter, i));
+	    }
+	}
 
-        return Optional.empty();
+	return Optional.empty();
     }
 
     public List<ReflectedParameter> allParametersWith(final Class<? extends Annotation> annotationType) {
-        final var list = new ArrayList<ReflectedParameter>();
+	final var list = new ArrayList<ReflectedParameter>();
 
-        for (int i = 0; i < parameters.length; i++) {
-            final var parameter = parameters[i];
-            if (parameter.isAnnotationPresent(annotationType)) {
-                list.add(new ReflectedParameter(parameter, i));
-            }
-        }
+	for (int i = 0; i < parameters.length; i++) {
+	    final var parameter = parameters[i];
+	    if (parameter.isAnnotationPresent(annotationType)) {
+		list.add(new ReflectedParameter(parameter, i));
+	    }
+	}
 
-        return list;
+	return list;
     }
 
     public Method method() {
-        return this.method;
+	return this.method;
     }
 
     public Parameter getParameter(final int index) {
-        return this.parameters[index];
+	return this.parameters[index];
     }
 
     public <A extends Annotation> Optional<A> findOnMethodUp(final Class<A> annotationClass) {
-        final var found = method.getAnnotation(annotationClass);
-        if (found != null) {
-            return Optional.of(found);
-        }
+	final var found = method.getAnnotation(annotationClass);
+	if (found != null) {
+	    return Optional.of(found);
+	}
 
-        return Optional.ofNullable(declaringType.getAnnotation(annotationClass));
+	return Optional.ofNullable(declaringType.getAnnotation(annotationClass));
     }
 
     /**
@@ -73,13 +73,17 @@ public final class ReflectedMethod {
      * e.g., all runtime exceptions.
      */
     public boolean isOnThrows(final Class<?> type) {
-        return RuntimeException.class.isAssignableFrom(type)
-                || this.exceptionTypes.stream().filter(t -> t.isAssignableFrom(type)).findAny().isPresent();
+	return RuntimeException.class.isAssignableFrom(type)
+		|| this.exceptionTypes.stream().filter(t -> t.isAssignableFrom(type)).findAny().isPresent();
     }
 
     public boolean returnsVoid() {
-        final var returnType = method.getReturnType();
+	final var returnType = method.getReturnType();
 
-        return returnType == void.class || returnType == Void.class;
+	return returnType == void.class || returnType == Void.class;
+    }
+
+    public boolean returnsType(Class<?> type) {
+	return method.getReturnType() == type;
     }
 }
