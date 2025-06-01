@@ -3,7 +3,10 @@ package me.ehp246.aufkafka.core.reflection;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -85,5 +88,30 @@ public final class ReflectedMethod {
 
     public boolean returnsType(Class<?> type) {
 	return method.getReturnType() == type;
+    }
+
+    /**
+     * Assuming the return type is generic.
+     * 
+     * @return {@linkplain ParameterizedType} of the return type.
+     */
+    public ParameterizedType parameterizedReturnType() {
+	return (ParameterizedType) method.getGenericReturnType();
+    }
+
+    public boolean isReturnTypeParameterized() {
+	return method.getGenericReturnType() instanceof ParameterizedType;
+    }
+
+    public boolean isReturnTypeParameterized(Class<?> type) {
+	return this.isReturnTypeParameterized() && this.parameterizedReturnType().getRawType() == type;
+    }
+
+    public Type[] returnTypeTypeArguments() {
+	return this.parameterizedReturnType().getActualTypeArguments();
+    }
+
+    public boolean returnTypeHasTypeArguments(Class<?>... argTypes) {
+	return Arrays.equals(argTypes, this.returnTypeTypeArguments());
     }
 }

@@ -4,9 +4,11 @@ import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.Uuid;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.mock.env.MockEnvironment;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
@@ -519,9 +521,8 @@ class DefaultProxyMethodParserTest {
 
 	captor.proxy().m03();
 
-	final var binder = parser.parse(captor.invocation().method()).returnBinder();
-
-	// should throw
+	Assertions.assertThrows(UnsupportedOperationException.class,
+		() -> parser.parse(captor.invocation().method()).returnBinder());
     }
 
     @Test
@@ -550,5 +551,22 @@ class DefaultProxyMethodParserTest {
 	sentFuture.complete(new ProducerFn.SendRecord(null, null));
 
 	Assertions.assertEquals(sentFuture.get(), binder.apply(sentFuture));
+    }
+
+    @Test
+    void return_06() throws Throwable {
+	final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.ReturnCase01.class);
+
+	captor.proxy().m05();
+
+	final var binder = (LocalReturnBinder) parser.parse(captor.invocation().method()).returnBinder();
+
+	final var sentFuture = new CompletableFuture<ProducerFn.SendRecord>();
+	final var expected = Mockito.mock(RecordMetadata.class);
+	sentFuture.complete(new ProducerFn.SendRecord(null, expected));
+
+	final var returned = binder.apply(sentFuture);
+	Assertions.assertEquals(true, returned instanceof CompletableFuture);
+	Assertions.assertEquals(expected, ((CompletableFuture<?>) returned).get());
     }
 }

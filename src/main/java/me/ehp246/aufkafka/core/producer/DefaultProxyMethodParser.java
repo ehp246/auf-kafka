@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
@@ -149,10 +150,13 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
     }
 
     private ProxyReturnBinder parseReturnBinder(final ReflectedMethod reflected) {
+	if (reflected.returnsVoid()) {
+	    return (LocalReturnBinder) sent -> null;
+	}
 	/*
 	 * Simple types first
 	 */
-	final var type = reflected.method().getReturnType();
+	final var type = reflected.method().getGenericReturnType();
 	if (type == RecordMetadata.class) {
 	    return (LocalReturnBinder) sent -> {
 		try {
@@ -169,7 +173,12 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
 		    throw new ProxyReturnBindingException(e);
 		}
 	    };
+	} else if (reflected.isReturnTypeParameterized(CompletableFuture.class)) {
+	    if (reflected.returnTypeHasTypeArguments(RecordMetadata.class)) {
+		return (LocalReturnBinder) sent -> sent.thenApply(ProducerFn.SendRecord::metadata);
+	    }
 	}
-	return (LocalReturnBinder) sent -> null;
+
+	throw new UnsupportedOperationException("Un-supported return type on method " + reflected.method());
     }
 }
