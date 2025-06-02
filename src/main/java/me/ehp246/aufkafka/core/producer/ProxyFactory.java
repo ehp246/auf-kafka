@@ -67,7 +67,7 @@ public final class ProxyFactory {
 
 			final var sent = producerFn.send(event);
 
-			return ((LocalReturnBinder) parsedBinder.returnBinder()).apply(sent);
+			return ((LocalReturnBinder) parsedBinder.returnBinder()).apply(event, sent);
 		    }
 		});
     }

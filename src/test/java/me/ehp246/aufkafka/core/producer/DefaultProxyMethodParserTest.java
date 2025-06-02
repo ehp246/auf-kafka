@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.springframework.mock.env.MockEnvironment;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
+import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.ProducerFn;
 import me.ehp246.test.TestUtil;
 
@@ -498,7 +499,7 @@ class DefaultProxyMethodParserTest {
 	Assertions.assertEquals(true, binder instanceof LocalReturnBinder);
 
 	Assertions.assertEquals(null,
-		((LocalReturnBinder) binder).apply(new CompletableFuture<ProducerFn.SendRecord>()));
+		((LocalReturnBinder) binder).apply(null, new CompletableFuture<ProducerFn.SendRecord>()));
     }
 
     @Test
@@ -512,7 +513,7 @@ class DefaultProxyMethodParserTest {
 	Assertions.assertEquals(true, binder instanceof LocalReturnBinder);
 
 	Assertions.assertEquals(null,
-		((LocalReturnBinder) binder).apply(new CompletableFuture<ProducerFn.SendRecord>()));
+		((LocalReturnBinder) binder).apply(null, new CompletableFuture<ProducerFn.SendRecord>()));
     }
 
     @Test
@@ -536,7 +537,7 @@ class DefaultProxyMethodParserTest {
 	final var sentFuture = new CompletableFuture<ProducerFn.SendRecord>();
 	sentFuture.complete(new ProducerFn.SendRecord(null, null));
 
-	Assertions.assertEquals(sentFuture.get().metadata(), binder.apply(sentFuture));
+	Assertions.assertEquals(sentFuture.get().metadata(), binder.apply(null, sentFuture));
     }
 
     @Test
@@ -550,7 +551,7 @@ class DefaultProxyMethodParserTest {
 	final var sentFuture = new CompletableFuture<ProducerFn.SendRecord>();
 	sentFuture.complete(new ProducerFn.SendRecord(null, null));
 
-	Assertions.assertEquals(sentFuture.get(), binder.apply(sentFuture));
+	Assertions.assertEquals(sentFuture.get(), binder.apply(null, sentFuture));
     }
 
     @Test
@@ -565,8 +566,25 @@ class DefaultProxyMethodParserTest {
 	final var expected = Mockito.mock(RecordMetadata.class);
 	sentFuture.complete(new ProducerFn.SendRecord(null, expected));
 
-	final var returned = binder.apply(sentFuture);
+	final var returned = binder.apply(null, sentFuture);
 	Assertions.assertEquals(true, returned instanceof CompletableFuture);
 	Assertions.assertEquals(expected, ((CompletableFuture<?>) returned).get());
+    }
+
+    @Test
+    void return_07() throws Throwable {
+	final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.ReturnCase01.class);
+
+	captor.proxy().m08();
+
+	final var binder = (LocalReturnBinder) parser.parse(captor.invocation().method()).returnBinder();
+
+	final var sentFuture = new CompletableFuture<ProducerFn.SendRecord>();
+	final var expected = Mockito.mock(OutboundEvent.class);
+	sentFuture.complete(new ProducerFn.SendRecord(null, null));
+
+	final var returned = binder.apply(expected, sentFuture);
+
+	Assertions.assertEquals(expected, returned);
     }
 }

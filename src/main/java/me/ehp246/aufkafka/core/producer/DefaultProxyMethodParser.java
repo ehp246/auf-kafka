@@ -151,34 +151,32 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
 
     private ProxyReturnBinder parseReturnBinder(final ReflectedMethod reflected) {
 	if (reflected.returnsVoid()) {
-	    return (LocalReturnBinder) sent -> null;
+	    return (LocalReturnBinder) (event, sent) -> null;
 	}
 	/*
 	 * Simple types first
 	 */
 	final var type = reflected.method().getGenericReturnType();
 	if (type == RecordMetadata.class) {
-	    return (LocalReturnBinder) sent -> {
-		try {
-		    return sent.get().metadata();
-		} catch (InterruptedException | ExecutionException e) {
-		    throw new ProxyReturnBindingException(e);
-		}
-	    };
+	    return (LocalReturnBinder) (event, sent) -> wrapGet(sent).metadata();
 	} else if (type == ProducerFn.SendRecord.class) {
-	    return (LocalReturnBinder) sent -> {
-		try {
-		    return sent.get();
-		} catch (InterruptedException | ExecutionException e) {
-		    throw new ProxyReturnBindingException(e);
-		}
-	    };
+	    return (LocalReturnBinder) (event, sent) -> wrapGet(sent);
+	} else if (type == OutboundEvent.class) {
+	    return (LocalReturnBinder) (event, sent) -> wrapGet(sent.thenApply(s -> event));
 	} else if (reflected.isReturnTypeParameterized(CompletableFuture.class)) {
 	    if (reflected.returnTypeHasTypeArguments(RecordMetadata.class)) {
-		return (LocalReturnBinder) sent -> sent.thenApply(ProducerFn.SendRecord::metadata);
+		return (LocalReturnBinder) (event, sent) -> sent.thenApply(ProducerFn.SendRecord::metadata);
 	    }
 	}
 
 	throw new UnsupportedOperationException("Un-supported return type on method " + reflected.method());
+    }
+
+    private <T> T wrapGet(final CompletableFuture<T> future) {
+	try {
+	    return future.get();
+	} catch (InterruptedException | ExecutionException e) {
+	    throw new ProxyReturnBindingException(e);
+	}
     }
 }
