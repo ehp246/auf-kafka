@@ -23,86 +23,90 @@ import org.apache.kafka.common.errors.ProducerFencedException;
  */
 public class MockProducer implements Producer<String, String> {
     private boolean closed = false;
+    private boolean flushed = false;
 
     @Override
     public void initTransactions() {
-        // TODO Auto-generated method stub
+	// TODO Auto-generated method stub
 
     }
 
     @Override
     public void beginTransaction() throws ProducerFencedException {
-        // TODO Auto-generated method stub
+	// TODO Auto-generated method stub
 
     }
 
     @Override
     public void sendOffsetsToTransaction(Map<TopicPartition, OffsetAndMetadata> offsets, String consumerGroupId)
-            throws ProducerFencedException {
-        // TODO Auto-generated method stub
+	    throws ProducerFencedException {
+	// TODO Auto-generated method stub
 
     }
 
     @Override
     public void sendOffsetsToTransaction(Map<TopicPartition, OffsetAndMetadata> offsets,
-            ConsumerGroupMetadata groupMetadata) throws ProducerFencedException {
-        // TODO Auto-generated method stub
+	    ConsumerGroupMetadata groupMetadata) throws ProducerFencedException {
+	// TODO Auto-generated method stub
 
     }
 
     @Override
     public void commitTransaction() throws ProducerFencedException {
-        // TODO Auto-generated method stub
+	// TODO Auto-generated method stub
 
     }
 
     @Override
     public void abortTransaction() throws ProducerFencedException {
-        // TODO Auto-generated method stub
+	// TODO Auto-generated method stub
 
     }
 
     @Override
     public Future<RecordMetadata> send(ProducerRecord<String, String> record) {
-        // TODO Auto-generated method stub
-        return null;
+	// TODO Auto-generated method stub
+	return null;
     }
 
     @Override
     public Future<RecordMetadata> send(ProducerRecord<String, String> record, Callback callback) {
-        // TODO Auto-generated method stub
-        return null;
+	// TODO Auto-generated method stub
+	return null;
     }
 
     @Override
     public void flush() {
-        // TODO Auto-generated method stub
+	this.flushed = true;
+    }
 
+    public boolean isFlushed() {
+	return this.flushed;
     }
 
     @Override
     public List<PartitionInfo> partitionsFor(String topic) {
-        // TODO Auto-generated method stub
-        return null;
+	// TODO Auto-generated method stub
+	return null;
     }
 
     @Override
     public Map<MetricName, ? extends Metric> metrics() {
-        // TODO Auto-generated method stub
-        return null;
+	// TODO Auto-generated method stub
+	return null;
     }
 
     @Override
     public void close() {
-        this.closed = true;
+	this.closed = true;
     }
 
     @Override
     public void close(Duration timeout) {
-        this.closed = true;
+	this.closed = true;
     }
 
     public boolean isClosed() {
-        return this.closed;
+	return this.closed;
     }
 }
