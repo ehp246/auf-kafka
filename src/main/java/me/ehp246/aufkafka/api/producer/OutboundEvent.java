@@ -17,35 +17,35 @@ public interface OutboundEvent {
     String topic();
 
     default String key() {
-        return null;
+	return null;
     }
 
     /**
      * Maps to {@linkplain ProducerRecord#partition()}. Could be <code>null</code>.
      */
     default Integer partition() {
-        return null;
+	return null;
     }
 
     default Object value() {
-        return null;
+	return null;
     }
 
     default ObjectOf<?> objectOf() {
-        return null;
+	return null;
     }
 
     default Instant timestamp() {
-        return null;
+	return null;
     }
 
     default List<Header> headers() {
-        return null;
+	return null;
     }
 
     interface Header {
-        String key();
+	String key();
 
-        Object value();
+	Object value();
     }
 }
