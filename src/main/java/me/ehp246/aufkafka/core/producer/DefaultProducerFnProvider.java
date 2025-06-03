@@ -8,6 +8,7 @@ import java.util.function.Function;
 
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +16,9 @@ import org.slf4j.LoggerFactory;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
 import me.ehp246.aufkafka.api.producer.ProducerFn;
-import me.ehp246.aufkafka.api.producer.ProducerFn.SendRecord;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
+import me.ehp246.aufkafka.api.producer.ProducerSendRecord;
 
 /**
  * @author Lei Yang
@@ -45,19 +46,19 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
 
 	return outboundEvent -> {
 	    final var producerRecord = recordBuilder.apply(outboundEvent);
-	    final var completeableFuture = new CompletableFuture<SendRecord>();
+	    final var sendFuture = new CompletableFuture<RecordMetadata>();
 
 	    producer.send(producerRecord, (metadata, exception) -> {
 		if (exception == null) {
-		    completeableFuture.complete(new SendRecord(producerRecord, metadata));
+		    sendFuture.complete(metadata);
 		} else {
-		    completeableFuture.completeExceptionally(exception);
+		    sendFuture.completeExceptionally(exception);
 		}
 	    });
 
 	    producer.flush();
 
-	    return completeableFuture;
+	    return new ProducerSendRecord(producerRecord, sendFuture);
 	};
     }
 

@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -24,7 +25,7 @@ import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.exception.ProxyReturnBindingException;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
-import me.ehp246.aufkafka.api.producer.ProducerFn;
+import me.ehp246.aufkafka.api.producer.ProducerSendRecord;
 import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.aufkafka.core.producer.ProxyInvocationBinder.HeaderParam;
@@ -158,15 +159,17 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
 	 */
 	final var type = reflected.method().getGenericReturnType();
 	if (type == RecordMetadata.class) {
-	    return (LocalReturnBinder) (event, sent) -> wrapGet(sent).metadata();
-	} else if (type == ProducerFn.SendRecord.class) {
-	    return (LocalReturnBinder) (event, sent) -> wrapGet(sent);
+	    return (LocalReturnBinder) (event, sent) -> wrapGet(sent.future());
+	} else if (type == ProducerSendRecord.class) {
+	    return (LocalReturnBinder) (event, sent) -> sent;
 	} else if (type == OutboundEvent.class) {
-	    return (LocalReturnBinder) (event, sent) -> wrapGet(sent.thenApply(s -> event));
-	} else if (reflected.isReturnTypeParameterized(CompletableFuture.class)) {
-	    if (reflected.returnTypeHasTypeArguments(RecordMetadata.class)) {
-		return (LocalReturnBinder) (event, sent) -> sent.thenApply(ProducerFn.SendRecord::metadata);
-	    }
+	    return (LocalReturnBinder) (event, sent) -> event;
+	} else if (reflected.isReturnTypeParameterizedWithTypeArguments(ProducerRecord.class, String.class,
+		String.class)) {
+	    return (LocalReturnBinder) (event, sent) -> sent.record();
+	} else if (reflected.isReturnTypeParameterizedWithTypeArguments(CompletableFuture.class,
+		RecordMetadata.class)) {
+	    return (LocalReturnBinder) (event, sent) -> sent.future();
 	}
 
 	throw new UnsupportedOperationException("Un-supported return type on method " + reflected.method());

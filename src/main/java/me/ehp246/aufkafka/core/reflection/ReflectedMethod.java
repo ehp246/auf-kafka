@@ -111,7 +111,11 @@ public final class ReflectedMethod {
 	return this.parameterizedReturnType().getActualTypeArguments();
     }
 
-    public boolean returnTypeHasTypeArguments(Class<?>... argTypes) {
-	return Arrays.equals(argTypes, this.returnTypeTypeArguments());
+    public boolean returnTypeDeclaresTypeArguments(Class<?>... typeArgs) {
+	return Arrays.equals(typeArgs, this.returnTypeTypeArguments());
+    }
+
+    public boolean isReturnTypeParameterizedWithTypeArguments(final Class<?> type, final Class<?>... typeArgs) {
+	return this.isReturnTypeParameterized(type) && this.returnTypeDeclaresTypeArguments(typeArgs);
     }
 }

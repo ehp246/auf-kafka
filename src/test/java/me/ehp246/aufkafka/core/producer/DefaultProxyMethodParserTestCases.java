@@ -16,7 +16,7 @@ import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
-import me.ehp246.aufkafka.api.producer.ProducerFn;
+import me.ehp246.aufkafka.api.producer.ProducerSendRecord;
 
 interface DefaultProxyMethodParserTestCases {
     @ByKafka("c26d1201-a956-4a45-a049-bc7fece18fff")
@@ -117,8 +117,6 @@ interface DefaultProxyMethodParserTestCases {
 	@SuppressWarnings("rawtypes")
 	CompletableFuture m03();
 
-	CompletableFuture<ProducerRecord<String, String>> m04();
-
 	CompletableFuture<RecordMetadata> m05();
 
 	ProducerRecord<String, String> m06();
@@ -127,6 +125,6 @@ interface DefaultProxyMethodParserTestCases {
 
 	OutboundEvent m08();
 
-	ProducerFn.SendRecord m09();
+	ProducerSendRecord m09();
     }
 }
