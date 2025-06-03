@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -42,9 +42,9 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
     }
 
     @Override
-    public ProducerFn get(final String configName, final Supplier<Boolean> flush) {
+    public ProducerFn get(final String configName, final BooleanSupplier flush) {
 	final var producer = getProducer(configName);
-	final Supplier<Boolean> flushSupplier = flush == null ? () -> Boolean.FALSE : flush;
+	final BooleanSupplier flushSupplier = flush == null ? Boolean.FALSE::booleanValue : flush;
 
 	return outboundEvent -> {
 	    final var producerRecord = recordBuilder.apply(outboundEvent);
@@ -61,7 +61,7 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
 	    /**
 	     * Should get for every send.
 	     */
-	    if (flushSupplier.get()) {
+	    if (flushSupplier.getAsBoolean()) {
 		producer.flush();
 	    }
 
