@@ -14,31 +14,30 @@ import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfMdc;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
-import me.ehp246.aufkafka.api.consumer.InvocationModel;
 
 /**
  * @author Lei Yang
  *
  */
 @Service
-@ForEvent(value = "Ping2", execution = @Execution(scope = InstanceScope.BEAN, invocation = InvocationModel.DEFAULT))
+@ForEvent(value = "Ping2", execution = @Execution(scope = InstanceScope.BEAN))
 public class OnPing2 {
     private final AtomicReference<CompletableFuture<Map<String, String>>> ref = new AtomicReference<>(
-            new CompletableFuture<>());
+	    new CompletableFuture<>());
 
     public void apply(@OfValue final Order order, @OfMdc @OfHeader final int accountId) {
-        this.ref.get().complete(ThreadContext.getContext());
+	this.ref.get().complete(ThreadContext.getContext());
     }
 
     Map<String, String> take() {
-        final Map<String, String> received;
-        try {
-            received = this.ref.get().get();
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-        this.ref.set(new CompletableFuture<>());
-        return received;
+	final Map<String, String> received;
+	try {
+	    received = this.ref.get().get();
+	} catch (InterruptedException | ExecutionException e) {
+	    throw new RuntimeException(e);
+	}
+	this.ref.set(new CompletableFuture<>());
+	return received;
     }
 
     public record Order(@OfMdc("OrderId") int id, @OfMdc int amount) {

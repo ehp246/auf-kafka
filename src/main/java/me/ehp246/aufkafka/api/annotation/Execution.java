@@ -18,9 +18,6 @@ public @interface Execution {
      */
     InstanceScope scope() default InstanceScope.EVENT;
 
-    /**
-     * Not implemented.
-     */
     InvocationModel invocation() default InvocationModel.DEFAULT;
 
 }
