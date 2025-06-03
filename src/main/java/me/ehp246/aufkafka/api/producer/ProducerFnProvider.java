@@ -1,5 +1,7 @@
 package me.ehp246.aufkafka.api.producer;
 
+import java.util.function.BooleanSupplier;
+
 import org.apache.kafka.clients.producer.Producer;
 
 /**
@@ -17,5 +19,9 @@ public interface ProducerFnProvider {
      * 
      * @param configName
      */
-    ProducerFn get(String configName);
+    ProducerFn get(String configName, BooleanSupplier flush);
+
+    default ProducerFn get(String configName) {
+	return this.get(configName, Boolean.FALSE::booleanValue);
+    }
 }

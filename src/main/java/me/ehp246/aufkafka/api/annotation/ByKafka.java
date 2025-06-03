@@ -62,6 +62,12 @@ public @interface ByKafka {
     String configName() default "";
 
     /**
+     * Specifies whether to call {@linkplain Producer#flush()} on each proxy
+     * invocation.
+     */
+    boolean flush() default false;
+
+    /**
      * Specifies the header key for the method name.
      * <p>
      * The value of the header is the method name with the first letter changed to
