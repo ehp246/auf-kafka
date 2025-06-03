@@ -51,7 +51,7 @@ class ProducerFnTest {
 	final var event = listener.take();
 
 	Assertions.assertEquals(expected, event.key());
-	Assertions.assertEquals(expected, sent.get().record().key());
-	Assertions.assertEquals(AppConfig.TOPIC, sent.get().metadata().topic());
+	Assertions.assertEquals(expected, sent.record().key());
+	Assertions.assertEquals(AppConfig.TOPIC, sent.future().get().topic());
     }
 }
