@@ -63,11 +63,12 @@ public final class ProxyFactory {
 			}
 
 			final var parsedBinder = parsedCache.computeIfAbsent(method, m -> methodParser.parse(method));
+
 			final var event = parsedBinder.invocationBinder().apply(proxy, args);
 
-			final var sendContext = producerFn.send(event);
+			final var sendRecord = producerFn.send(event);
 
-			return ((LocalReturnBinder) parsedBinder.returnBinder()).apply(event, sendContext);
+			return ((LocalReturnBinder) parsedBinder.returnBinder()).apply(event, sendRecord);
 		    }
 		});
     }

@@ -12,5 +12,5 @@ sealed interface ProxyReturnBinder {
 
 @FunctionalInterface
 non-sealed interface LocalReturnBinder extends ProxyReturnBinder {
-    Object apply(OutboundEvent event, ProducerSendRecord context);
+    Object apply(OutboundEvent event, ProducerSendRecord sendRecord);
 }
