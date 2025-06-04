@@ -11,13 +11,12 @@ import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import me.ehp246.aufkafka.api.consumer.ConsumerExceptionListener;
+import me.ehp246.aufkafka.api.consumer.EventDispatchListener;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRunnableBuilder;
-import me.ehp246.aufkafka.api.consumer.InboundConsumerListener;
 import me.ehp246.aufkafka.api.consumer.InboundEndpointConsumer;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
-import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
+import me.ehp246.aufkafka.api.consumer.UnknownEventConsumer;
 import me.ehp246.aufkafka.api.exception.UnknownEventException;
 import me.ehp246.aufkafka.api.spi.EventMdcContext;
 
@@ -32,24 +31,24 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
     private final Supplier<Duration> pollDurationSupplier;
     private final EventInvocableRunnableBuilder runnableBuilder;
     private final InvocableFactory invocableFactory;
-    private final List<InboundConsumerListener.DispatchingListener> onDispatching;
-    private final UnmatchedConsumer onUnmatched;
-    private final ConsumerExceptionListener onException;
+    private final List<EventDispatchListener.DispatchingListener> onDispatching;
+    private final UnknownEventConsumer onUnknown;
+    private final EventDispatchListener.ExceptionListener onException;
     private volatile boolean closed = false;
     private final CompletableFuture<Boolean> closedFuture = new CompletableFuture<Boolean>();
 
     DefaultInboundEndpointConsumer(final Consumer<String, String> consumer,
 	    final Supplier<Duration> pollDurationSupplier, final EventInvocableRunnableBuilder dispatcher,
 	    final InvocableFactory invocableFactory,
-	    final List<InboundConsumerListener.DispatchingListener> onDispatching, final UnmatchedConsumer onUnmatched,
-	    final ConsumerExceptionListener onException) {
+	    final List<EventDispatchListener.DispatchingListener> onDispatching, final UnknownEventConsumer onUnmatched,
+	    final EventDispatchListener.ExceptionListener onException) {
 	super();
 	this.consumer = consumer;
 	this.pollDurationSupplier = pollDurationSupplier;
 	this.runnableBuilder = dispatcher;
 	this.invocableFactory = invocableFactory;
 	this.onDispatching = onDispatching == null ? List.of() : onDispatching;
-	this.onUnmatched = onUnmatched;
+	this.onUnknown = onUnmatched;
 	this.onException = onException;
     }
 
@@ -84,16 +83,16 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
     }
 
     private void dispatchEvent(final InboundEvent event) {
-	try (final var closeble = EventMdcContext.set(event);) {
+	try (final var closeable = EventMdcContext.set(event);) {
 	    this.onDispatching.stream().forEach(l -> l.onDispatching(event));
 
 	    final var invocable = invocableFactory.get(event);
 
 	    if (invocable == null) {
-		if (onUnmatched == null) {
+		if (onUnknown == null) {
 		    throw new UnknownEventException(event);
 		} else {
-		    onUnmatched.accept(event);
+		    onUnknown.accept(event);
 		}
 	    } else {
 		runnableBuilder.apply(invocable, event).run();
@@ -106,7 +105,7 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 		    .addArgument(e::getMessage).log();
 
 	    if (this.onException != null) {
-		this.onException.onException(new ConsumerExceptionListener.Context(consumer, event, e));
+		this.onException.onException(new EventDispatchListener.ExceptionListener.Context(consumer, event, e));
 	    }
 	}
     }

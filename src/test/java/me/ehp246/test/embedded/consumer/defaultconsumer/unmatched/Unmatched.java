@@ -7,13 +7,13 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
-import me.ehp246.aufkafka.api.consumer.UnmatchedConsumer;
+import me.ehp246.aufkafka.api.consumer.UnknownEventConsumer;
 
 /**
  * @author Lei Yang
  *
  */
-class Unmatched implements UnmatchedConsumer {
+class Unmatched implements UnknownEventConsumer {
     private final AtomicReference<CompletableFuture<ConsumerRecord<String, String>>> ref = new AtomicReference<CompletableFuture<ConsumerRecord<String, String>>>(
             new CompletableFuture<>());
 

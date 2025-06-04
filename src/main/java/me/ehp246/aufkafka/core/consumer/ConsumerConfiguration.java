@@ -24,7 +24,7 @@ import me.ehp246.aufkafka.api.consumer.NoOpUnmatchedConsumer;
  */
 public final class ConsumerConfiguration {
 
-    @Bean(AufKafkaConstant.BEAN_NOOP_UNMATCHED_CONSUMER)
+    @Bean(AufKafkaConstant.BEAN_NOOP_UNKNOWN_EVENT_CONSUMER)
     NoOpUnmatchedConsumer noOpUnmatchedConsumer() {
         return new NoOpUnmatchedConsumer();
     }
@@ -35,7 +35,7 @@ public final class ConsumerConfiguration {
         return new InboundDispatchingLogger(enabled);
     }
 
-    @Bean(AufKafkaConstant.BEAN_IGNORING_CONSUMEREXCEPTION_LISTENER)
+    @Bean(AufKafkaConstant.BEAN_IGNORING_DISPATCHING_EXCEPTION_LISTENER)
     IgnoringConsumerExceptionListener ignoringConsumer() {
         return new IgnoringConsumerExceptionListener();
     }
