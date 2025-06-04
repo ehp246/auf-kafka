@@ -11,7 +11,7 @@ import me.ehp246.aufkafka.api.common.AufKafkaConstant;
  * 
  * @author Lei Yang
  */
-public final class InboundDispatchingLogger implements InboundConsumerListener.DispatchingListener {
+public final class InboundDispatchingLogger implements DispatchListener.DispatchingListener {
     private final static Logger LOGGER = LoggerFactory.getLogger(InboundDispatchingLogger.class);
 
     private final boolean enabled;

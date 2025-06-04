@@ -13,7 +13,7 @@ import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
 import me.ehp246.aufkafka.api.consumer.InboundDispatchingLogger;
-import me.ehp246.aufkafka.api.consumer.NoOpUnmatchedConsumer;
+import me.ehp246.aufkafka.api.consumer.NoOpUnmatchedListener;
 
 /**
  * Expects an application-provided {@linkplain ConsumerConfigProvider} bean.
@@ -24,9 +24,9 @@ import me.ehp246.aufkafka.api.consumer.NoOpUnmatchedConsumer;
  */
 public final class ConsumerConfiguration {
 
-    @Bean(AufKafkaConstant.BEAN_NOOP_UNMATCHED_CONSUMER)
-    NoOpUnmatchedConsumer noOpUnmatchedConsumer() {
-        return new NoOpUnmatchedConsumer();
+    @Bean(AufKafkaConstant.BEAN_NOOP_UNKNOWN_EVENT_LISTENER)
+    NoOpUnmatchedListener noOpUnmatchedListener() {
+        return new NoOpUnmatchedListener();
     }
 
     @Bean(AufKafkaConstant.BEAN_LOGGING_DISPATCHING_LISTENER)
@@ -35,7 +35,7 @@ public final class ConsumerConfiguration {
         return new InboundDispatchingLogger(enabled);
     }
 
-    @Bean(AufKafkaConstant.BEAN_IGNORING_CONSUMEREXCEPTION_LISTENER)
+    @Bean(AufKafkaConstant.BEAN_IGNORING_DISPATCHING_EXCEPTION_LISTENER)
     IgnoringConsumerExceptionListener ignoringConsumer() {
         return new IgnoringConsumerExceptionListener();
     }
