@@ -14,13 +14,12 @@ import org.springframework.context.annotation.Import;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.ConsumerConfigProvider;
-import me.ehp246.aufkafka.api.consumer.EventDispatchListener;
+import me.ehp246.aufkafka.api.consumer.DispatchListener;
 import me.ehp246.aufkafka.api.consumer.EventInvocable;
 import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
-import me.ehp246.aufkafka.api.consumer.UnknownEventConsumer;
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
 import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointRegistrar;
 import me.ehp246.aufkafka.core.consumer.ConsumerConfiguration;
@@ -150,15 +149,16 @@ public @interface EnableForKafka {
 	 * {@linkplain ForKey} objects. It applies only after a matching
 	 * {@linkplain ForKey} class has been found. It will not be invoked if there is
 	 * no matching {@linkplain EventInvocable}, e.g.,
-	 * {@linkplain EnableForKafka.Inbound#unknownEventConsumer()} invocation.
+	 * {@linkplain EnableForKafka.Inbound#unknownEventListener()} invocation.
 	 * <p>
 	 * Supports Spring property placeholder and SpEL expression.
 	 */
 	String invocationListener() default "";
 
 	/**
-	 * Specifies the bean name of {@linkplain UnknownEventConsumer} type to accept
-	 * any message that no matching {@linkplain EventInvocable} can be found.
+	 * Specifies the bean name of {@linkplain DispatchListener.UnknownEventListener}
+	 * type to accept any message that no matching {@linkplain EventInvocable} can
+	 * be found.
 	 * <p>
 	 * The default value specifies a no-operation bean that logs the un-matched
 	 * message by {@linkplain Logger#atTrace()}. This means un-matched messages are
@@ -166,11 +166,11 @@ public @interface EnableForKafka {
 	 * <p>
 	 * Supports Spring property placeholder and SpEL expression.
 	 */
-	String unknownEventConsumer() default AufKafkaConstant.BEAN_NOOP_UNKNOWN_EVENT_CONSUMER;
+	String unknownEventListener() default AufKafkaConstant.BEAN_NOOP_UNKNOWN_EVENT_LISTENER;
 
 	/**
 	 * Specifies the bean name of
-	 * {@linkplain EventDispatchListener.ExceptionListener} type to receive any
+	 * {@linkplain DispatchListener.ExceptionListener} type to receive any
 	 * exception that happened when consuming a message.
 	 * <p>
 	 * The default is to log and ignore.

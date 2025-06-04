@@ -14,7 +14,7 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
-import me.ehp246.aufkafka.api.consumer.EventDispatchListener;
+import me.ehp246.aufkafka.api.consumer.DispatchListener;
 import me.ehp246.aufkafka.api.consumer.InboundDispatchingLogger;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.spi.EventMdcContext;
@@ -30,7 +30,7 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
     private final InboundConsumerExecutorProvider executorProvider;
     private final EventInvocableBinder binder;
     private final ConsumerProvider consumerProvider;
-    private final List<EventDispatchListener.DispatchingListener> onDispatching;
+    private final List<DispatchListener.DispatchingListener> onDispatching;
     private final AutowireCapableBeanFactory autowireCapableBeanFactory;
     private final DefaultInboundConsumerRegistry consumerRegistry;
     private final String correlIdHeader;
@@ -67,7 +67,7 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
 		    new DefaultEventInvocableRunnableBuilder(this.binder,
 			    endpoint.invocationListener() == null ? null : List.of(endpoint.invocationListener())),
 		    new AutowireCapableInvocableFactory(autowireCapableBeanFactory, endpoint.invocableRegistry()),
-		    this.onDispatching, endpoint.unknownEventConsumer(), endpoint.dispatchExceptionListener());
+		    this.onDispatching, endpoint.unknownEventListener(), endpoint.dispatchExceptionListener());
 
 	    this.consumerRegistry.put(endpoint.name(), consumerRunner);
 

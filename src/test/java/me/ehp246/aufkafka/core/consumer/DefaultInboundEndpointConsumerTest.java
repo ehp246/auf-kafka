@@ -13,8 +13,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import me.ehp246.aufkafka.api.consumer.EventDispatchListener;
+import me.ehp246.aufkafka.api.consumer.DispatchListener;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRunnableBuilder;
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.test.mock.MockConsumerRecord;
 
@@ -23,6 +24,9 @@ import me.ehp246.test.mock.MockConsumerRecord;
  *
  */
 class DefaultInboundEndpointConsumerTest {
+    record Context(InboundEvent event, Exception thrown) {
+    }
+
     private final EventInvocableRunnableBuilder dispatcher = (i, r) -> () -> {
     };
     private final InvocableFactory factory = r -> null;
@@ -30,7 +34,7 @@ class DefaultInboundEndpointConsumerTest {
     @SuppressWarnings("unchecked")
     @Test
     void exception_01() throws InterruptedException, ExecutionException {
-	final var ref = new CompletableFuture<EventDispatchListener.ExceptionListener.Context>();
+	final var ref = new CompletableFuture<Context>();
 	final var msg = new MockConsumerRecord();
 	final var records = Mockito.mock(ConsumerRecords.class);
 	Mockito.when(records.count()).thenReturn(1);
@@ -45,13 +49,12 @@ class DefaultInboundEndpointConsumerTest {
 	final var task = new DefaultInboundEndpointConsumer(consumer, Duration.ofDays(1)::abs, dispatcher,
 		(InvocableFactory) (r -> {
 		    throw thrown;
-		}), null, null, (EventDispatchListener.ExceptionListener) (c -> ref.complete(c)));
+		}), null, null, (DispatchListener.ExceptionListener) (e, t) -> ref.complete(new Context(e, t)));
 
 	Executors.newVirtualThreadPerTaskExecutor().execute(task::run);
 
 	final var context = ref.get();
 
-	Assertions.assertEquals(consumer, context.consumer());
 	Assertions.assertEquals(thrown, context.thrown());
 	Assertions.assertEquals(msg, context.event().consumerRecord());
 

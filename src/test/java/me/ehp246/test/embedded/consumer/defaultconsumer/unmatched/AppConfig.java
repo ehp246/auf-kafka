@@ -13,10 +13,10 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
  */
 @EnableByKafka
 @EnableForKafka(value = {
-        @Inbound(value = @From("embedded"), unknownEventConsumer = "${default.consumer.name:}") })
+        @Inbound(value = @From("embedded"), unknownEventListener = "${default.consumer.name:}") })
 class AppConfig {
     @Bean
-    Unmatched unmatched() {
-        return new Unmatched();
+    Unknown unknown() {
+        return new Unknown();
     }
 }

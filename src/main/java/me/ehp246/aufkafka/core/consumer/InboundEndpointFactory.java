@@ -12,12 +12,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
-import me.ehp246.aufkafka.api.consumer.EventDispatchListener;
+import me.ehp246.aufkafka.api.consumer.DispatchListener;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
-import me.ehp246.aufkafka.api.consumer.UnknownEventConsumer;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
@@ -49,13 +48,14 @@ public final class InboundEndpointFactory {
 
 	final var consumerConfigName = inboundAttributes.get("consumerConfigName").toString();
 
-	final var umatchedListener = Optional.ofNullable(inboundAttributes.get("unknownEventConsumer").toString())
+	final var unknowListener = Optional.ofNullable(inboundAttributes.get("unknownEventListener").toString())
 		.map(expressionResolver::apply).filter(OneUtil::hasValue)
-		.map(name -> autowireCapableBeanFactory.getBean(name, UnknownEventConsumer.class)).orElse(null);
+		.map(name -> autowireCapableBeanFactory.getBean(name, DispatchListener.UnknownEventListener.class))
+		.orElse(null);
 
 	final var exceptionListener = Optional.ofNullable(inboundAttributes.get("dispatchExceptionListener").toString())
 		.map(expressionResolver::apply).filter(OneUtil::hasValue)
-		.map(name -> autowireCapableBeanFactory.getBean(name, EventDispatchListener.ExceptionListener.class))
+		.map(name -> autowireCapableBeanFactory.getBean(name, DispatchListener.ExceptionListener.class))
 		.orElse(null);
 
 	final var consumerProperties = consumerProperties(
@@ -126,12 +126,12 @@ public final class InboundEndpointFactory {
 	    }
 
 	    @Override
-	    public UnknownEventConsumer unknownEventConsumer() {
-		return umatchedListener;
+	    public DispatchListener.UnknownEventListener unknownEventListener() {
+		return unknowListener;
 	    }
 
 	    @Override
-	    public EventDispatchListener.ExceptionListener dispatchExceptionListener() {
+	    public DispatchListener.ExceptionListener dispatchExceptionListener() {
 		return exceptionListener;
 	    }
 

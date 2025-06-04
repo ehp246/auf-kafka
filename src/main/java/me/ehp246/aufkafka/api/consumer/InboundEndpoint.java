@@ -41,11 +41,11 @@ public interface InboundEndpoint {
 	return null;
     }
 
-    default UnknownEventConsumer unknownEventConsumer() {
+    default DispatchListener.UnknownEventListener unknownEventListener() {
 	return null;
     }
 
-    default EventDispatchListener.ExceptionListener dispatchExceptionListener() {
+    default DispatchListener.ExceptionListener dispatchExceptionListener() {
 	return null;
     }
 

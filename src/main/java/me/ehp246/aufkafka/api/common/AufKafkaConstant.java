@@ -11,7 +11,7 @@ public final class AufKafkaConstant {
     public static final String BEAN_NAME_PREFIX_INBOUND_ENDPOINT = "inboundEndpoint-";
     public static final String BEAN_AUFKAFKA_OBJECT_MAPPER = "aufKafkaObjectMapper";
     public static final String BEAN_LOGGING_DISPATCHING_LISTENER = "d8e0d517-5121-43b2-8dc1-4d050fb64086";
-    public static final String BEAN_NOOP_UNKNOWN_EVENT_CONSUMER = "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
+    public static final String BEAN_NOOP_UNKNOWN_EVENT_LISTENER = "e9c593e2-37c6-48e2-8a76-67540e44e3b1";
     public static final String BEAN_IGNORING_DISPATCHING_EXCEPTION_LISTENER = "6cf6af85-c802-46c1-97a6-2d5bbfee568a";
 
     /**
