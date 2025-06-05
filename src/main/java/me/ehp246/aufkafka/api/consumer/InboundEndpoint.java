@@ -49,6 +49,10 @@ public interface InboundEndpoint {
 	return null;
     }
 
+    default InboundEndpointConsumer.Listener consumerListener() {
+	return null;
+    }
+
     interface From {
 	String topic();
     }

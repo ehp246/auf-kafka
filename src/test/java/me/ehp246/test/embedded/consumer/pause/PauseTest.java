@@ -3,6 +3,7 @@ package me.ehp246.test.embedded.consumer.pause;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.kafka.clients.consumer.CommitFailedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,8 @@ import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.OutboundEventRecord;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 
-@SpringBootTest(classes = { App.class, EmbeddedKafkaConfig.class, Pause.class }, webEnvironment = WebEnvironment.NONE)
+@SpringBootTest(classes = { App.class, EmbeddedKafkaConfig.class, Pause.class,
+	ConsumerListener.class }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { App.TOPIC })
 class PauseTest {
     private final OutboundEvent.Header PAUSE_EVENT = new OutboundEventRecord.HeaderRecord(AufKafkaConstant.EVENT_HEADER,
@@ -23,6 +25,8 @@ class PauseTest {
 
     @Autowired
     private Pause pause;
+    @Autowired
+    private ConsumerListener consumerListener;
 
     @Autowired
     private ProducerFnProvider provider;
@@ -69,7 +73,7 @@ class PauseTest {
 
 	    @Override
 	    public Object value() {
-		return App.MAX_INTERVAL + 10;
+		return App.MAX_INTERVAL + 100;
 	    }
 
 	    @Override
@@ -79,5 +83,6 @@ class PauseTest {
 	});
 
 	Assertions.assertEquals(id, pause.take());
+	Assertions.assertEquals(true, this.consumerListener.take() instanceof CommitFailedException);
     }
 }

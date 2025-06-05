@@ -67,7 +67,8 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
 		    new DefaultEventInvocableRunnableBuilder(this.binder,
 			    endpoint.invocationListener() == null ? null : List.of(endpoint.invocationListener())),
 		    new AutowireCapableInvocableFactory(autowireCapableBeanFactory, endpoint.invocableRegistry()),
-		    this.onDispatching, endpoint.unknownEventListener(), endpoint.dispatchExceptionListener());
+		    this.onDispatching, endpoint.unknownEventListener(), endpoint.dispatchExceptionListener(),
+		    endpoint.consumerListener());
 
 	    this.consumerRegistry.put(endpoint.name(), consumerRunner);
 

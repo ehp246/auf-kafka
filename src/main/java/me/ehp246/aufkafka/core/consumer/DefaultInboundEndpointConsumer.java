@@ -33,6 +33,7 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
     private final List<DispatchListener.DispatchingListener> onDispatching;
     private final DispatchListener.UnknownEventListener onUnknown;
     private final DispatchListener.ExceptionListener onException;
+    private final InboundEndpointConsumer.Listener.ExceptionListener consumerExcepitonListener;
     private volatile boolean closed = false;
     private final CompletableFuture<Boolean> closedFuture = new CompletableFuture<Boolean>();
 
@@ -40,7 +41,8 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 	    final Supplier<Duration> pollDurationSupplier, final EventInvocableRunnableBuilder dispatcher,
 	    final InvocableFactory invocableFactory, final List<DispatchListener.DispatchingListener> onDispatching,
 	    final DispatchListener.UnknownEventListener onUnmatched,
-	    final DispatchListener.ExceptionListener onException) {
+	    final DispatchListener.ExceptionListener onException,
+	    final InboundEndpointConsumer.Listener consumerListener) {
 	super();
 	this.consumer = consumer;
 	this.pollDurationSupplier = pollDurationSupplier;
@@ -49,6 +51,8 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 	this.onDispatching = onDispatching == null ? List.of() : onDispatching;
 	this.onUnknown = onUnmatched;
 	this.onException = onException;
+	this.consumerExcepitonListener = consumerListener instanceof Listener.ExceptionListener exListener ? exListener
+		: null;
     }
 
     public void run() {
@@ -61,6 +65,16 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 		} else {
 		    throw e;
 		}
+	    } catch (Exception e) {
+		try {
+		    if (this.consumerExcepitonListener != null) {
+			this.consumerExcepitonListener.onException(this, e);
+		    }
+		} catch (Exception x) {
+		    LOGGER.atWarn().setCause(x).setMessage("Exception from {} ignored.")
+			    .addArgument(this.consumerExcepitonListener).log();
+		}
+		throw e;
 	    }
 	}
 

@@ -49,7 +49,7 @@ class DefaultInboundEndpointConsumerTest {
 	final var task = new DefaultInboundEndpointConsumer(consumer, Duration.ofDays(1)::abs, dispatcher,
 		(InvocableFactory) (r -> {
 		    throw thrown;
-		}), null, null, (DispatchListener.ExceptionListener) (e, t) -> ref.complete(new Context(e, t)));
+		}), null, null, (DispatchListener.ExceptionListener) (e, t) -> ref.complete(new Context(e, t)), null);
 
 	Executors.newVirtualThreadPerTaskExecutor().execute(task::run);
 
@@ -70,7 +70,7 @@ class DefaultInboundEndpointConsumerTest {
 	Mockito.when(consumer.poll(Mockito.any())).thenReturn(Mockito.mock(ConsumerRecords.class));
 
 	final var task = new DefaultInboundEndpointConsumer(consumer, () -> expected, dispatcher, factory, null, null,
-		null);
+		null, null);
 
 	final var ref = new CompletableFuture<Exception>();
 	Executors.newVirtualThreadPerTaskExecutor().execute(() -> {

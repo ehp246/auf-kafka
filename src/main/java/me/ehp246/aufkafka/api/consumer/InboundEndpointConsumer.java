@@ -7,4 +7,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface InboundEndpointConsumer {
     CompletableFuture<Boolean> close();
+
+    public sealed interface Listener {
+	non-sealed interface ExceptionListener extends Listener {
+	    void onException(InboundEndpointConsumer consumer, Exception thrown);
+	}
+    }
 }
