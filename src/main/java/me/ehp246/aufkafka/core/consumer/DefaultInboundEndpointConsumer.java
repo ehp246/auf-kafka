@@ -57,9 +57,9 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 		poll();
 	    } catch (WakeupException e) {
 		if (this.closed) {
-		    LOGGER.atTrace().setCause(e).setMessage("Woke up to close. Ignored").log();
+		    LOGGER.atTrace().setMessage("Woke up to close.").log();
 		} else {
-		    LOGGER.atError().setCause(e).setMessage("Wrongly woke up").log();
+		    throw e;
 		}
 	    }
 	}
@@ -70,9 +70,6 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 
     private void poll() {
 	final var polled = consumer.poll(pollDurationSupplier.get());
-	if (polled.count() > 1) {
-	    LOGGER.atWarn().setMessage("Polled count: {}").addArgument(polled::count).log();
-	}
 
 	StreamSupport.stream(polled.spliterator(), false).map(InboundEvent::new).forEach(this::dispatchEvent);
 
