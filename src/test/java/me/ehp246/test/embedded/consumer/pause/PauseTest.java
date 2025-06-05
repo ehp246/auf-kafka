@@ -12,24 +12,14 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
+import me.ehp246.aufkafka.api.producer.OutboundEventRecord;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 
 @SpringBootTest(classes = { App.class, EmbeddedKafkaConfig.class, Pause.class }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { App.TOPIC })
 class PauseTest {
-    private final OutboundEvent.Header PAUSE_EVENT = new OutboundEvent.Header() {
-
-	@Override
-	public String key() {
-	    return AufKafkaConstant.EVENT_HEADER;
-	}
-
-	@Override
-	public Object value() {
-	    return "Pause";
-	}
-
-    };
+    private final OutboundEvent.Header PAUSE_EVENT = new OutboundEventRecord.HeaderRecord(AufKafkaConstant.EVENT_HEADER,
+	    "Pause");
 
     @Autowired
     private Pause pause;
@@ -38,19 +28,7 @@ class PauseTest {
     private ProducerFnProvider provider;
 
     private OutboundEvent.Header correlIdheader(final String id) {
-	return new OutboundEvent.Header() {
-
-	    @Override
-	    public String key() {
-		return AufKafkaConstant.CORRELATIONID_HEADER;
-	    }
-
-	    @Override
-	    public Object value() {
-		return id;
-	    }
-
-	};
+	return new OutboundEventRecord.HeaderRecord(AufKafkaConstant.CORRELATIONID_HEADER, id);
     }
 
     @Test
