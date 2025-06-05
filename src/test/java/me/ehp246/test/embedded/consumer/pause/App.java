@@ -10,7 +10,8 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
  *
  */
 @EnableByKafka
-@EnableForKafka({ @Inbound(value = @From(App.TOPIC), pollDuration = "PT0.1S") })
+@EnableForKafka({ @Inbound(value = @From(App.TOPIC), pollDuration = "PT0.001S") })
 class App {
     final static String TOPIC = "d43e72ce-c3e5-4f26-bc20-147e804093b9";
+    final static int MAX_INTERVAL = 50;
 }
