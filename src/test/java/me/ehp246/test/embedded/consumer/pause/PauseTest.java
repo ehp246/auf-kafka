@@ -2,6 +2,7 @@ package me.ehp246.test.embedded.consumer.pause;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.kafka.clients.consumer.CommitFailedException;
 import org.junit.jupiter.api.Assertions;
@@ -36,10 +37,12 @@ class PauseTest {
     }
 
     @Test
-    void test_01() {
+    void test_01() throws InterruptedException {
 	final var id = UUID.randomUUID().toString();
 
-	provider.get("").send(new OutboundEvent() {
+	final var producerFn = provider.get("");
+
+	producerFn.send(new OutboundEvent() {
 
 	    @Override
 	    public String topic() {
@@ -58,6 +61,29 @@ class PauseTest {
 	});
 
 	Assertions.assertEquals(id, pause.take());
+
+	Thread.sleep(1000);
+
+	final var id2 = UUID.randomUUID().toString();
+	producerFn.send(new OutboundEvent() {
+
+	    @Override
+	    public String topic() {
+		return App.TOPIC;
+	    }
+
+	    @Override
+	    public Object value() {
+		return 10;
+	    }
+
+	    @Override
+	    public List<Header> headers() {
+		return List.of(correlIdheader(id2), PAUSE_EVENT);
+	    }
+	});
+
+	Assertions.assertEquals(id2, pause.take());
     }
 
     @Test
@@ -84,5 +110,55 @@ class PauseTest {
 
 	Assertions.assertEquals(id, pause.take());
 	Assertions.assertEquals(true, this.consumerListener.take() instanceof CommitFailedException);
+    }
+
+    @Test
+    void test_03() throws InterruptedException {
+	final var id1 = UUID.randomUUID().toString();
+
+	final var producerFn = provider.get("");
+
+	producerFn.send(new OutboundEvent() {
+
+	    @Override
+	    public String topic() {
+		return App.TOPIC;
+	    }
+
+	    @Override
+	    public Object value() {
+		return App.MAX_INTERVAL + 100;
+	    }
+
+	    @Override
+	    public List<Header> headers() {
+		return List.of(correlIdheader(id1), PAUSE_EVENT);
+	    }
+	});
+
+	Assertions.assertEquals(id1, pause.take());
+
+	Thread.sleep(1000);
+
+	final var id2 = UUID.randomUUID().toString();
+	producerFn.send(new OutboundEvent() {
+
+	    @Override
+	    public String topic() {
+		return App.TOPIC;
+	    }
+
+	    @Override
+	    public Object value() {
+		return App.MAX_INTERVAL + 100;
+	    }
+
+	    @Override
+	    public List<Header> headers() {
+		return List.of(correlIdheader(id2), PAUSE_EVENT);
+	    }
+	});
+
+	Assertions.assertThrows(TimeoutException.class, () -> pause.take(1000));
     }
 }

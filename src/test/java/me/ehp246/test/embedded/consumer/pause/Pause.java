@@ -1,6 +1,9 @@
 package me.ehp246.test.embedded.consumer.pause;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.springframework.stereotype.Service;
@@ -32,6 +35,12 @@ public class Pause {
 
     String take() {
 	final var value = OneUtil.orThrow(this.ref.get()::get);
+	this.ref.set(new CompletableFuture<String>());
+	return value;
+    }
+
+    String take(int i) throws InterruptedException, ExecutionException, TimeoutException {
+	final var value = this.ref.get().get(i, TimeUnit.MILLISECONDS);
 	this.ref.set(new CompletableFuture<String>());
 	return value;
     }
