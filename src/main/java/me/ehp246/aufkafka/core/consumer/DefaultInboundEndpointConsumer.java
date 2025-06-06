@@ -3,6 +3,9 @@ package me.ehp246.aufkafka.core.consumer;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
@@ -33,9 +36,12 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
     private final List<DispatchListener.DispatchingListener> onDispatching;
     private final DispatchListener.UnknownEventListener onUnknown;
     private final DispatchListener.ExceptionListener onException;
-    private final InboundEndpointConsumer.Listener.ExceptionListener consumerExcepitonListener;
-    private volatile boolean closed = false;
-    private final CompletableFuture<Boolean> closedFuture = new CompletableFuture<Boolean>();
+    private final InboundEndpointConsumer.Listener.ExceptionListener consumerExceptionListener;
+
+    private volatile CompletableFuture<Object> isDispatchingDone = CompletableFuture.completedFuture(null);
+    private volatile boolean isClosed = false;
+    private final CompletableFuture<Boolean> hasClosed = new CompletableFuture<Boolean>();
+    private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     DefaultInboundEndpointConsumer(final Consumer<String, String> consumer,
 	    final Supplier<Duration> pollDurationSupplier, final EventInvocableRunnableBuilder dispatcher,
@@ -51,48 +57,86 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 	this.onDispatching = onDispatching == null ? List.of() : onDispatching;
 	this.onUnknown = onUnmatched;
 	this.onException = onException;
-	this.consumerExcepitonListener = consumerListener instanceof Listener.ExceptionListener exListener ? exListener
+	this.consumerExceptionListener = consumerListener instanceof Listener.ExceptionListener exListener ? exListener
 		: null;
     }
 
     public void run() {
-	while (!this.closed) {
+	while (!this.isClosed) {
 	    try {
-		poll();
+		synchronized (this.consumer) {
+		    this.poll();
+		}
 	    } catch (WakeupException e) {
-		if (this.closed) {
-		    LOGGER.atTrace().setMessage("Woke up to close.").log();
+		if (this.isClosed) {
+		    /*
+		     * Expected. Do nothing.
+		     */
 		} else {
 		    throw e;
 		}
 	    } catch (Exception e) {
-		try {
-		    if (this.consumerExcepitonListener != null) {
-			this.consumerExcepitonListener.onException(this, e);
+		if (this.consumerExceptionListener != null) {
+		    try {
+			this.consumerExceptionListener.onException(this, e);
+		    } catch (Exception x) {
+			LOGGER.atError().setCause(x).setMessage("Exception from {} ignored.")
+				.addArgument(this.consumerExceptionListener).log();
 		    }
-		} catch (Exception x) {
-		    LOGGER.atWarn().setCause(x).setMessage("Exception from {} ignored.")
-			    .addArgument(this.consumerExcepitonListener).log();
 		}
+		waitToClose();
 		throw e;
 	    }
 	}
 
-	this.consumer.close();
-	this.closedFuture.complete(true);
+	waitToClose();
     }
 
     private void poll() {
 	final var polled = consumer.poll(pollDurationSupplier.get());
 
-	StreamSupport.stream(polled.spliterator(), false).map(InboundEvent::new).forEach(this::dispatchEvent);
-
-	if (polled.count() > 0) {
-	    consumer.commitSync();
+	if (polled.count() <= 0) {
+	    return;
 	}
+
+	this.isDispatchingDone = new CompletableFuture<Object>();
+	this.consumer.pause(this.consumer.assignment());
+
+	this.executor.execute(() -> {
+	    StreamSupport.stream(polled.spliterator(), false).map(InboundEvent::new).forEach(event -> {
+		try {
+		    dispatchEvent(event);
+		} catch (Exception e) {
+		    if (this.onException != null) {
+			try {
+			    this.onException.onException(event, e);
+			} catch (Exception e1) {
+			    LOGGER.atError().setCause(e)
+				    .setMessage(
+					    this.onException.getClass().getSimpleName() + " failed, exception ignored.")
+				    .log();
+			}
+		    } else {
+			LOGGER.atError().setCause(e)
+				.setMessage("Event dispatching failed on {}, {}, {}, exception ignored.")
+				.addArgument(event::topic).addArgument(event::key).addArgument(event::offset).log();
+
+		    }
+		}
+	    });
+
+	    synchronized (this.consumer) {
+		consumer.commitSync();
+		if (!isClosed) {
+		    consumer.resume(consumer.assignment());
+		}
+	    }
+
+	    this.isDispatchingDone.complete(null);
+	});
     }
 
-    private void dispatchEvent(final InboundEvent event) {
+    private void dispatchEvent(final InboundEvent event) throws Exception {
 	try (final var closeable = EventMdcContext.set(event);) {
 	    this.onDispatching.stream().forEach(l -> l.onDispatching(event));
 
@@ -102,28 +146,33 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 		if (onUnknown == null) {
 		    throw new UnknownEventException(event);
 		} else {
-		    onUnknown.onKnown(event);
+		    onUnknown.onUnknown(event);
 		}
 	    } else {
 		runnableBuilder.apply(invocable, event).run();
 	    }
-	} catch (Exception e) {
-	    LOGGER.atError().setCause(e)
-		    .setMessage(
-			    this.onException.getClass().getSimpleName() + " failed, ignored: {}, {}, {} because of {}")
-		    .addArgument(event::topic).addArgument(event::key).addArgument(event::offset)
-		    .addArgument(e::getMessage).log();
-
-	    if (this.onException != null) {
-		this.onException.onException(event, e);
-	    }
 	}
+    }
+
+    private void waitToClose() {
+	try {
+	    this.isDispatchingDone.get();
+	} catch (InterruptedException | ExecutionException e) {
+	    LOGGER.atError().setCause(e).setMessage("Waiting for dispatching failed. Exception ignored.").log();
+	}
+
+	synchronized (this.consumer) {
+	    this.consumer.close();
+	}
+
+	this.hasClosed.complete(true);
+	this.isClosed = true;
     }
 
     @Override
     public CompletableFuture<Boolean> close() {
-	this.closed = true;
+	this.isClosed = true;
 	this.consumer.wakeup();
-	return this.closedFuture;
+	return this.hasClosed;
     }
 }

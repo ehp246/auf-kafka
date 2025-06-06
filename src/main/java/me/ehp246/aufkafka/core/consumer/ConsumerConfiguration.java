@@ -56,11 +56,14 @@ public final class ConsumerConfiguration {
 	    if (custom != null) {
 		configMap.putAll(custom);
 	    }
+
+	    if (configMap.get(ConsumerConfig.MAX_POLL_RECORDS_CONFIG) == null) {
+		configMap.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
+	    }
 	    /*
 	     * Mandatory configuration overwriting any custom ones.
 	     */
 	    configMap.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-	    configMap.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
 	    configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
 	    configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
 

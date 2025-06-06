@@ -18,7 +18,7 @@ class Unknown implements DispatchListener.UnknownEventListener {
 	    new CompletableFuture<>());
 
     @Override
-    public void onKnown(final InboundEvent event) {
+    public void onUnknown(final InboundEvent event) {
 	ref.get().complete(event.consumerRecord());
     }
 

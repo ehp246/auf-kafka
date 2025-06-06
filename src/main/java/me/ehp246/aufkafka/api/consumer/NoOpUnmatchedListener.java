@@ -13,7 +13,7 @@ public final class NoOpUnmatchedListener implements DispatchListener.UnknownEven
     private final static Logger LOGGER = LoggerFactory.getLogger(NoOpUnmatchedListener.class);
 
     @Override
-    public void onKnown(final InboundEvent event) {
+    public void onUnknown(final InboundEvent event) {
 	LOGGER.atInfo().setMessage("No op on: key '{}', topic '{}', offset '{}'").addArgument(event::key)
 		.addArgument(event::topic).addArgument(event::offset).log();
 

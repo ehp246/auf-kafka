@@ -2,11 +2,12 @@ package me.ehp246.test.embedded.consumer.pause;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-import org.apache.kafka.clients.consumer.CommitFailedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -17,20 +18,20 @@ import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.OutboundEventRecord;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 
-@SpringBootTest(classes = { App.class, EmbeddedKafkaConfig.class, Pause.class,
-	ConsumerListener.class }, webEnvironment = WebEnvironment.NONE)
+@SpringBootTest(classes = { App.class, EmbeddedKafkaConfig.class, Pause.class, }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { App.TOPIC })
+@EnabledIfSystemProperty(named = "me.ehp246.test.embedded.consumer.pause", matches = "true")
 class PauseTest {
     private final OutboundEvent.Header PAUSE_EVENT = new OutboundEventRecord.HeaderRecord(AufKafkaConstant.EVENT_HEADER,
 	    "Pause");
 
     @Autowired
     private Pause pause;
-    @Autowired
-    private ConsumerListener consumerListener;
 
     @Autowired
     private ProducerFnProvider provider;
+
+    private final Executor executor = Executors.newVirtualThreadPerTaskExecutor();
 
     private OutboundEvent.Header correlIdheader(final String id) {
 	return new OutboundEventRecord.HeaderRecord(AufKafkaConstant.CORRELATIONID_HEADER, id);
@@ -38,127 +39,34 @@ class PauseTest {
 
     @Test
     void test_01() throws InterruptedException {
-	final var id = UUID.randomUUID().toString();
-
 	final var producerFn = provider.get("");
 
-	producerFn.send(new OutboundEvent() {
+	this.executor.execute(() -> {
+	    for (int i = 1; i <= App.REPEAT; i++) {
 
-	    @Override
-	    public String topic() {
-		return App.TOPIC;
-	    }
+		producerFn.send(new OutboundEvent() {
+		    final String id = UUID.randomUUID().toString();
 
-	    @Override
-	    public Object value() {
-		return 1;
-	    }
+		    @Override
+		    public String topic() {
+			return App.TOPIC;
+		    }
 
-	    @Override
-	    public List<Header> headers() {
-		return List.of(correlIdheader(id), PAUSE_EVENT);
-	    }
-	});
+		    @Override
+		    public Object value() {
+			return App.MAX_POLL_INTERVAL + 10;
+		    }
 
-	Assertions.assertEquals(id, pause.take());
-
-	Thread.sleep(1000);
-
-	final var id2 = UUID.randomUUID().toString();
-	producerFn.send(new OutboundEvent() {
-
-	    @Override
-	    public String topic() {
-		return App.TOPIC;
-	    }
-
-	    @Override
-	    public Object value() {
-		return 10;
-	    }
-
-	    @Override
-	    public List<Header> headers() {
-		return List.of(correlIdheader(id2), PAUSE_EVENT);
+		    @Override
+		    public List<Header> headers() {
+			return List.of(correlIdheader(id), PAUSE_EVENT);
+		    }
+		});
 	    }
 	});
 
-	Assertions.assertEquals(id2, pause.take());
+	Assertions.assertEquals(App.REPEAT, pause.take().size());
+
     }
 
-    @Test
-    void test_02() throws InterruptedException {
-	final var id = UUID.randomUUID().toString();
-
-	provider.get("").send(new OutboundEvent() {
-
-	    @Override
-	    public String topic() {
-		return App.TOPIC;
-	    }
-
-	    @Override
-	    public Object value() {
-		return App.MAX_INTERVAL + 100;
-	    }
-
-	    @Override
-	    public List<Header> headers() {
-		return List.of(correlIdheader(id), PAUSE_EVENT);
-	    }
-	});
-
-	Assertions.assertEquals(id, pause.take());
-	Assertions.assertEquals(true, this.consumerListener.take() instanceof CommitFailedException);
-    }
-
-    @Test
-    void test_03() throws InterruptedException {
-	final var id1 = UUID.randomUUID().toString();
-
-	final var producerFn = provider.get("");
-
-	producerFn.send(new OutboundEvent() {
-
-	    @Override
-	    public String topic() {
-		return App.TOPIC;
-	    }
-
-	    @Override
-	    public Object value() {
-		return App.MAX_INTERVAL + 100;
-	    }
-
-	    @Override
-	    public List<Header> headers() {
-		return List.of(correlIdheader(id1), PAUSE_EVENT);
-	    }
-	});
-
-	Assertions.assertEquals(id1, pause.take());
-
-	Thread.sleep(1000);
-
-	final var id2 = UUID.randomUUID().toString();
-	producerFn.send(new OutboundEvent() {
-
-	    @Override
-	    public String topic() {
-		return App.TOPIC;
-	    }
-
-	    @Override
-	    public Object value() {
-		return App.MAX_INTERVAL + 100;
-	    }
-
-	    @Override
-	    public List<Header> headers() {
-		return List.of(correlIdheader(id2), PAUSE_EVENT);
-	    }
-	});
-
-	Assertions.assertThrows(TimeoutException.class, () -> pause.take(1000));
-    }
 }

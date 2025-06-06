@@ -25,7 +25,8 @@ class EmbeddedKafkaConfig {
     @Bean
     ConsumerConfigProvider consumerConfigProvider() {
 	final Map<String, Object> configMap = KafkaTestUtils.consumerProps("test", "true", embeddedKafka);
-	configMap.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, App.MAX_INTERVAL);
+	configMap.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, App.MAX_POLL_INTERVAL);
+	configMap.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
 	return name -> configMap;
     }

@@ -2,12 +2,16 @@ package me.ehp246.aufkafka.core.consumer;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.MockConsumer;
+import org.apache.kafka.clients.consumer.OffsetResetStrategy;
+import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -17,7 +21,6 @@ import me.ehp246.aufkafka.api.consumer.DispatchListener;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRunnableBuilder;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
-import me.ehp246.test.mock.MockConsumerRecord;
 
 /**
  * @author Lei Yang
@@ -31,18 +34,17 @@ class DefaultInboundEndpointConsumerTest {
     };
     private final InvocableFactory factory = r -> null;
 
-    @SuppressWarnings("unchecked")
+    private final TopicPartition partition = new TopicPartition("", 0);
+
     @Test
     void exception_01() throws InterruptedException, ExecutionException {
 	final var ref = new CompletableFuture<Context>();
-	final var msg = new MockConsumerRecord();
-	final var records = Mockito.mock(ConsumerRecords.class);
-	Mockito.when(records.count()).thenReturn(1);
-	Mockito.when(records.iterator()).thenReturn(List.of(msg).iterator());
-	Mockito.when(records.spliterator()).thenReturn(List.of(msg).spliterator());
+	final var msg = new ConsumerRecord<String, String>("", 0, 0, null, null);
+	final var consumer = new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST);
+	consumer.assign(List.of(partition));
+	consumer.updateBeginningOffsets(Map.of(partition, 0L));
 
-	final var consumer = Mockito.mock(Consumer.class);
-	Mockito.when(consumer.poll(Mockito.any())).thenReturn(records);
+	consumer.addRecord(msg);
 
 	final var thrown = new RuntimeException();
 
@@ -57,34 +59,37 @@ class DefaultInboundEndpointConsumerTest {
 
 	Assertions.assertEquals(thrown, context.thrown());
 	Assertions.assertEquals(msg, context.event().consumerRecord());
-
-	Mockito.verify(consumer, Mockito.atLeastOnce()).commitSync();
+	Assertions.assertEquals(1, consumer.committed(Set.of(partition)).get(partition).offset());
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     void pollDuration_01() throws InterruptedException, ExecutionException {
 	final var expected = Duration.ofDays(2);
 
-	final var consumer = Mockito.mock(Consumer.class);
-	Mockito.when(consumer.poll(Mockito.any())).thenReturn(Mockito.mock(ConsumerRecords.class));
+	final var consumer = new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST);
+	consumer.assign(List.of(partition));
+	consumer.updateBeginningOffsets(Map.of(partition, 0L));
 
-	final var task = new DefaultInboundEndpointConsumer(consumer, () -> expected, dispatcher, factory, null, null,
-		null, null);
+	final var spyConsumer = Mockito.spy(consumer);
+
+	final var task = new DefaultInboundEndpointConsumer(spyConsumer, () -> expected, dispatcher, factory, null,
+		null, null, null);
 
 	final var ref = new CompletableFuture<Exception>();
 	Executors.newVirtualThreadPerTaskExecutor().execute(() -> {
-	    try {
-		task.run();
-	    } catch (Exception e) {
-		ref.complete(e);
-	    }
+	    task.run();
+	    ref.complete(null);
+	});
+
+	Executors.newVirtualThreadPerTaskExecutor().execute(() -> {
+	    task.close();
+	    ref.complete(null);
 	});
 	ref.get();
 
 	ArgumentCaptor<Duration> argument = ArgumentCaptor.forClass(Duration.class);
 
-	Mockito.verify(consumer).poll(argument.capture());
+	Mockito.verify(spyConsumer, Mockito.atLeastOnce()).poll(argument.capture());
 
 	Assertions.assertEquals(expected, argument.getValue());
     }
