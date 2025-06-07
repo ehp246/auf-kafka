@@ -36,7 +36,6 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
     private final List<DispatchListener.DispatchingListener> onDispatching;
     private final DispatchListener.UnknownEventListener onUnknown;
     private final DispatchListener.ExceptionListener onException;
-    private final InboundEndpointConsumer.Listener.ExceptionListener consumerExceptionListener;
 
     private volatile CompletableFuture<Object> isDispatchingDone = CompletableFuture.completedFuture(null);
     private volatile boolean isClosed = false;
@@ -47,8 +46,7 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 	    final Supplier<Duration> pollDurationSupplier, final EventInvocableRunnableBuilder dispatcher,
 	    final InvocableFactory invocableFactory, final List<DispatchListener.DispatchingListener> onDispatching,
 	    final DispatchListener.UnknownEventListener onUnmatched,
-	    final DispatchListener.ExceptionListener onException,
-	    final InboundEndpointConsumer.Listener consumerListener) {
+	    final DispatchListener.ExceptionListener onException) {
 	super();
 	this.consumer = consumer;
 	this.pollDurationSupplier = pollDurationSupplier;
@@ -57,8 +55,6 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 	this.onDispatching = onDispatching == null ? List.of() : onDispatching;
 	this.onUnknown = onUnmatched;
 	this.onException = onException;
-	this.consumerExceptionListener = consumerListener instanceof Listener.ExceptionListener exListener ? exListener
-		: null;
     }
 
     public void run() {
@@ -76,14 +72,6 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 		    throw e;
 		}
 	    } catch (Exception e) {
-		if (this.consumerExceptionListener != null) {
-		    try {
-			this.consumerExceptionListener.onException(this, e);
-		    } catch (Exception x) {
-			LOGGER.atError().setCause(x).setMessage("Exception from {} ignored.")
-				.addArgument(this.consumerExceptionListener).log();
-		    }
-		}
 		waitToClose();
 		throw e;
 	    }
