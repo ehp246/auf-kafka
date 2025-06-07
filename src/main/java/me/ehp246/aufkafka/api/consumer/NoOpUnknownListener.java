@@ -9,11 +9,11 @@ import me.ehp246.aufkafka.api.common.AufKafkaConstant;
  * @author Lei Yang
  * @since 1.0
  */
-public final class NoOpUnmatchedListener implements DispatchListener.UnknownEventListener {
-    private final static Logger LOGGER = LoggerFactory.getLogger(NoOpUnmatchedListener.class);
+public final class NoOpUnknownListener implements DispatchListener.UnknownEventListener {
+    private final static Logger LOGGER = LoggerFactory.getLogger(NoOpUnknownListener.class);
 
     @Override
-    public void onKnown(final InboundEvent event) {
+    public void onUnknown(final InboundEvent event) {
 	LOGGER.atInfo().setMessage("No op on: key '{}', topic '{}', offset '{}'").addArgument(event::key)
 		.addArgument(event::topic).addArgument(event::offset).log();
 

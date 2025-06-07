@@ -24,9 +24,12 @@ public sealed interface DispatchListener {
      */
     @FunctionalInterface
     non-sealed interface UnknownEventListener extends DispatchListener {
-	void onKnown(InboundEvent event);
+	void onUnknown(InboundEvent event);
     }
 
+    /**
+     * Exception from the listener will be logged and ignored.
+     */
     @FunctionalInterface
     non-sealed interface ExceptionListener extends DispatchListener {
 	void onException(InboundEvent event, Exception thrown);

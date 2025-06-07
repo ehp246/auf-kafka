@@ -169,9 +169,8 @@ public @interface EnableForKafka {
 	String unknownEventListener() default AufKafkaConstant.BEAN_NOOP_UNKNOWN_EVENT_LISTENER;
 
 	/**
-	 * Specifies the bean name of
-	 * {@linkplain DispatchListener.ExceptionListener} type to receive any
-	 * exception that happened when consuming a message.
+	 * Specifies the bean name of {@linkplain DispatchListener.ExceptionListener}
+	 * type to receive any exception that happened when consuming a message.
 	 * <p>
 	 * The default is to log and ignore.
 	 * <p>
@@ -183,6 +182,8 @@ public @interface EnableForKafka {
 	 * Supports Spring property placeholder and SpEL expression.
 	 */
 	String dispatchExceptionListener() default AufKafkaConstant.BEAN_IGNORING_DISPATCHING_EXCEPTION_LISTENER;
+
+	String consumerListener() default "";
 
 	@Target({})
 	@interface From {

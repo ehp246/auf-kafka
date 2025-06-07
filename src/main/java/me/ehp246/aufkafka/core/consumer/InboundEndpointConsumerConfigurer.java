@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
+import me.ehp246.aufkafka.api.consumer.DispatchListener;
 import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 import me.ehp246.aufkafka.api.consumer.InboundConsumerExecutorProvider;
-import me.ehp246.aufkafka.api.consumer.DispatchListener;
 import me.ehp246.aufkafka.api.consumer.InboundDispatchingLogger;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.spi.EventMdcContext;
@@ -72,11 +72,11 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
 	    this.consumerRegistry.put(endpoint.name(), consumerRunner);
 
 	    this.executorProvider.get().execute(() -> {
-		try (final var closable = EventMdcContext.setMdcHeaders(Set.of(this.correlIdHeader))) {
+		try (final var closeable = EventMdcContext.setMdcHeaders(Set.of(this.correlIdHeader))) {
 		    consumerRunner.run();
 		} catch (Exception e) {
-		    LOGGER.atError().setCause(e).setMessage("{} run failed. Ignored.").addArgument(endpoint.name())
-			    .log();
+		    LOGGER.atError().setCause(e).setMessage("{} consumer failed. Terminating.")
+			    .addArgument(endpoint.name()).log();
 		}
 	    });
 	}
