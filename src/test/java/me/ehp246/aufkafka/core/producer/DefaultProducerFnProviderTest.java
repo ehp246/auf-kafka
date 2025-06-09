@@ -1,5 +1,6 @@
 package me.ehp246.aufkafka.core.producer;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
 import me.ehp246.test.mock.MockProducer;
 
@@ -46,45 +48,49 @@ class DefaultProducerFnProviderTest {
 
     @SuppressWarnings("resource")
     @Test
-    void flush_01() throws Exception {
-	final var producer = new MockProducer();
+    void flush_01() {
+	final var mockProducer = new MockProducer();
+	final var provider = new DefaultProducerFnProvider(map -> mockProducer, name -> Map.of(), recordBuilder);
 
-	new DefaultProducerFnProvider(map -> producer, name -> Map.of(), recordBuilder).get("").send(""::toString);
+	provider.get("").send(""::toString);
 
-	Assertions.assertEquals(false, producer.isFlushed());
+	Assertions.assertEquals(false, mockProducer.isFlushed(), "should not have flushed");
     }
 
     @SuppressWarnings("resource")
     @Test
-    void flush_02() throws Exception {
-	final var producer = new MockProducer();
+    void flush_02() {
+	final var mockProducer = new MockProducer();
+	final var provider = new DefaultProducerFnProvider(map -> mockProducer,
+		name -> Map.of(AufKafkaConstant.FLUSH_PRODUCER, "true"), recordBuilder);
 
-	new DefaultProducerFnProvider(map -> producer, name -> Map.of(), recordBuilder)
-		.get("", Boolean.FALSE::booleanValue).send(""::toString);
+	provider.get("").send(""::toString);
 
-	Assertions.assertEquals(false, producer.isFlushed());
+	Assertions.assertEquals(true, mockProducer.isFlushed(), "should have flushed");
     }
 
-    @SuppressWarnings({ "resource", "unchecked" })
+    @SuppressWarnings("resource")
     @Test
-    void flush_03() throws Exception {
-	final var producer = Mockito.mock(Producer.class);
-	final var count = new int[] { 0 };
+    void flush_03() {
+	final var mockProducer = new MockProducer();
+	final var provider = new DefaultProducerFnProvider(map -> mockProducer,
+		name -> Map.of(AufKafkaConstant.FLUSH_PRODUCER, ""), recordBuilder);
 
-	final var producerFn = new DefaultProducerFnProvider(map -> producer, name -> Map.of(), recordBuilder).get("",
-		() -> {
-		    count[0]++;
-		    return true;
-		});
+	provider.get("").send(""::toString);
 
-	producerFn.send(""::toString);
+	Assertions.assertEquals(false, mockProducer.isFlushed(), "should not have flushed");
+    }
 
-	Mockito.verify(producer).flush();
-	Assertions.assertEquals(1, count[0]);
+    @SuppressWarnings("resource")
+    @Test
+    void flush_04() {
+	final var configMap = new HashMap<String, Object>();
+	configMap.put(AufKafkaConstant.FLUSH_PRODUCER, null);
+	final var mockProducer = new MockProducer();
+	final var provider = new DefaultProducerFnProvider(map -> mockProducer, name -> configMap, recordBuilder);
 
-	producerFn.send(""::toString);
+	provider.get("").send(""::toString);
 
-	Mockito.verify(producer, Mockito.times(2)).flush();
-	Assertions.assertEquals(2, count[0], "should be called for each invocation");
+	Assertions.assertEquals(false, mockProducer.isFlushed(), "should not have flushed");
     }
 }

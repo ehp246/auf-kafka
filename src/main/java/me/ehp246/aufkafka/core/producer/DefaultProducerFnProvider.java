@@ -2,9 +2,9 @@ package me.ehp246.aufkafka.core.producer;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 
 import org.apache.kafka.clients.producer.Producer;
@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
+import me.ehp246.aufkafka.api.common.Pair;
 import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
 import me.ehp246.aufkafka.api.producer.ProducerFn;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
@@ -31,7 +32,7 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
     private final ProducerRecordBuilder recordBuilder;
     private final Function<Map<String, Object>, Producer<String, String>> producerSupplier;
     private final ProducerConfigProvider configProvider;
-    private final Map<String, Producer<String, String>> producers = new ConcurrentHashMap<>();
+    private final Map<String, Pair<Producer<String, String>, Boolean>> created = new ConcurrentHashMap<>();
 
     DefaultProducerFnProvider(final Function<Map<String, Object>, Producer<String, String>> producerSupplier,
 	    final ProducerConfigProvider configProvider, final ProducerRecordBuilder recordBuilder) {
@@ -42,9 +43,10 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
     }
 
     @Override
-    public ProducerFn get(final String configName, final BooleanSupplier flush) {
-	final var producer = getProducer(configName);
-	final BooleanSupplier flushSupplier = flush == null ? Boolean.FALSE::booleanValue : flush;
+    public ProducerFn get(final String configName) {
+	final var created = getProducer(configName);
+	final var producer = created.left();
+	final var flush = created.right().booleanValue();
 
 	return outboundEvent -> {
 	    final var producerRecord = recordBuilder.apply(outboundEvent);
@@ -58,10 +60,7 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
 		}
 	    });
 
-	    /**
-	     * Should get for every send.
-	     */
-	    if (flushSupplier.getAsBoolean()) {
+	    if (flush) {
 		producer.flush();
 	    }
 
@@ -69,12 +68,12 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
 	};
     }
 
-    private Producer<String, String> getProducer(String configName) {
+    private Pair<Producer<String, String>, Boolean> getProducer(String configName) {
 	if (configName == null) {
 	    throw new IllegalArgumentException("Configuration name can't be null");
 	}
 
-	return this.producers.computeIfAbsent(configName, n -> {
+	return this.created.computeIfAbsent(configName, n -> {
 	    /*
 	     * Global provider first.
 	     */
@@ -86,21 +85,23 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
 	    configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 	    configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
-	    return producerSupplier.apply(configMap);
+	    return new Pair<>(producerSupplier.apply(configMap),
+		    Optional.ofNullable(configMap.get(AufKafkaConstant.FLUSH_PRODUCER)).map(Object::toString)
+			    .map(Boolean::valueOf).orElse(Boolean.FALSE));
 	});
     }
 
     @Override
     public void close() throws Exception {
-	producers.forEach((name, producer) -> {
+	created.forEach((name, producer) -> {
 	    try {
-		producer.close();
+		producer.left().close();
 	    } catch (Exception e) {
 		LOGGER.atError().setCause(e).addMarker(AufKafkaConstant.EXCEPTION)
 			.setMessage("Producer {} failed to close, ignored.").addArgument(name).log();
 	    }
 	});
 
-	this.producers.clear();
+	this.created.clear();
     }
 }
