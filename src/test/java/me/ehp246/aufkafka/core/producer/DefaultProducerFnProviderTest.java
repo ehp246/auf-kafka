@@ -1,5 +1,6 @@
 package me.ehp246.aufkafka.core.producer;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
 import me.ehp246.test.mock.MockProducer;
 
@@ -42,5 +44,53 @@ class DefaultProducerFnProviderTest {
 	provider.close();
 
 	Assertions.assertEquals(true, producer.isClosed());
+    }
+
+    @SuppressWarnings("resource")
+    @Test
+    void flush_01() {
+	final var mockProducer = new MockProducer();
+	final var provider = new DefaultProducerFnProvider(map -> mockProducer, name -> Map.of(), recordBuilder);
+
+	provider.get("").send(""::toString);
+
+	Assertions.assertEquals(false, mockProducer.isFlushed(), "should not have flushed");
+    }
+
+    @SuppressWarnings("resource")
+    @Test
+    void flush_02() {
+	final var mockProducer = new MockProducer();
+	final var provider = new DefaultProducerFnProvider(map -> mockProducer,
+		name -> Map.of(AufKafkaConstant.FLUSH_PRODUCER, "true"), recordBuilder);
+
+	provider.get("").send(""::toString);
+
+	Assertions.assertEquals(true, mockProducer.isFlushed(), "should have flushed");
+    }
+
+    @SuppressWarnings("resource")
+    @Test
+    void flush_03() {
+	final var mockProducer = new MockProducer();
+	final var provider = new DefaultProducerFnProvider(map -> mockProducer,
+		name -> Map.of(AufKafkaConstant.FLUSH_PRODUCER, ""), recordBuilder);
+
+	provider.get("").send(""::toString);
+
+	Assertions.assertEquals(false, mockProducer.isFlushed(), "should not have flushed");
+    }
+
+    @SuppressWarnings("resource")
+    @Test
+    void flush_04() {
+	final var configMap = new HashMap<String, Object>();
+	configMap.put(AufKafkaConstant.FLUSH_PRODUCER, null);
+	final var mockProducer = new MockProducer();
+	final var provider = new DefaultProducerFnProvider(map -> mockProducer, name -> configMap, recordBuilder);
+
+	provider.get("").send(""::toString);
+
+	Assertions.assertEquals(false, mockProducer.isFlushed(), "should not have flushed");
     }
 }

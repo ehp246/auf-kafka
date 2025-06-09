@@ -1,7 +1,11 @@
 package me.ehp246.aufkafka.api.common;
 
+import org.apache.kafka.clients.producer.Producer;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
+
+import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
+import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 
 /**
  * @author Lei Yang
@@ -15,10 +19,24 @@ public final class AufKafkaConstant {
     public static final String BEAN_IGNORING_DISPATCHING_EXCEPTION_LISTENER = "6cf6af85-c802-46c1-97a6-2d5bbfee568a";
 
     /**
-     * Property names
+     * Global property names
      */
     public static final String PROPERTY_INBOUND_MESSAGELOGGING_ENABLED = "me.ehp246.aufkafka.inbound.messagelogging.enabled";
     public static final String PROPERTY_HEADER_CORRELATIONID = "me.ehp246.aufkafka.header.correlation-id";
+
+    /**
+     * Specifies, in the map returned by {@linkplain ProducerConfigProvider},
+     * whether {@linkplain Producer#flush()} should be called for each
+     * {@linkplain Producer#send(org.apache.kafka.clients.producer.ProducerRecord)}.
+     * <p>
+     * The value is converted to a {@linkplain Boolean} via
+     * {@linkplain Object#toString()} and {@linkplain Boolean#valueOf(String)}.
+     * <code>null</code> means {@linkplain Boolean#FALSE}.
+     * 
+     * @see ProducerFnProvider
+     * @see ProducerConfigProvider
+     */
+    public static final String FLUSH_PRODUCER = "me.ehp246.aufkafka.producer.flush";
 
     public static final String HEADER_PREFIX = "aufkafka_";
     public static final String EVENT_HEADER = HEADER_PREFIX + "event";
@@ -34,6 +52,6 @@ public final class AufKafkaConstant {
     public final static Marker IGNORED = MarkerFactory.getMarker("IGNORED");
 
     private AufKafkaConstant() {
-        super();
+	super();
     }
 }

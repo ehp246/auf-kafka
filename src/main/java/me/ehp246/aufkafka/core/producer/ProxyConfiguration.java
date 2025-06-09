@@ -15,7 +15,7 @@ public final class ProxyConfiguration {
 
     @Bean
     ProducerFnProvider producerFnProvider(final ProducerConfigProvider configProvider,
-            final ProducerRecordBuilder recordBuilder) {
-        return new DefaultProducerFnProvider(KafkaProducer::new, configProvider, recordBuilder);
+	    final ProducerRecordBuilder recordBuilder) {
+	return new DefaultProducerFnProvider(KafkaProducer::new, configProvider, recordBuilder);
     }
 }

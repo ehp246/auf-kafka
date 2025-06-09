@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.kafka.clients.consumer.ConsumerGroupMetadata;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -23,7 +24,7 @@ import org.apache.kafka.common.errors.ProducerFencedException;
  */
 public class MockProducer implements Producer<String, String> {
     private boolean closed = false;
-    private boolean flushed = false;
+    private AtomicInteger flushed = new AtomicInteger(0);
 
     @Override
     public void initTransactions() {
@@ -77,11 +78,11 @@ public class MockProducer implements Producer<String, String> {
 
     @Override
     public void flush() {
-	this.flushed = true;
+	this.flushed.incrementAndGet();
     }
 
     public boolean isFlushed() {
-	return this.flushed;
+	return this.flushed.get() > 0;
     }
 
     @Override
