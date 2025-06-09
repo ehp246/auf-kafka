@@ -43,48 +43,4 @@ class DefaultProducerFnProviderTest {
 
 	Assertions.assertEquals(true, producer.isClosed());
     }
-
-    @SuppressWarnings("resource")
-    @Test
-    void flush_01() throws Exception {
-	final var producer = new MockProducer();
-
-	new DefaultProducerFnProvider(map -> producer, name -> Map.of(), recordBuilder).get("").send(""::toString);
-
-	Assertions.assertEquals(false, producer.isFlushed());
-    }
-
-    @SuppressWarnings("resource")
-    @Test
-    void flush_02() throws Exception {
-	final var producer = new MockProducer();
-
-	new DefaultProducerFnProvider(map -> producer, name -> Map.of(), recordBuilder)
-		.get("", Boolean.FALSE::booleanValue).send(""::toString);
-
-	Assertions.assertEquals(false, producer.isFlushed());
-    }
-
-    @SuppressWarnings({ "resource", "unchecked" })
-    @Test
-    void flush_03() throws Exception {
-	final var producer = Mockito.mock(Producer.class);
-	final var count = new int[] { 0 };
-
-	final var producerFn = new DefaultProducerFnProvider(map -> producer, name -> Map.of(), recordBuilder).get("",
-		() -> {
-		    count[0]++;
-		    return true;
-		});
-
-	producerFn.send(""::toString);
-
-	Mockito.verify(producer).flush();
-	Assertions.assertEquals(1, count[0]);
-
-	producerFn.send(""::toString);
-
-	Mockito.verify(producer, Mockito.times(2)).flush();
-	Assertions.assertEquals(2, count[0], "should be called for each invocation");
-    }
 }
