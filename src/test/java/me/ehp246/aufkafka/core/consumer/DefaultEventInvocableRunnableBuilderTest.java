@@ -27,7 +27,7 @@ import me.ehp246.aufkafka.api.consumer.InvocationListener.InvokingListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 import me.ehp246.aufkafka.core.provider.jackson.JsonByObjectMapper;
-import me.ehp246.aufkafka.core.reflection.ReflectedType;
+import me.ehp246.aufkafka.core.reflection.ReflectedClass;
 import me.ehp246.test.TestUtil;
 import me.ehp246.test.TimingExtension;
 import me.ehp246.test.mock.InvocableRecord;
@@ -265,7 +265,7 @@ class DefaultEventInvocableRunnableBuilderTest {
         final var dispatcher = new DefaultEventInvocableRunnableBuilder(binder, null);
         final var msg = new MockConsumerRecord();
         final var invocable = new InvocableRecord(new InvocableBinderTestCases.PerfCase(),
-                new ReflectedType<>(InvocableBinderTestCases.PerfCase.class).findMethods("m01").get(0));
+                new ReflectedClass<>(InvocableBinderTestCases.PerfCase.class).findMethods("m01").get(0));
 
         IntStream.range(0, LOOP).forEach(i -> dispatcher.apply(invocable, msg.toEvent()).run());
     }

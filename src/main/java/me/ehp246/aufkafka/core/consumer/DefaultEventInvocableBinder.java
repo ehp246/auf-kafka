@@ -37,7 +37,7 @@ import me.ehp246.aufkafka.api.serializer.json.FromJson;
 import me.ehp246.aufkafka.api.serializer.json.JacksonObjectOfBuilder;
 import me.ehp246.aufkafka.core.reflection.ReflectedMethod;
 import me.ehp246.aufkafka.core.reflection.ReflectedParameter;
-import me.ehp246.aufkafka.core.reflection.ReflectedType;
+import me.ehp246.aufkafka.core.reflection.ReflectedClass;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
@@ -281,7 +281,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
              * Duplicated names will overwrite each other un-deterministically.
              */
             final var bodyParamContextName = ofMDC.value();
-            final var bodyFieldBinders = new ReflectedType<>(valueParam.getType()).streamSuppliersWith(OfMdc.class)
+            final var bodyFieldBinders = new ReflectedClass<>(valueParam.getType()).streamSuppliersWith(OfMdc.class)
                     .filter(m -> m.getAnnotation(OfMdc.class).op() == OfMdc.Op.Default)
                     .collect(
                             Collectors.toMap(
