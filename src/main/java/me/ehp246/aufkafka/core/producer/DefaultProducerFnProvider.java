@@ -35,73 +35,73 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
     private final Map<String, Pair<Producer<String, String>, Boolean>> created = new ConcurrentHashMap<>();
 
     DefaultProducerFnProvider(final Function<Map<String, Object>, Producer<String, String>> producerSupplier,
-	    final ProducerConfigProvider configProvider, final ProducerRecordBuilder recordBuilder) {
-	super();
-	this.producerSupplier = producerSupplier;
-	this.configProvider = configProvider;
-	this.recordBuilder = recordBuilder;
+            final ProducerConfigProvider configProvider, final ProducerRecordBuilder recordBuilder) {
+        super();
+        this.producerSupplier = producerSupplier;
+        this.configProvider = configProvider;
+        this.recordBuilder = recordBuilder;
     }
 
     @Override
     public ProducerFn get(final String configName) {
-	final var created = getProducer(configName);
-	final var producer = created.left();
-	final var flush = created.right().booleanValue();
+        final var created = getProducer(configName);
+        final var producer = created.left();
+        final var flush = created.right().booleanValue();
 
-	return outboundEvent -> {
-	    final var producerRecord = recordBuilder.apply(outboundEvent);
-	    final var sendFuture = new CompletableFuture<RecordMetadata>();
+        return outboundEvent -> {
+            final var producerRecord = recordBuilder.apply(outboundEvent);
+            final var sendFuture = new CompletableFuture<RecordMetadata>();
 
-	    producer.send(producerRecord, (metadata, exception) -> {
-		if (exception == null) {
-		    sendFuture.complete(metadata);
-		} else {
-		    sendFuture.completeExceptionally(exception);
-		}
-	    });
+            producer.send(producerRecord, (metadata, exception) -> {
+                if (exception == null) {
+                    sendFuture.complete(metadata);
+                } else {
+                    sendFuture.completeExceptionally(exception);
+                }
+            });
 
-	    if (flush) {
-		producer.flush();
-	    }
+            if (flush) {
+                producer.flush();
+            }
 
-	    return new ProducerSendRecord(producerRecord, sendFuture);
-	};
+            return new ProducerSendRecord(producerRecord, sendFuture);
+        };
     }
 
     private Pair<Producer<String, String>, Boolean> getProducer(String configName) {
-	if (configName == null) {
-	    throw new IllegalArgumentException("Configuration name can't be null");
-	}
+        if (configName == null) {
+            throw new IllegalArgumentException("Configuration name can't be null");
+        }
 
-	return this.created.computeIfAbsent(configName, n -> {
-	    /*
-	     * Global provider first.
-	     */
-	    final var configMap = new HashMap<>(configProvider.get(n));
+        return this.created.computeIfAbsent(configName, n -> {
+            /*
+             * Global provider first.
+             */
+            final var configMap = new HashMap<>(configProvider.get(n));
 
-	    /*
-	     * Required overwrites all others
-	     */
-	    configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-	    configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+            /*
+             * Required overwrites all others
+             */
+            configMap.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+            configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
-	    return new Pair<>(producerSupplier.apply(configMap),
-		    Optional.ofNullable(configMap.get(AufKafkaConstant.FLUSH_PRODUCER)).map(Object::toString)
-			    .map(Boolean::valueOf).orElse(Boolean.FALSE));
-	});
+            return new Pair<>(producerSupplier.apply(configMap),
+                    Optional.ofNullable(configMap.get(AufKafkaConstant.FLUSH_PRODUCER)).map(Object::toString)
+                            .map(Boolean::valueOf).orElse(Boolean.FALSE));
+        });
     }
 
     @Override
     public void close() throws Exception {
-	created.forEach((name, producer) -> {
-	    try {
-		producer.left().close();
-	    } catch (Exception e) {
-		LOGGER.atError().setCause(e).addMarker(AufKafkaConstant.EXCEPTION)
-			.setMessage("Producer {} failed to close, ignored.").addArgument(name).log();
-	    }
-	});
+        created.forEach((name, producer) -> {
+            try {
+                producer.left().close();
+            } catch (Exception e) {
+                LOGGER.atError().setCause(e).addMarker(AufKafkaConstant.EXCEPTION)
+                        .setMessage("Producer {} failed to close, ignored.").addArgument(name).log();
+            }
+        });
 
-	this.created.clear();
+        this.created.clear();
     }
 }

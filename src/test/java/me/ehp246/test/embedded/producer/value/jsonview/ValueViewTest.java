@@ -45,7 +45,7 @@ class ValueViewTest {
 
         this.case01.withoutPassword(value);
 
-        final var received = this.fromJson.apply(listener.take().value(),
+        final var received = this.fromJson.fromJson(listener.take().value(),
                 new JacksonObjectOf<>(AccountRequest.class));
 
         Assertions.assertEquals(null, received.password());

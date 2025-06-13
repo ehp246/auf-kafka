@@ -50,7 +50,7 @@ class BasicTest {
         final var received = listener.take();
 
         Assertions.assertEquals("NewEvent", received.consumerRecord().key());
-        Assertions.assertEquals(toJson.apply(value), received.consumerRecord().value());
+        Assertions.assertEquals(toJson.toJson(value), received.consumerRecord().value());
     }
 
     @Test

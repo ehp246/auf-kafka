@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 
-import me.ehp246.aufkafka.api.serializer.ObjectOf;
-
 /**
  * The customized abstraction of a {@linkplain ProducerRecord}.
  * 
@@ -17,35 +15,47 @@ public interface OutboundEvent {
     String topic();
 
     default String key() {
-	return null;
+        return null;
     }
 
     /**
      * Maps to {@linkplain ProducerRecord#partition()}. Could be <code>null</code>.
      */
     default Integer partition() {
-	return null;
+        return null;
     }
 
     default Object value() {
-	return null;
-    }
-
-    default ObjectOf<?> objectOf() {
-	return null;
+        return null;
     }
 
     default Instant timestamp() {
-	return null;
+        return null;
     }
 
     default List<Header> headers() {
-	return null;
+        return null;
     }
 
     interface Header {
-	String key();
+        String key();
 
-	Object value();
+        Object value();
+    }
+
+    static OutboundEvent withValue(final String topic, Object value) {
+        return new OutboundEvent() {
+
+            @Override
+            public String topic() {
+                return topic;
+            }
+
+            @Override
+            public Object value() {
+                return value;
+            }
+
+        };
     }
 }

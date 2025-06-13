@@ -62,7 +62,7 @@ class ValueTypeTest {
         case01.ping((PersonName) expected);
 
         final var text = listener.take().value();
-        final var actual = fromJson.apply(text, JacksonObjectOfBuilder.of(Person.class));
+        final var actual = fromJson.fromJson(text, JacksonObjectOfBuilder.of(Person.class));
 
         Assertions.assertEquals(firstName, actual.firstName());
         Assertions.assertEquals(lastName, actual.lastName());
@@ -76,7 +76,7 @@ class ValueTypeTest {
         case01.ping((PersonDob) expected);
 
         final var text = listener.take().value();
-        final var actual = fromJson.apply(text, JacksonObjectOfBuilder.of(Person.class));
+        final var actual = fromJson.fromJson(text, JacksonObjectOfBuilder.of(Person.class));
 
         Assertions.assertEquals(null, actual.firstName());
         Assertions.assertEquals(null, actual.lastName());

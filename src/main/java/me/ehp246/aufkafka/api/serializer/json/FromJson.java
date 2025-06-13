@@ -2,7 +2,7 @@ package me.ehp246.aufkafka.api.serializer.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
+import me.ehp246.aufkafka.api.serializer.TypeOfJson;
 
 /**
  * Internal abstraction for {@linkplain ObjectMapper} operations.
@@ -12,12 +12,5 @@ import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
  */
 @FunctionalInterface
 public interface FromJson {
-    /**
-     *
-     * @param json     serialized-JSON string
-     * @param objectOf Could be <code>null</code>. In which case, it is up to
-     *                 {@linkplain ObjectMapper}.
-     * @return de-serialized Java object
-     */
-    <T> T apply(final String json, final JacksonObjectOf<T> objectOf);
+    Object fromJson(String json, TypeOfJson typeOf);
 }

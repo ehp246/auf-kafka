@@ -50,7 +50,7 @@ class ValueBasicTest {
 
         case01.newEvent(event);
 
-        Assertions.assertEquals(true, listener.take().value().equals(toJson.apply(event)));
+        Assertions.assertEquals(true, listener.take().value().equals(toJson.toJson(event)));
     }
 
     @Test

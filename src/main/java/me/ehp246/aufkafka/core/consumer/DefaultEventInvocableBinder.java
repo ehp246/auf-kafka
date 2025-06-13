@@ -235,7 +235,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
                         .ofView(Optional.ofNullable(reflectedParam.getAnnotation(JsonView.class)).map(JsonView::value)
                                 .map(OneUtil::firstOrNull).orElse(null), reflectedParam.getType());
 
-                paramBinders.put(i, msg -> msg.value() == null ? null : fromJson.apply(msg.value(), bodyOf));
+                paramBinders.put(i, msg -> msg.value() == null ? null : fromJson.fromJson(msg.value(), bodyOf));
                 valueParamRef[0] = reflectedParam;
 
                 continue;

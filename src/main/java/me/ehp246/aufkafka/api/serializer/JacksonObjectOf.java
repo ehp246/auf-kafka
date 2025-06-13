@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  * @author Lei Yang
  * @since 1.0
  */
-public final class JacksonObjectOf<T> implements ObjectOf<T> {
+public final class JacksonObjectOf<T> implements ObjectOfJson<T> {
     public static final JacksonObjectOf<Map<String, Object>> MAP = new JacksonObjectOf<Map<String, Object>>(
             null, Map.class);
 

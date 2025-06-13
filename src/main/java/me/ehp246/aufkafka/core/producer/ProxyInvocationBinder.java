@@ -2,7 +2,7 @@ package me.ehp246.aufkafka.core.producer;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
-import me.ehp246.aufkafka.api.serializer.ObjectOf;
+import me.ehp246.aufkafka.api.serializer.ObjectOfJson;
 
 /**
  * The abstraction that transforms an {@linkplain ByKafka} invocation into an
@@ -17,6 +17,6 @@ interface ProxyInvocationBinder {
     record HeaderParam(String name, Class<?> type) {
     }
 
-    record ValueParam(int index, ObjectOf<?> objectOf) {
+    record ValueParam(int index, ObjectOfJson<?> objectOf) {
     }
 }
