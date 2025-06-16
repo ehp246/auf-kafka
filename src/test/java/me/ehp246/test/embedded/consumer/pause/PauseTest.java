@@ -15,8 +15,8 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
-import me.ehp246.aufkafka.api.producer.OutboundEventRecord;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
+import me.ehp246.test.mock.OutboundEventRecord;
 
 @SpringBootTest(classes = { App.class, EmbeddedKafkaConfig.class, Pause.class, }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { App.TOPIC })

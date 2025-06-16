@@ -26,7 +26,7 @@ public interface ObjectOfJson {
         };
     }
 
-    static ObjectOfJson newInstance(Object object) {
+    static ObjectOfJson of(Object object) {
         final var typeOf = TypeOfJson.of(object == null ? null : object.getClass(), null);
 
         return new ObjectOfJson() {

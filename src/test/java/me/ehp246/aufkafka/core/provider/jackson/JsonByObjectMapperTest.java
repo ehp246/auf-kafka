@@ -18,7 +18,7 @@ class JsonByObjectMapperTest {
     void test_01() {
         final var expected = Instant.now();
 
-        Assertions.assertEquals(mapper.toJson(ObjectOfJson.newInstance(expected)), mapper.toJson(expected));
+        Assertions.assertEquals(mapper.toJson(ObjectOfJson.of(expected)), mapper.toJson(expected));
     }
 
     @Test

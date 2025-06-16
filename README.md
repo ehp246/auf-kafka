@@ -1,7 +1,5 @@
 # Auf Kafka
 
-[![Sonatype Central](https://maven-badges.sml.io/sonatype-central/me.ehp246/auf-kafka/badge.svg?style=flat-square)](https://central.sonatype.com/artifact/me.ehp246/auf-kafka)
-
 ## Introduction
 Auf Kafka is aimed at Spring-based applications that need to implement a messaging-based architecture on top of Apache Kafka platform. It offers an annotation-driven and declarative programming model that abstracts away low-level API's. It offers a set of annotations and conventions with which application developers can declare the intentions via plain Java classes.
 
