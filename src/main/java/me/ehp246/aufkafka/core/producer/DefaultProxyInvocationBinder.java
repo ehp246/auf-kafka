@@ -43,8 +43,8 @@ final class DefaultProxyInvocationBinder implements ProxyInvocationBinder {
         final var key = keyBinder.apply(args);
         final var partition = partitionBinder.apply(args);
         final var timestamp = timestampBinder.apply(args);
-        final var value = valueParam == null ? null : args[valueParam.index()];
-        final var objectOf = valueParam == null ? null : valueParam.objectOf();
+        final var value = valueParam == null ? null
+                : ObjectOfJson.newInstance(args[valueParam.index()], valueParam.typeOf());
         final var headers = Stream
                 .concat(this.headerStatic.stream(),
                         this.headerBinder.entrySet().stream()
@@ -71,11 +71,6 @@ final class DefaultProxyInvocationBinder implements ProxyInvocationBinder {
             @Override
             public Object value() {
                 return value;
-            }
-
-            @Override
-            public ObjectOfJson<?> objectOf() {
-                return objectOf;
             }
 
             @Override

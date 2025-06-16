@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import me.ehp246.aufkafka.api.serializer.ObjectOfJson;
 import me.ehp246.aufkafka.api.serializer.TypeOfJson;
-import me.ehp246.aufkafka.core.reflection.Parameterized;
 import me.ehp246.test.TestUtil;
 
 class JsonByObjectMapperTest {
@@ -32,7 +31,7 @@ class JsonByObjectMapperTest {
     @SuppressWarnings("unchecked")
     @Test
     void test_03() {
-        final var typeOf = TypeOfJson.newInstance(new Parameterized(List.class, Instant.class), null);
+        final var typeOf = TypeOfJson.newInstanceWithParameterizedType(List.class, Instant.class);
         final var expected = List.of(Instant.now());
 
         final var actual = mapper.fromJson(mapper.toJson(new ObjectOfJson() {
@@ -51,6 +50,5 @@ class JsonByObjectMapperTest {
 
         Assertions.assertEquals(true, actual instanceof List);
         Assertions.assertEquals(expected.get(0), ((List<Instant>) actual).get(0));
-
     }
 }

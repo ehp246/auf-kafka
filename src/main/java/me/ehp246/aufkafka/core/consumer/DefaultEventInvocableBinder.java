@@ -33,11 +33,11 @@ import me.ehp246.aufkafka.api.consumer.EventInvocable;
 import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.exception.UnboundParameterException;
+import me.ehp246.aufkafka.api.serializer.TypeOfJson;
 import me.ehp246.aufkafka.api.serializer.json.FromJson;
-import me.ehp246.aufkafka.api.serializer.json.JacksonObjectOfBuilder;
+import me.ehp246.aufkafka.core.reflection.ReflectedClass;
 import me.ehp246.aufkafka.core.reflection.ReflectedMethod;
 import me.ehp246.aufkafka.core.reflection.ReflectedParameter;
-import me.ehp246.aufkafka.core.reflection.ReflectedClass;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
@@ -231,11 +231,11 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
              */
             final var ofValueAnnotation = Stream.of(annotations).filter(OfValue.class::isInstance).findAny();
             if (ofValueAnnotation.isPresent()) {
-                final var bodyOf = JacksonObjectOfBuilder
-                        .ofView(Optional.ofNullable(reflectedParam.getAnnotation(JsonView.class)).map(JsonView::value)
-                                .map(OneUtil::firstOrNull).orElse(null), reflectedParam.getType());
+                final var typeOf = TypeOfJson.newInstance(reflectedParam.parameter().getParameterizedType(),
+                        Optional.ofNullable(reflectedParam.getAnnotation(JsonView.class)).map(JsonView::value)
+                                .map(OneUtil::firstOrNull).orElse(null));
 
-                paramBinders.put(i, msg -> msg.value() == null ? null : fromJson.fromJson(msg.value(), bodyOf));
+                paramBinders.put(i, event -> event.value() == null ? null : fromJson.fromJson(event.value(), typeOf));
                 valueParamRef[0] = reflectedParam;
 
                 continue;
