@@ -2,7 +2,7 @@ package me.ehp246.aufkafka.core.producer;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
-import me.ehp246.aufkafka.api.serializer.TypeOfJson;
+import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 
 /**
  * The abstraction that transforms an {@linkplain ByKafka} invocation into an

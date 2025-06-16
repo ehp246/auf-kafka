@@ -10,12 +10,15 @@ public final class ParameterizedTypeBuilder {
     private ParameterizedTypeBuilder() {
     }
 
-    public static ParameterizedType parameterizedType(final Type rawType, final Type... typeArgs) {
-        return ParameterizedTypeBuilder.parameterizedType(null, rawType, typeArgs);
+    public static ParameterizedType of(final Type rawType, final Type typeArg) {
+        return ParameterizedTypeBuilder.of(null, rawType, new Type[] { typeArg });
     }
 
-    public static ParameterizedType parameterizedType(final Type ownerType, final Type rawType,
-            final Type... typeArgs) {
+    public static ParameterizedType of(final Type rawType, final Type... typeArgs) {
+        return ParameterizedTypeBuilder.of(null, rawType, typeArgs);
+    }
+
+    public static ParameterizedType of(final Type ownerType, final Type rawType, final Type... typeArgs) {
         return new ParameterizedType() {
 
             @Override

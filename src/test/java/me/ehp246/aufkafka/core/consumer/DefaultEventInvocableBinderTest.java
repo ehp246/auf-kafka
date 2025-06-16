@@ -15,11 +15,11 @@ import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 import me.ehp246.aufkafka.api.exception.UnboundParameterException;
-import me.ehp246.aufkafka.api.serializer.json.FromJson;
+import me.ehp246.aufkafka.api.serializer.jackson.FromJson;
 import me.ehp246.aufkafka.core.consumer.InvocableBinderTestCases.HeaderCase01.PropertyEnum;
 import me.ehp246.aufkafka.core.consumer.InvocableBinderTestCases.ValueCase01.Account;
 import me.ehp246.aufkafka.core.consumer.InvocableBinderTestCases.ValueCase01.Received;
-import me.ehp246.aufkafka.core.provider.jackson.JsonByObjectMapper;
+import me.ehp246.aufkafka.core.provider.jackson.JsonByJackson;
 import me.ehp246.aufkafka.core.reflection.ReflectedClass;
 import me.ehp246.test.TestUtil;
 import me.ehp246.test.mock.InvocableRecord;
@@ -31,7 +31,7 @@ import me.ehp246.test.mock.StringHeader;
  *
  */
 class DefaultEventInvocableBinderTest {
-    private final JsonByObjectMapper jackson = new JsonByObjectMapper(TestUtil.OBJECT_MAPPER);
+    private final JsonByJackson jackson = new JsonByJackson(TestUtil.OBJECT_MAPPER);
     private final DefaultEventInvocableBinder binder = new DefaultEventInvocableBinder(jackson);
 
     @Test

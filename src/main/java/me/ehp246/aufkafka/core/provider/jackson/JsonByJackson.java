@@ -4,19 +4,19 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import me.ehp246.aufkafka.api.serializer.ObjectOfJson;
-import me.ehp246.aufkafka.api.serializer.TypeOfJson;
-import me.ehp246.aufkafka.api.serializer.json.FromJson;
-import me.ehp246.aufkafka.api.serializer.json.ToJson;
+import me.ehp246.aufkafka.api.serializer.jackson.FromJson;
+import me.ehp246.aufkafka.api.serializer.jackson.ObjectOfJson;
+import me.ehp246.aufkafka.api.serializer.jackson.ToJson;
+import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 
 /**
  * @author Lei Yang
  * @since 1.0
  */
-public final class JsonByObjectMapper implements FromJson, ToJson {
+public final class JsonByJackson implements FromJson, ToJson {
     private final ObjectMapper objectMapper;
 
-    public JsonByObjectMapper(final ObjectMapper objectMapper) {
+    public JsonByJackson(final ObjectMapper objectMapper) {
         super();
         this.objectMapper = objectMapper;
     }

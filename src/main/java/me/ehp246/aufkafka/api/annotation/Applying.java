@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import me.ehp246.aufkafka.api.consumer.EventInvocable;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
-import me.ehp246.aufkafka.api.serializer.json.FromJson;
+import me.ehp246.aufkafka.api.serializer.jackson.FromJson;
 
 /**
  * Specifies which method should be invoked on a {@linkplain EventInvocable}

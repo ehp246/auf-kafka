@@ -18,7 +18,7 @@ import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
-import me.ehp246.aufkafka.api.serializer.json.FromJson;
+import me.ehp246.aufkafka.api.serializer.jackson.FromJson;
 import me.ehp246.aufkafka.api.spi.ValueView;
 
 interface InvocableBinderTestCases {

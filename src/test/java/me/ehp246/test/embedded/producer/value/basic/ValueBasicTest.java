@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
-import me.ehp246.aufkafka.api.serializer.json.ToJson;
+import me.ehp246.aufkafka.api.serializer.jackson.ToJson;
 import me.ehp246.test.embedded.producer.value.basic.TestCases.Event;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 

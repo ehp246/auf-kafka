@@ -11,8 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
-import me.ehp246.aufkafka.api.serializer.TypeOfJson;
-import me.ehp246.aufkafka.api.serializer.json.FromJson;
+import me.ehp246.aufkafka.api.serializer.jackson.FromJson;
+import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 import me.ehp246.test.embedded.producer.value.jsonview.TestCases.Payload.AccountRequest;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
@@ -45,7 +45,7 @@ class ValueViewTest {
         this.case01.withoutPassword(value);
 
         final var received = (AccountRequest) this.fromJson.fromJson(listener.take().value(),
-                TypeOfJson.newInstance(AccountRequest.class));
+                TypeOfJson.of(AccountRequest.class));
 
         Assertions.assertEquals(null, received.password());
     }

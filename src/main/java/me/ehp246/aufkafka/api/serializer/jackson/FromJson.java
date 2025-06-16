@@ -1,8 +1,6 @@
-package me.ehp246.aufkafka.api.serializer.json;
+package me.ehp246.aufkafka.api.serializer.jackson;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import me.ehp246.aufkafka.api.serializer.TypeOfJson;
 
 /**
  * Internal abstraction for {@linkplain ObjectMapper} operations.

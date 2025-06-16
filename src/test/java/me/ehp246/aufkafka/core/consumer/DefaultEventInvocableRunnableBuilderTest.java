@@ -26,7 +26,7 @@ import me.ehp246.aufkafka.api.consumer.InvocationListener.FailedListener;
 import me.ehp246.aufkafka.api.consumer.InvocationListener.InvokingListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
-import me.ehp246.aufkafka.core.provider.jackson.JsonByObjectMapper;
+import me.ehp246.aufkafka.core.provider.jackson.JsonByJackson;
 import me.ehp246.aufkafka.core.reflection.ReflectedClass;
 import me.ehp246.test.TestUtil;
 import me.ehp246.test.TimingExtension;
@@ -261,7 +261,7 @@ class DefaultEventInvocableRunnableBuilderTest {
     @Test
     @EnabledIfSystemProperty(named = "me.ehp246.perf", matches = "true")
     void perf_01() {
-        final var binder = new DefaultEventInvocableBinder(new JsonByObjectMapper(TestUtil.OBJECT_MAPPER));
+        final var binder = new DefaultEventInvocableBinder(new JsonByJackson(TestUtil.OBJECT_MAPPER));
         final var dispatcher = new DefaultEventInvocableRunnableBuilder(binder, null);
         final var msg = new MockConsumerRecord();
         final var invocable = new InvocableRecord(new InvocableBinderTestCases.PerfCase(),

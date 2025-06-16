@@ -26,7 +26,7 @@ import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.exception.ProxyReturnBindingException;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.ProducerSendRecord;
-import me.ehp246.aufkafka.api.serializer.TypeOfJson;
+import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.aufkafka.core.producer.ProxyInvocationBinder.HeaderParam;
 import me.ehp246.aufkafka.core.producer.ProxyInvocationBinder.ValueParam;
@@ -105,7 +105,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
         final var valueParamIndex = reflected.allParametersWith(OfValue.class).stream().findFirst()
                 .map(ReflectedParameter::index).orElse(-1);
         final var typeOf = Optional.ofNullable(valueParamIndex == -1 ? null : reflected.getParameter(valueParamIndex))
-                .map(parameter -> TypeOfJson.newInstance(parameter.getParameterizedType(),
+                .map(parameter -> TypeOfJson.of(parameter.getParameterizedType(),
                         Optional.ofNullable(parameter.getAnnotation(JsonView.class)).map(JsonView::value)
                                 .filter(OneUtil::hasValue).map(views -> views[0]).orElse(null)))
                 .orElse(null);

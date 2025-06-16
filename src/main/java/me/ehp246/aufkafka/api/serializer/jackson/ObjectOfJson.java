@@ -1,4 +1,4 @@
-package me.ehp246.aufkafka.api.serializer;
+package me.ehp246.aufkafka.api.serializer.jackson;
 
 /**
  * @author Lei Yang
@@ -7,7 +7,7 @@ public interface ObjectOfJson {
     Object value();
 
     default TypeOfJson typeOf() {
-        return TypeOfJson.newInstance(this.value() == null ? null : this.value().getClass(), null);
+        return TypeOfJson.of(this.value() == null ? null : this.value().getClass(), null);
     }
 
     static ObjectOfJson newInstance(final Object object, final TypeOfJson typeOf) {
@@ -27,7 +27,7 @@ public interface ObjectOfJson {
     }
 
     static ObjectOfJson newInstance(Object object) {
-        final var typeOf = TypeOfJson.newInstance(object == null ? null : object.getClass(), null);
+        final var typeOf = TypeOfJson.of(object == null ? null : object.getClass(), null);
 
         return new ObjectOfJson() {
 

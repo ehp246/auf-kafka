@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.OutboundEvent.Header;
-import me.ehp246.aufkafka.api.serializer.ObjectOfJson;
+import me.ehp246.aufkafka.api.serializer.jackson.ObjectOfJson;
 
 /**
  * @author Lei Yang

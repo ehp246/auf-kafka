@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
-import me.ehp246.aufkafka.core.provider.jackson.JsonByObjectMapper;
+import me.ehp246.aufkafka.core.provider.jackson.JsonByJackson;
 
 /**
  * Defines the beans that are commonly needed for both consumers and producers.
@@ -45,15 +45,15 @@ public final class AufKafkaConfiguration {
     }
 
     @Bean
-    JsonByObjectMapper jsonByObjectMapper(final ApplicationContext appCtx) {
+    JsonByJackson jsonByObjectMapper(final ApplicationContext appCtx) {
         final var objectMapper = appCtx.getBeansOfType(ObjectMapper.class)
                 .get(AufKafkaConstant.BEAN_AUFKAFKA_OBJECT_MAPPER);
         if (objectMapper != null) {
-            return new JsonByObjectMapper(objectMapper);
+            return new JsonByJackson(objectMapper);
         }
 
         try {
-            return new JsonByObjectMapper(appCtx.getBean(ObjectMapper.class));
+            return new JsonByJackson(appCtx.getBean(ObjectMapper.class));
         } catch (final Exception e) {
             // Can not find a default. Create private and ignore the exception.
         }
@@ -73,6 +73,6 @@ public final class AufKafkaConfiguration {
             }
         }).filter(module -> module != null).forEach(newMapper::registerModule);
 
-        return new JsonByObjectMapper(newMapper);
+        return new JsonByJackson(newMapper);
     }
 }

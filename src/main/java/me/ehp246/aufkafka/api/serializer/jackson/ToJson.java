@@ -1,4 +1,4 @@
-package me.ehp246.aufkafka.api.serializer.json;
+package me.ehp246.aufkafka.api.serializer.jackson;
 
 /**
  * @author Lei Yang

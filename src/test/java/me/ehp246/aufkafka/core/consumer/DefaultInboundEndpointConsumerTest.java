@@ -38,59 +38,59 @@ class DefaultInboundEndpointConsumerTest {
 
     @Test
     void exception_01() throws InterruptedException, ExecutionException {
-	final var ref = new CompletableFuture<Context>();
-	final var msg = new ConsumerRecord<String, String>("", 0, 0, null, null);
-	final var consumer = new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST);
-	consumer.assign(List.of(partition));
-	consumer.updateBeginningOffsets(Map.of(partition, 0L));
+        final var ref = new CompletableFuture<Context>();
+        final var msg = new ConsumerRecord<String, String>("", 0, 0, null, null);
+        final var consumer = new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST);
+        consumer.assign(List.of(partition));
+        consumer.updateBeginningOffsets(Map.of(partition, 0L));
 
-	consumer.addRecord(msg);
+        consumer.addRecord(msg);
 
-	final var thrown = new RuntimeException();
+        final var thrown = new RuntimeException();
 
-	final var task = new DefaultInboundEndpointConsumer(consumer, Duration.ofDays(1)::abs, dispatcher,
-		(InvocableFactory) (r -> {
-		    throw thrown;
-		}), null, null, (DispatchListener.ExceptionListener) (e, t) -> ref.complete(new Context(e, t)));
+        final var task = new DefaultInboundEndpointConsumer(consumer, Duration.ofDays(1)::abs, dispatcher,
+                (InvocableFactory) (r -> {
+                    throw thrown;
+                }), null, null, (DispatchListener.ExceptionListener) (e, t) -> ref.complete(new Context(e, t)));
 
-	Executors.newVirtualThreadPerTaskExecutor().execute(task::run);
+        Executors.newVirtualThreadPerTaskExecutor().execute(task::run);
 
-	final var context = ref.get();
+        final var context = ref.get();
 
-	Assertions.assertEquals(thrown, context.thrown());
-	Assertions.assertEquals(msg, context.event().consumerRecord());
-	Assertions.assertEquals(1, consumer.committed(Set.of(partition)).get(partition).offset());
+        Assertions.assertEquals(thrown, context.thrown());
+        Assertions.assertEquals(msg, context.event().consumerRecord());
+        Assertions.assertEquals(1, consumer.committed(Set.of(partition)).get(partition).offset());
     }
 
     @Test
     void pollDuration_01() throws InterruptedException, ExecutionException {
-	final var expected = Duration.ofDays(2);
+        final var expected = Duration.ofDays(2);
 
-	final var consumer = new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST);
-	consumer.assign(List.of(partition));
-	consumer.updateBeginningOffsets(Map.of(partition, 0L));
+        final var consumer = new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST);
+        consumer.assign(List.of(partition));
+        consumer.updateBeginningOffsets(Map.of(partition, 0L));
 
-	final var spyConsumer = Mockito.spy(consumer);
+        final var spyConsumer = Mockito.spy(consumer);
 
-	final var task = new DefaultInboundEndpointConsumer(spyConsumer, () -> expected, dispatcher, factory, null,
-		null, null);
+        final var task = new DefaultInboundEndpointConsumer(spyConsumer, () -> expected, dispatcher, factory, null,
+                null, null);
 
-	final var ref = new CompletableFuture<Exception>();
-	Executors.newVirtualThreadPerTaskExecutor().execute(() -> {
-	    task.run();
-	    ref.complete(null);
-	});
+        final var ref = new CompletableFuture<Exception>();
+        Executors.newVirtualThreadPerTaskExecutor().execute(() -> {
+            task.run();
+            ref.complete(null);
+        });
 
-	Executors.newVirtualThreadPerTaskExecutor().execute(() -> {
-	    task.close();
-	    ref.complete(null);
-	});
-	ref.get();
+        Executors.newVirtualThreadPerTaskExecutor().execute(() -> {
+            task.close();
+            ref.complete(null);
+        });
+        ref.get();
 
-	ArgumentCaptor<Duration> argument = ArgumentCaptor.forClass(Duration.class);
+        ArgumentCaptor<Duration> argument = ArgumentCaptor.forClass(Duration.class);
 
-	Mockito.verify(spyConsumer, Mockito.atLeastOnce()).poll(argument.capture());
+        Mockito.verify(spyConsumer, Mockito.atLeastOnce()).poll(argument.capture());
 
-	Assertions.assertEquals(expected, argument.getValue());
+        Assertions.assertEquals(expected, argument.getValue());
     }
 }
