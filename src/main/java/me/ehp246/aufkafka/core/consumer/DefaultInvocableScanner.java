@@ -29,7 +29,7 @@ import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InstanceScope;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
-import me.ehp246.aufkafka.core.reflection.ReflectedType;
+import me.ehp246.aufkafka.core.reflection.ReflectedClass;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
@@ -158,7 +158,7 @@ public final class DefaultInvocableScanner implements InvocableScanner {
                     }).collect(Collectors.toSet());
 
             final var invokings = new HashMap<String, Method>();
-            final var reflected = new ReflectedType<>(type);
+            final var reflected = new ReflectedClass<>(type);
 
             /*
              * No invoking name for now. Search for the annotation first.

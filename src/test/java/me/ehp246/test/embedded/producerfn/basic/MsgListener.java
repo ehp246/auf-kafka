@@ -1,4 +1,4 @@
-package me.ehp246.test.embedded.producerfn;
+package me.ehp246.test.embedded.producerfn.basic;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;

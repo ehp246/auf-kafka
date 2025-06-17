@@ -43,124 +43,124 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     DefaultInboundEndpointConsumer(final Consumer<String, String> consumer,
-	    final Supplier<Duration> pollDurationSupplier, final EventInvocableRunnableBuilder dispatcher,
-	    final InvocableFactory invocableFactory, final List<DispatchListener.DispatchingListener> onDispatching,
-	    final DispatchListener.UnknownEventListener onUnmatched,
-	    final DispatchListener.ExceptionListener onException) {
-	super();
-	this.consumer = consumer;
-	this.pollDurationSupplier = pollDurationSupplier;
-	this.runnableBuilder = dispatcher;
-	this.invocableFactory = invocableFactory;
-	this.onDispatching = onDispatching == null ? List.of() : onDispatching;
-	this.onUnknown = onUnmatched;
-	this.onException = onException;
+            final Supplier<Duration> pollDurationSupplier, final EventInvocableRunnableBuilder dispatcher,
+            final InvocableFactory invocableFactory, final List<DispatchListener.DispatchingListener> onDispatching,
+            final DispatchListener.UnknownEventListener onUnmatched,
+            final DispatchListener.ExceptionListener onException) {
+        super();
+        this.consumer = consumer;
+        this.pollDurationSupplier = pollDurationSupplier;
+        this.runnableBuilder = dispatcher;
+        this.invocableFactory = invocableFactory;
+        this.onDispatching = onDispatching == null ? List.of() : onDispatching;
+        this.onUnknown = onUnmatched;
+        this.onException = onException;
     }
 
     public void run() {
-	while (!this.isClosed) {
-	    try {
-		synchronized (this.consumer) {
-		    this.poll();
-		}
-	    } catch (WakeupException e) {
-		if (this.isClosed) {
-		    /*
-		     * Expected. Do nothing.
-		     */
-		} else {
-		    throw e;
-		}
-	    } catch (Exception e) {
-		waitToClose();
-		throw e;
-	    }
-	}
+        while (!this.isClosed) {
+            try {
+                synchronized (this.consumer) {
+                    this.poll();
+                }
+            } catch (WakeupException e) {
+                if (this.isClosed) {
+                    /*
+                     * Expected. Do nothing.
+                     */
+                } else {
+                    throw e;
+                }
+            } catch (Exception e) {
+                waitToClose();
+                throw e;
+            }
+        }
 
-	waitToClose();
+        waitToClose();
     }
 
     private void poll() {
-	final var polled = consumer.poll(pollDurationSupplier.get());
+        final var polled = consumer.poll(pollDurationSupplier.get());
 
-	if (polled.count() <= 0) {
-	    return;
-	}
+        if (polled.count() <= 0) {
+            return;
+        }
 
-	this.isDispatchingDone = new CompletableFuture<Object>();
-	this.consumer.pause(this.consumer.assignment());
+        this.isDispatchingDone = new CompletableFuture<Object>();
+        this.consumer.pause(this.consumer.assignment());
 
-	this.executor.execute(() -> {
-	    StreamSupport.stream(polled.spliterator(), false).map(InboundEvent::new).forEach(event -> {
-		try {
-		    dispatchEvent(event);
-		} catch (Exception e) {
-		    if (this.onException != null) {
-			try {
-			    this.onException.onException(event, e);
-			} catch (Exception e1) {
-			    LOGGER.atError().setCause(e)
-				    .setMessage(
-					    this.onException.getClass().getSimpleName() + " failed, exception ignored.")
-				    .log();
-			}
-		    } else {
-			LOGGER.atError().setCause(e)
-				.setMessage("Event dispatching failed on {}, {}, {}, exception ignored.")
-				.addArgument(event::topic).addArgument(event::key).addArgument(event::offset).log();
+        this.executor.execute(() -> {
+            StreamSupport.stream(polled.spliterator(), false).map(InboundEvent::new).forEach(event -> {
+                try {
+                    dispatchEvent(event);
+                } catch (Exception e) {
+                    if (this.onException != null) {
+                        try {
+                            this.onException.onException(event, e);
+                        } catch (Exception e1) {
+                            LOGGER.atError().setCause(e)
+                                    .setMessage(
+                                            this.onException.getClass().getSimpleName() + " failed, exception ignored.")
+                                    .log();
+                        }
+                    } else {
+                        LOGGER.atError().setCause(e)
+                                .setMessage("Event dispatching failed on {}, {}, {}, exception ignored.")
+                                .addArgument(event::topic).addArgument(event::key).addArgument(event::offset).log();
 
-		    }
-		}
-	    });
+                    }
+                }
+            });
 
-	    synchronized (this.consumer) {
-		consumer.commitSync();
-		if (!isClosed) {
-		    consumer.resume(consumer.assignment());
-		}
-	    }
+            synchronized (this.consumer) {
+                consumer.commitSync();
+                if (!isClosed) {
+                    consumer.resume(consumer.assignment());
+                }
+            }
 
-	    this.isDispatchingDone.complete(null);
-	});
+            this.isDispatchingDone.complete(null);
+        });
     }
 
     private void dispatchEvent(final InboundEvent event) throws Exception {
-	try (final var closeable = EventMdcContext.set(event);) {
-	    this.onDispatching.stream().forEach(l -> l.onDispatching(event));
+        try (final var closeable = EventMdcContext.set(event);) {
+            this.onDispatching.stream().forEach(l -> l.onDispatching(event));
 
-	    final var invocable = invocableFactory.get(event);
+            final var invocable = invocableFactory.get(event);
 
-	    if (invocable == null) {
-		if (onUnknown == null) {
-		    throw new UnknownEventException(event);
-		} else {
-		    onUnknown.onUnknown(event);
-		}
-	    } else {
-		runnableBuilder.apply(invocable, event).run();
-	    }
-	}
+            if (invocable == null) {
+                if (onUnknown == null) {
+                    throw new UnknownEventException(event);
+                } else {
+                    onUnknown.onUnknown(event);
+                }
+            } else {
+                runnableBuilder.apply(invocable, event).run();
+            }
+        }
     }
 
     private void waitToClose() {
-	try {
-	    this.isDispatchingDone.get();
-	} catch (InterruptedException | ExecutionException e) {
-	    LOGGER.atError().setCause(e).setMessage("Waiting for dispatching failed. Exception ignored.").log();
-	}
+        try {
+            this.isDispatchingDone.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOGGER.atError().setCause(e).setMessage("Waiting for dispatching failed. Exception ignored.").log();
+        }
 
-	synchronized (this.consumer) {
-	    this.consumer.close();
-	}
+        synchronized (this.consumer) {
+            this.consumer.close();
+        }
 
-	this.hasClosed.complete(true);
-	this.isClosed = true;
+        this.hasClosed.complete(true);
+        this.isClosed = true;
     }
 
     @Override
     public CompletableFuture<Boolean> close() {
-	this.isClosed = true;
-	this.consumer.wakeup();
-	return this.hasClosed;
+        this.isClosed = true;
+        this.consumer.wakeup();
+        return this.hasClosed;
     }
 }

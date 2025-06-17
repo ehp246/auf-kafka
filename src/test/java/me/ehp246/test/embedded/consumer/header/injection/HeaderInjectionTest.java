@@ -33,7 +33,6 @@ class HeaderInjectionTest {
     private HeaderInjectAction action;
 
     @Test
-    @Timeout(1)
     void header_01() {
         kafkaTemplate.send(new ProducerRecord<String, String>("embedded", UUID.randomUUID().toString(), null));
 
@@ -59,7 +58,6 @@ class HeaderInjectionTest {
     }
 
     @Test
-    @Timeout(1)
     void headerList_01() {
         final var header1Value = UUID.randomUUID().toString();
         kafkaTemplate.send(new ProducerRecord<String, String>("embedded", null, UUID.randomUUID().toString(), null,

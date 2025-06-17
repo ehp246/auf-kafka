@@ -11,8 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
-import me.ehp246.aufkafka.api.serializer.json.FromJson;
-import me.ehp246.aufkafka.api.serializer.json.JacksonObjectOfBuilder;
+import me.ehp246.aufkafka.api.serializer.jackson.FromJson;
+import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 import me.ehp246.test.embedded.producer.value.type.TestCases.Payload.Person;
 import me.ehp246.test.embedded.producer.value.type.TestCases.Payload.PersonDob;
 import me.ehp246.test.embedded.producer.value.type.TestCases.Payload.PersonName;
@@ -48,8 +48,8 @@ class ValueTypeTest {
 
         case01.ping(new Person(firstName, lastName, now));
 
-        Assertions.assertEquals("{\"firstName\":\"" + firstName + "\",\"lastName\":\"" + lastName
-                + "\",\"dob\":\"" + now.toString() + "\"}", listener.take().value());
+        Assertions.assertEquals("{\"firstName\":\"" + firstName + "\",\"lastName\":\"" + lastName + "\",\"dob\":\""
+                + now.toString() + "\"}", listener.take().value());
     }
 
     @Test
@@ -62,7 +62,7 @@ class ValueTypeTest {
         case01.ping((PersonName) expected);
 
         final var text = listener.take().value();
-        final var actual = fromJson.apply(text, JacksonObjectOfBuilder.of(Person.class));
+        final var actual = (Person) fromJson.fromJson(text, TypeOfJson.of(Person.class));
 
         Assertions.assertEquals(firstName, actual.firstName());
         Assertions.assertEquals(lastName, actual.lastName());
@@ -76,7 +76,7 @@ class ValueTypeTest {
         case01.ping((PersonDob) expected);
 
         final var text = listener.take().value();
-        final var actual = fromJson.apply(text, JacksonObjectOfBuilder.of(Person.class));
+        final var actual = (Person) fromJson.fromJson(text, TypeOfJson.of(Person.class));
 
         Assertions.assertEquals(null, actual.firstName());
         Assertions.assertEquals(null, actual.lastName());

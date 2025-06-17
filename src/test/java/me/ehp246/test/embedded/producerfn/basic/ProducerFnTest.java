@@ -1,4 +1,4 @@
-package me.ehp246.test.embedded.producerfn;
+package me.ehp246.test.embedded.producerfn.basic;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -30,28 +30,28 @@ class ProducerFnTest {
 
     @Test
     void send_01() throws InterruptedException, ExecutionException {
-	final var expected = UUID.randomUUID().toString();
+        final var expected = UUID.randomUUID().toString();
 
-	final var fn = fnProvider.get("");
+        final var fn = fnProvider.get("");
 
-	final var sent = fn.send(new OutboundEvent() {
+        final var sent = fn.send(new OutboundEvent() {
 
-	    @Override
-	    public String topic() {
-		return AppConfig.TOPIC;
-	    }
+            @Override
+            public String topic() {
+                return AppConfig.TOPIC;
+            }
 
-	    @Override
-	    public String key() {
-		return expected;
-	    }
+            @Override
+            public String key() {
+                return expected;
+            }
 
-	});
+        });
 
-	final var event = listener.take();
+        final var event = listener.take();
 
-	Assertions.assertEquals(expected, event.key());
-	Assertions.assertEquals(expected, sent.record().key());
-	Assertions.assertEquals(AppConfig.TOPIC, sent.future().get().topic());
+        Assertions.assertEquals(expected, event.key());
+        Assertions.assertEquals(expected, sent.record().key());
+        Assertions.assertEquals(AppConfig.TOPIC, sent.future().get().topic());
     }
 }

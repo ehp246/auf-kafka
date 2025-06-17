@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.OutboundEvent.Header;
-import me.ehp246.aufkafka.api.serializer.ObjectOf;
+import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 
 /**
  * @author Lei Yang
@@ -44,7 +44,7 @@ final class DefaultProxyInvocationBinder implements ProxyInvocationBinder {
         final var partition = partitionBinder.apply(args);
         final var timestamp = timestampBinder.apply(args);
         final var value = valueParam == null ? null : args[valueParam.index()];
-        final var objectOf = valueParam == null ? null : valueParam.objectOf();
+        final var typeOf = valueParam == null ? null : valueParam.typeOf();
         final var headers = Stream
                 .concat(this.headerStatic.stream(),
                         this.headerBinder.entrySet().stream()
@@ -74,8 +74,8 @@ final class DefaultProxyInvocationBinder implements ProxyInvocationBinder {
             }
 
             @Override
-            public ObjectOf<?> objectOf() {
-                return objectOf;
+            public TypeOfJson typeOf() {
+                return typeOf;
             }
 
             @Override

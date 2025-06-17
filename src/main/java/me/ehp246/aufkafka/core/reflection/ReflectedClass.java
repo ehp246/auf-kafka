@@ -12,18 +12,18 @@ import java.util.stream.Stream;
  * @author Lei Yang
  * @since 1.0
  */
-public final class ReflectedType<T> {
-    private final Class<T> type;
+public final class ReflectedClass<C> {
+    private final Class<C> type;
     private final List<Method> methods;
 
-    public ReflectedType(final Class<T> type) {
+    public ReflectedClass(final Class<C> type) {
         super();
         this.type = type;
         this.methods = List.of(type.getDeclaredMethods());
     }
 
-    public static <T> ReflectedType<T> reflect(final Class<T> type) {
-        return new ReflectedType<T>(type);
+    public static <T> ReflectedClass<T> reflect(final Class<T> type) {
+        return new ReflectedClass<T>(type);
     }
 
     /**
@@ -105,7 +105,7 @@ public final class ReflectedType<T> {
         return found.get(0);
     }
 
-    public Class<T> getType() {
+    public Class<C> getType() {
         return type;
     }
 

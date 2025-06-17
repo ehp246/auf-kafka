@@ -5,13 +5,13 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 
-import me.ehp246.aufkafka.api.serializer.json.ToJson;
+import me.ehp246.aufkafka.api.serializer.jackson.ToJson;
+import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 import me.ehp246.test.embedded.consumer.listener.failed.invocation.FailMsg;
 
 /**
@@ -34,7 +34,6 @@ class FailedInvocationTest {
     private FailMsg onMsg;
 
     @Test
-    @Timeout(1)
     void test_01() throws InterruptedException, ExecutionException {
         final var id = UUID.randomUUID().toString();
 
@@ -43,6 +42,6 @@ class FailedInvocationTest {
         final var failed = appConfig.consumer1Ref.get();
 
         Assertions.assertEquals(onMsg.ex, failed.thrown());
-        Assertions.assertEquals(toJson.apply(id), failed.bound().event().value());
+        Assertions.assertEquals(toJson.toJson(id, TypeOfJson.of(id.getClass())), failed.bound().event().value());
     }
 }

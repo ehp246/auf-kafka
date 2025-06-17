@@ -18,7 +18,7 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:git:git://github.com/ehp246/auf-rest.git</connection>
+		<connection>scm:git:git://github.com/ehp246/auf-kafka.git</connection>
 		<developerConnection>scm:git:git@github.com:ehp246/auf-kafka.git</developerConnection>
 		<url>https://github.com/ehp246/auf-kafka.git</url>
 		<tag>HEAD</tag>

@@ -15,8 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
-import me.ehp246.aufkafka.api.serializer.JacksonObjectOf;
-import me.ehp246.aufkafka.api.serializer.json.ToJson;
+import me.ehp246.aufkafka.api.serializer.jackson.ToJson;
 
 /**
  * @author Lei Yang
@@ -38,8 +37,7 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
     public ProducerRecord<String, String> apply(OutboundEvent outboundEvent) {
         return new ProducerRecord<String, String>(outboundEvent.topic(), outboundEvent.partition(),
                 Optional.ofNullable(outboundEvent.timestamp()).map(Instant::toEpochMilli).orElse(null),
-                outboundEvent.key(),
-                this.toJson.apply(outboundEvent.value(), (JacksonObjectOf<?>) outboundEvent.objectOf()),
+                outboundEvent.key(), this.toJson.toJson(outboundEvent.value(), outboundEvent.typeOf()),
                 headers(outboundEvent));
     }
 

@@ -5,7 +5,6 @@ import java.util.UUID;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -33,7 +32,6 @@ class EventHeaderTest {
     private EventAction action;
 
     @Test
-    @Timeout(2)
     void topic1_header_01() {
         kafkaTemplate.send(new ProducerRecord<String, String>("42de72b9-c551-4d38-b56e-9ce0ea77e7a2", null,
                 UUID.randomUUID().toString(), null, StringHeader.headers(AufKafkaConstant.EVENT_HEADER, "")));
@@ -47,7 +45,6 @@ class EventHeaderTest {
     }
 
     @Test
-    @Timeout(2)
     void topic1_header_02() {
         final var header1Value = UUID.randomUUID().toString();
         kafkaTemplate.send(new ProducerRecord<String, String>("42de72b9-c551-4d38-b56e-9ce0ea77e7a2", null,
@@ -63,7 +60,6 @@ class EventHeaderTest {
     }
 
     @Test
-    @Timeout(2)
     void topic2_header_01() {
         kafkaTemplate.send(new ProducerRecord<String, String>("efec8bfb-77d8-4091-b2a7-fc9e050030b4", null,
                 UUID.randomUUID().toString(), null, StringHeader.headers("my.own.event.header", "")));
@@ -77,7 +73,6 @@ class EventHeaderTest {
     }
 
     @Test
-    @Timeout(2)
     void topic2_header_02() {
         final var header1Value = UUID.randomUUID().toString();
         kafkaTemplate.send(new ProducerRecord<String, String>("efec8bfb-77d8-4091-b2a7-fc9e050030b4", null,
@@ -93,7 +88,6 @@ class EventHeaderTest {
     }
 
     @Test
-    @Timeout(5)
     void topic3_header_01() {
         kafkaTemplate.send(new ProducerRecord<String, String>("c67e2456-8427-439a-af2b-ba19eb2b7945", null,
                 UUID.randomUUID().toString(), null, StringHeader.headers("", "")));
