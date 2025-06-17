@@ -12,6 +12,7 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
 
 import me.ehp246.aufkafka.api.serializer.jackson.ToJson;
+import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 import me.ehp246.test.embedded.producer.value.basic.TestCases.Event;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
@@ -50,14 +51,14 @@ class ValueBasicTest {
 
         case01.newEvent(event);
 
-        Assertions.assertEquals(true, listener.take().value().equals(toJson.toJson(event)));
+        Assertions.assertEquals(true,
+                listener.take().value().equals(toJson.toJson(event, TypeOfJson.of(event.getClass()))));
     }
 
     @Test
     void basic_03() throws InterruptedException, ExecutionException {
         case01.withoutValue(new Event(UUID.randomUUID().toString()));
 
-        Assertions.assertEquals(null, listener.take().value(),
-                "should have no value without annotation");
+        Assertions.assertEquals(null, listener.take().value(), "should have no value without annotation");
     }
 }

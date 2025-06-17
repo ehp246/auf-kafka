@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.MockConsumer;
@@ -38,9 +39,18 @@ class DefaultInboundEndpointConsumerTest {
 
     @Test
     void exception_01() throws InterruptedException, ExecutionException {
-        final var ref = new CompletableFuture<Context>();
+        final var commitFuture = new CompletableFuture<Void>();
+        final var ref = new AtomicReference<Context>();
         final var msg = new ConsumerRecord<String, String>("", 0, 0, null, null);
-        final var consumer = new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST);
+        final var consumer = new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST) {
+
+            @Override
+            public synchronized void commitSync() {
+                super.commitSync();
+                commitFuture.complete(null);
+            }
+
+        };
         consumer.assign(List.of(partition));
         consumer.updateBeginningOffsets(Map.of(partition, 0L));
 
@@ -51,9 +61,11 @@ class DefaultInboundEndpointConsumerTest {
         final var task = new DefaultInboundEndpointConsumer(consumer, Duration.ofDays(1)::abs, dispatcher,
                 (InvocableFactory) (r -> {
                     throw thrown;
-                }), null, null, (DispatchListener.ExceptionListener) (e, t) -> ref.complete(new Context(e, t)));
+                }), null, null, (DispatchListener.ExceptionListener) (e, t) -> ref.set(new Context(e, t)));
 
         Executors.newVirtualThreadPerTaskExecutor().execute(task::run);
+
+        commitFuture.get();
 
         final var context = ref.get();
 

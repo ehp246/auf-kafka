@@ -2,10 +2,8 @@ package me.ehp246.aufkafka.core.provider.jackson;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 
 import me.ehp246.aufkafka.api.serializer.jackson.FromJson;
-import me.ehp246.aufkafka.api.serializer.jackson.ObjectOfJson;
 import me.ehp246.aufkafka.api.serializer.jackson.ToJson;
 import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 
@@ -22,25 +20,18 @@ public final class JsonByJackson implements FromJson, ToJson {
     }
 
     @Override
-    public String toJson(final Object value) {
-        if (value == null || (value instanceof ObjectOfJson of && of.value() == null)) {
+    public String toJson(final Object value, final TypeOfJson typeOf) {
+        if (value == null) {
             return null;
         }
 
-        Object payload = value;
-        ObjectWriter writer = null;
-        if (value instanceof ObjectOfJson of) {
-            payload = of.value();
-            writer = this.objectMapper.writerFor(this.objectMapper.constructType(of.typeOf().type()));
-            if (of.typeOf().view() != null) {
-                writer = writer.withView(of.typeOf().view());
-            }
-        } else {
-            writer = this.objectMapper.writerFor(value.getClass());
+        var writer = this.objectMapper.writerFor(this.objectMapper.constructType(typeOf.type()));
+        if (typeOf.view() != null) {
+            writer = writer.withView(typeOf.view());
         }
 
         try {
-            return writer.writeValueAsString(payload);
+            return writer.writeValueAsString(value);
         } catch (final JsonProcessingException e) {
             throw new RuntimeException(e);
         }

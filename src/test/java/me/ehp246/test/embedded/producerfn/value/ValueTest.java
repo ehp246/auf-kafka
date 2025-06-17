@@ -9,13 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 
-import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 import me.ehp246.aufkafka.api.serializer.jackson.FromJson;
-import me.ehp246.aufkafka.api.serializer.jackson.ObjectOfJson;
 import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 import me.ehp246.aufkafka.core.reflection.ParameterizedTypeBuilder;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
+import me.ehp246.test.mock.OutboundEventRecord;
 
 /**
  * @author Lei Yang
@@ -38,7 +37,7 @@ class ValueTest {
         final var typeOf = TypeOfJson.of(ParameterizedTypeBuilder.of(List.class, PersonName.class));
         final var expected = List.of(new PersonName(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
 
-        fnProvider.get("").send(OutboundEvent.withValue(AppConfig.TOPIC, ObjectOfJson.newInstance(expected, typeOf)));
+        fnProvider.get("").send(OutboundEventRecord.withValueAndType(AppConfig.TOPIC, expected, typeOf));
 
         final var received = (List<PersonName>) fromJson.fromJson(listener.take().value(), typeOf);
 

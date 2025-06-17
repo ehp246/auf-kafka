@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 
+import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
+
 /**
  * The customized abstraction of a {@linkplain ProducerRecord}.
  * 
@@ -29,6 +31,10 @@ public interface OutboundEvent {
         return null;
     }
 
+    default TypeOfJson typeOf() {
+        return this.value() == null ? null : TypeOfJson.of(this.value().getClass());
+    }
+
     default Instant timestamp() {
         return null;
     }
@@ -41,21 +47,5 @@ public interface OutboundEvent {
         String key();
 
         Object value();
-    }
-
-    static OutboundEvent withValue(final String topic, Object value) {
-        return new OutboundEvent() {
-
-            @Override
-            public String topic() {
-                return topic;
-            }
-
-            @Override
-            public Object value() {
-                return value;
-            }
-
-        };
     }
 }

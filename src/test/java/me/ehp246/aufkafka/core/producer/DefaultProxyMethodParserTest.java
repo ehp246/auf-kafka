@@ -15,7 +15,6 @@ import org.springframework.mock.env.MockEnvironment;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
 import me.ehp246.aufkafka.api.producer.ProducerSendRecord;
-import me.ehp246.aufkafka.api.serializer.jackson.ObjectOfJson;
 import me.ehp246.test.TestUtil;
 
 /**
@@ -328,7 +327,7 @@ class DefaultProxyMethodParserTest {
         final var event = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args());
 
-        Assertions.assertEquals(expected, ((ObjectOfJson) event.value()).value());
+        Assertions.assertEquals(expected, event.value());
     }
 
     @Test
@@ -340,7 +339,7 @@ class DefaultProxyMethodParserTest {
         final var event = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args());
 
-        Assertions.assertEquals(null, ((ObjectOfJson) event.value()).value());
+        Assertions.assertEquals(null, event.value());
     }
 
     @Test
@@ -364,8 +363,7 @@ class DefaultProxyMethodParserTest {
         final var event = parser.parse(captor.invocation().method()).invocationBinder()
                 .apply(captor.invocation().target(), captor.invocation().args());
 
-        Assertions.assertEquals(captor.invocation().args()[1], ((ObjectOfJson) event.value()).value(),
-                "should ignore un-annotated");
+        Assertions.assertEquals(captor.invocation().args()[1], event.value(), "should ignore un-annotated");
     }
 
     @Test

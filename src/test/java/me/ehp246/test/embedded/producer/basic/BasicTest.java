@@ -15,6 +15,7 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.serializer.jackson.ToJson;
+import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
 /**
@@ -50,7 +51,8 @@ class BasicTest {
         final var received = listener.take();
 
         Assertions.assertEquals("NewEvent", received.consumerRecord().key());
-        Assertions.assertEquals(toJson.toJson(value), received.consumerRecord().value());
+        Assertions.assertEquals(toJson.toJson(value, TypeOfJson.of(value.getClass())),
+                received.consumerRecord().value());
     }
 
     @Test

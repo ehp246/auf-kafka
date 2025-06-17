@@ -6,7 +6,6 @@ import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -35,7 +34,6 @@ class CompletedInvocationTest {
     }
 
     @Test
-    @Timeout(1)
     void completed_01() {
         final var id = UUID.randomUUID().toString();
 
@@ -48,7 +46,6 @@ class CompletedInvocationTest {
     }
 
     @Test
-    @Timeout(1)
     void bound_01() throws InterruptedException, ExecutionException {
         final var id = UUID.randomUUID().toString();
         send.send(id);

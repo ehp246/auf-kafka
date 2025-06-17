@@ -6,7 +6,6 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import me.ehp246.aufkafka.api.serializer.jackson.ObjectOfJson;
 import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 import me.ehp246.aufkafka.core.reflection.ParameterizedTypeBuilder;
 import me.ehp246.test.TestUtil;
@@ -18,7 +17,7 @@ class JsonByObjectMapperTest {
     void test_01() {
         final var expected = Instant.now();
 
-        Assertions.assertEquals(mapper.toJson(ObjectOfJson.of(expected)), mapper.toJson(expected));
+        Assertions.assertEquals(mapper.toJson(expected, TypeOfJson.of(expected.getClass())), mapper.toJson(expected));
     }
 
     @Test
@@ -35,19 +34,7 @@ class JsonByObjectMapperTest {
         final var typeOf = TypeOfJson.of(ParameterizedTypeBuilder.of(List.class, Instant.class));
         final var expected = List.of(Instant.now());
 
-        final var actual = mapper.fromJson(mapper.toJson(new ObjectOfJson() {
-
-            @Override
-            public Object value() {
-                return expected;
-            }
-
-            @Override
-            public TypeOfJson typeOf() {
-                return typeOf;
-            }
-
-        }), typeOf);
+        final var actual = mapper.fromJson(mapper.toJson(expected, typeOf), typeOf);
 
         Assertions.assertEquals(true, actual instanceof List);
         Assertions.assertEquals(expected.get(0), ((List<Instant>) actual).get(0));

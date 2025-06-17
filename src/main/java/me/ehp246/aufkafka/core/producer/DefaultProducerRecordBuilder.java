@@ -37,7 +37,8 @@ public final class DefaultProducerRecordBuilder implements ProducerRecordBuilder
     public ProducerRecord<String, String> apply(OutboundEvent outboundEvent) {
         return new ProducerRecord<String, String>(outboundEvent.topic(), outboundEvent.partition(),
                 Optional.ofNullable(outboundEvent.timestamp()).map(Instant::toEpochMilli).orElse(null),
-                outboundEvent.key(), this.toJson.toJson(outboundEvent.value()), headers(outboundEvent));
+                outboundEvent.key(), this.toJson.toJson(outboundEvent.value(), outboundEvent.typeOf()),
+                headers(outboundEvent));
     }
 
     private Iterable<Header> headers(final OutboundEvent outboundEvent) {

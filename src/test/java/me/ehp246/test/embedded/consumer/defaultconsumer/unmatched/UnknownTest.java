@@ -16,7 +16,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  *
  */
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class }, properties = {
-	"default.consumer.name=unknown", "me.ehp246.aufkafka.consumer.messagelogging.enabled=true" })
+        "default.consumer.name=unknown", "me.ehp246.aufkafka.consumer.messagelogging.enabled=true" })
 @EmbeddedKafka(topics = "embedded")
 class UnknownTest {
     @Autowired
@@ -27,22 +27,22 @@ class UnknownTest {
 
     @BeforeEach
     void reset() {
-	unknown.reset();
+        unknown.reset();
     }
 
     @Test
     void unmatched_01() {
-	this.send.send(null);
+        this.send.send(null);
 
-	Assertions.assertEquals(null, this.unknown.take().key());
+        Assertions.assertEquals(null, this.unknown.take().key());
     }
 
     @Test
     void unmatched_02() {
-	final var key = UUID.randomUUID().toString();
+        final var key = UUID.randomUUID().toString();
 
-	this.send.send(key);
+        this.send.send(key);
 
-	Assertions.assertEquals(key, this.unknown.take().key());
+        Assertions.assertEquals(key, this.unknown.take().key());
     }
 }
