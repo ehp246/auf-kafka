@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfMdc;
+import me.ehp246.aufkafka.api.annotation.OfOffset;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfTopic;
@@ -50,7 +51,8 @@ import me.ehp246.aufkafka.core.util.OneUtil;
 public final class DefaultEventInvocableBinder implements EventInvocableBinder {
     private static final Map<Class<? extends Annotation>, Function<InboundEvent, Object>> HEADER_VALUE_SUPPLIERS = Map
             .of(OfTopic.class, InboundEvent::topic, OfPartition.class, InboundEvent::partition, OfKey.class,
-                    InboundEvent::key, OfTimestamp.class, InboundEvent::timestamp);
+                    InboundEvent::key, OfOffset.class, InboundEvent::offset, OfTimestamp.class,
+                    InboundEvent::timestamp);
 
     private static final Set<Class<? extends Annotation>> PROPERTY_ANNOTATIONS = Set
             .copyOf(HEADER_VALUE_SUPPLIERS.keySet());

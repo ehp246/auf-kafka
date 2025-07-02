@@ -14,6 +14,7 @@ import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfMdc;
 import me.ehp246.aufkafka.api.annotation.OfMdc.Op;
+import me.ehp246.aufkafka.api.annotation.OfOffset;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfTopic;
@@ -113,6 +114,17 @@ interface InvocableBinderTestCases {
         public Object[] m01(@OfPartition Number partition) {
             return new Object[] { partition };
         }
+    }
+
+    static class OffsetCase01 {
+        public Object[] m01(@OfOffset final long offset) {
+            return new Object[] { offset };
+        }
+
+        public Object[] m01(@OfOffset Long offset) {
+            return new Object[] { offset };
+        }
+
     }
 
     static class TimestampCase01 {

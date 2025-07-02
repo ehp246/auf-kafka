@@ -231,6 +231,30 @@ class DefaultEventInvocableBinderTest {
     }
 
     @Test
+    void offset_01() {
+        final var event = new MockConsumerRecord().toEvent();
+        final var outcome = binder.bind(new InvocableRecord(new InvocableBinderTestCases.OffsetCase01(),
+                new ReflectedClass<>(InvocableBinderTestCases.OffsetCase01.class).findMethod("m01", long.class)), event)
+                .invoke();
+
+        final var returned = (Object[]) ((Completed) outcome).returned();
+
+        Assertions.assertEquals(event.offset(), returned[0]);
+    }
+
+    @Test
+    void offset_02() {
+        final var event = new MockConsumerRecord().toEvent();
+        final var outcome = binder.bind(new InvocableRecord(new InvocableBinderTestCases.OffsetCase01(),
+                new ReflectedClass<>(InvocableBinderTestCases.OffsetCase01.class).findMethod("m01", Long.class)), event)
+                .invoke();
+
+        final var returned = (Object[]) ((Completed) outcome).returned();
+
+        Assertions.assertEquals(event.offset(), returned[0]);
+    }
+
+    @Test
     void timestamp_01() {
         final var case01 = new InvocableBinderTestCases.TimestampCase01();
         final var event = new MockConsumerRecord().toEvent();
