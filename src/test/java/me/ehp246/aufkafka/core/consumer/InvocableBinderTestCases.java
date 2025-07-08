@@ -14,8 +14,10 @@ import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfMdc;
 import me.ehp246.aufkafka.api.annotation.OfMdc.Op;
+import me.ehp246.aufkafka.api.annotation.OfOffset;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
+import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.serializer.jackson.FromJson;
@@ -54,7 +56,7 @@ interface InvocableBinderTestCases {
     /**
      * Type-based injection
      */
-    static class TypeCase01 {
+    static class HeaderTypeCase01 {
         public void m01() {
         }
 
@@ -78,6 +80,12 @@ interface InvocableBinderTestCases {
 
         public Object[] header(final Headers headers, final Header myHeader) {
             return new Object[] { headers, myHeader };
+        }
+    }
+
+    static class TopicCase01 {
+        public Object[] topic(@OfTopic final String topic) {
+            return new Object[] { topic };
         }
     }
 
@@ -106,6 +114,17 @@ interface InvocableBinderTestCases {
         public Object[] m01(@OfPartition Number partition) {
             return new Object[] { partition };
         }
+    }
+
+    static class OffsetCase01 {
+        public Object[] m01(@OfOffset final long offset) {
+            return new Object[] { offset };
+        }
+
+        public Object[] m01(@OfOffset Long offset) {
+            return new Object[] { offset };
+        }
+
     }
 
     static class TimestampCase01 {
