@@ -52,7 +52,8 @@ public final class EmbeddedKafkaConfig {
     @Bean
     ProducerConfigProvider producerConfigProvider() {
         final Map<String, Object> configMap = KafkaTestUtils.producerProps(embeddedKafka);
-        configMap.put(AufKafkaConstant.FLUSH_PRODUCER, "true");
+
+        configMap.put(AufKafkaConstant.PRODUCERFN_FLUSH, "true");
 
         return name -> configMap;
     }

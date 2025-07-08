@@ -18,9 +18,9 @@ import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.common.Pair;
 import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
 import me.ehp246.aufkafka.api.producer.ProducerFn;
+import me.ehp246.aufkafka.api.producer.ProducerFn.ProducerFnRecord;
 import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
-import me.ehp246.aufkafka.api.producer.ProducerSendRecord;
 
 /**
  * @author Lei Yang
@@ -50,13 +50,13 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
 
         return outboundEvent -> {
             final var producerRecord = recordBuilder.apply(outboundEvent);
-            final var sendFuture = new CompletableFuture<RecordMetadata>();
+            final var future = new CompletableFuture<RecordMetadata>();
 
             producer.send(producerRecord, (metadata, exception) -> {
                 if (exception == null) {
-                    sendFuture.complete(metadata);
+                    future.complete(metadata);
                 } else {
-                    sendFuture.completeExceptionally(exception);
+                    future.completeExceptionally(exception);
                 }
             });
 
@@ -64,7 +64,7 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
                 producer.flush();
             }
 
-            return new ProducerSendRecord(producerRecord, sendFuture);
+            return new ProducerFnRecord(producerRecord, future);
         };
     }
 
@@ -86,7 +86,7 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
             configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
             return new Pair<>(producerSupplier.apply(configMap),
-                    Optional.ofNullable(configMap.get(AufKafkaConstant.FLUSH_PRODUCER)).map(Object::toString)
+                    Optional.ofNullable(configMap.get(AufKafkaConstant.PRODUCERFN_FLUSH)).map(Object::toString)
                             .map(Boolean::valueOf).orElse(Boolean.FALSE));
         });
     }

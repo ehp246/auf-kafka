@@ -62,7 +62,7 @@ class DefaultProducerFnProviderTest {
     void flush_02() {
 	final var mockProducer = new MockProducer();
 	final var provider = new DefaultProducerFnProvider(map -> mockProducer,
-		name -> Map.of(AufKafkaConstant.FLUSH_PRODUCER, "true"), recordBuilder);
+		name -> Map.of(AufKafkaConstant.PRODUCERFN_FLUSH, "true"), recordBuilder);
 
 	provider.get("").send(""::toString);
 
@@ -74,7 +74,7 @@ class DefaultProducerFnProviderTest {
     void flush_03() {
 	final var mockProducer = new MockProducer();
 	final var provider = new DefaultProducerFnProvider(map -> mockProducer,
-		name -> Map.of(AufKafkaConstant.FLUSH_PRODUCER, ""), recordBuilder);
+		name -> Map.of(AufKafkaConstant.PRODUCERFN_FLUSH, ""), recordBuilder);
 
 	provider.get("").send(""::toString);
 
@@ -85,7 +85,7 @@ class DefaultProducerFnProviderTest {
     @Test
     void flush_04() {
 	final var configMap = new HashMap<String, Object>();
-	configMap.put(AufKafkaConstant.FLUSH_PRODUCER, null);
+	configMap.put(AufKafkaConstant.PRODUCERFN_FLUSH, null);
 	final var mockProducer = new MockProducer();
 	final var provider = new DefaultProducerFnProvider(map -> mockProducer, name -> configMap, recordBuilder);
 
