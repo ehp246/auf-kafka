@@ -15,19 +15,19 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  */
 class MsgListener {
     private final AtomicReference<CompletableFuture<InboundEvent>> ref = new AtomicReference<>(
-	    new CompletableFuture<InboundEvent>());
+            new CompletableFuture<InboundEvent>());
 
     MsgListener reset() {
-	this.ref.set(new CompletableFuture<>());
-	return this;
+        this.ref.set(new CompletableFuture<>());
+        return this;
     }
 
     @KafkaListener(topics = "embedded")
     void onMsg(final ConsumerRecord<String, String> received) {
-	ref.get().complete(new InboundEvent(received));
+        ref.get().complete(new InboundEvent(received));
     }
 
     InboundEvent take() {
-	return OneUtil.orThrow(this.ref.get()::get);
+        return OneUtil.orThrow(this.ref.get()::get);
     }
 }
