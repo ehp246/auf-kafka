@@ -30,7 +30,7 @@ public final class DefaultProducerFn implements ProducerFn, AutoCloseable {
     }
 
     @Override
-    public SendRecord send(OutboundEvent event) {
+    public ProducerFnRecord send(OutboundEvent event) {
         final var producerRecord = recordBuilder.apply(event);
         final var future = new CompletableFuture<RecordMetadata>();
 
@@ -50,7 +50,7 @@ public final class DefaultProducerFn implements ProducerFn, AutoCloseable {
             producer.flush();
         }
 
-        return new SendRecord(producerRecord, future);
+        return new ProducerFnRecord(producerRecord, future);
     }
 
     @Override

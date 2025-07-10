@@ -33,7 +33,6 @@ class DefaultProducerFnProviderTest {
         Assertions.assertEquals(false, provider.get("") == provider.get("1"), "should not be the same instance");
     }
 
-    @SuppressWarnings("resource")
     @Test
     void test_04() throws Exception {
         final var producer = new MockProducer();
