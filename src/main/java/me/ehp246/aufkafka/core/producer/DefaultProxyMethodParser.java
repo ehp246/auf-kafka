@@ -25,7 +25,7 @@ import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.exception.ProxyReturnBindingException;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
-import me.ehp246.aufkafka.api.producer.ProducerFn.ProducerFnRecord;
+import me.ehp246.aufkafka.api.producer.ProducerFn.SendRecord;
 import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.aufkafka.core.producer.ProxyInvocationBinder.HeaderParam;
@@ -160,7 +160,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
         final var type = reflected.method().getGenericReturnType();
         if (type == RecordMetadata.class) {
             return (LocalReturnBinder) (event, sent) -> wrapGet(sent.future());
-        } else if (type == ProducerFnRecord.class) {
+        } else if (type == SendRecord.class) {
             return (LocalReturnBinder) (event, sent) -> sent;
         } else if (type == OutboundEvent.class) {
             return (LocalReturnBinder) (event, sent) -> event;

@@ -16,7 +16,7 @@ import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
-import me.ehp246.aufkafka.api.producer.ProducerFn.ProducerFnRecord;
+import me.ehp246.aufkafka.api.producer.ProducerFn.SendRecord;
 
 interface DefaultProxyMethodParserTestCases {
     @ByKafka("c26d1201-a956-4a45-a049-bc7fece18fff")
@@ -125,6 +125,6 @@ interface DefaultProxyMethodParserTestCases {
 
         OutboundEvent m08();
 
-        ProducerFnRecord m09();
+        SendRecord m09();
     }
 }
