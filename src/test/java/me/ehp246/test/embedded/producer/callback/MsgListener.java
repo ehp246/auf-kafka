@@ -1,4 +1,4 @@
-package me.ehp246.test.embedded.producer.basic;
+package me.ehp246.test.embedded.producer.callback;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,7 +22,7 @@ class MsgListener {
         return this;
     }
 
-    @KafkaListener(topics = "embedded")
+    @KafkaListener(topics = AppConfig.TOPIC)
     void onMsg(final ConsumerRecord<String, String> received) {
         ref.get().complete(new InboundEvent(received));
     }

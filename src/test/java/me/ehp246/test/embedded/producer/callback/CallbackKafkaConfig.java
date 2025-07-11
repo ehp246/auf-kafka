@@ -1,4 +1,4 @@
-package me.ehp246.test.mock;
+package me.ehp246.test.embedded.producer.callback;
 
 import java.util.Map;
 
@@ -26,7 +26,7 @@ import me.ehp246.aufkafka.api.producer.ProducerConfigProvider;
  * @author Lei Yang
  *
  */
-public final class EmbeddedKafkaConfig {
+final class CallbackKafkaConfig {
     @Autowired
     private EmbeddedKafkaBroker embeddedKafka;
 
@@ -54,6 +54,7 @@ public final class EmbeddedKafkaConfig {
         final Map<String, Object> configMap = KafkaTestUtils.producerProps(embeddedKafka);
 
         configMap.put(AufKafkaConstant.PRODUCERFN_FLUSH, "true");
+        configMap.put(AufKafkaConstant.PRODUCERFN_CALLBACK, "callmeback");
 
         return name -> configMap;
     }

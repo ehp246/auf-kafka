@@ -119,4 +119,14 @@ class BasicTest {
 
         Assertions.assertEquals(expected, received.timestamp());
     }
+
+    @Test
+    void producerRecord_01() throws InterruptedException, ExecutionException {
+        final var sent = this.case01.newSendEvent(UUID.randomUUID().toString());
+
+        final var received = listener.take();
+
+        Assertions.assertEquals(received.key(), sent.record().key());
+        Assertions.assertEquals(received.offset(), sent.future().get().offset());
+    }
 }

@@ -8,6 +8,7 @@ import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
+import me.ehp246.aufkafka.api.producer.ProducerFn.ProducerFnRecord;
 
 /**
  * @author Lei Yang
@@ -17,6 +18,8 @@ interface TestCases {
     @ByKafka(value = "embedded")
     interface Case01 {
         void newEvent();
+
+        ProducerFnRecord newSendEvent(@OfKey String key);
 
         void newEventType(@OfHeader(AufKafkaConstant.EVENT_HEADER) String eventType);
 

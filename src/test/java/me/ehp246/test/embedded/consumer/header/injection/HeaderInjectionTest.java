@@ -6,13 +6,11 @@ import java.util.UUID;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 
 import me.ehp246.test.TestUtil;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
@@ -24,8 +22,7 @@ import me.ehp246.test.mock.StringHeader;
  */
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class,
         HeaderInjectAction.class }, webEnvironment = WebEnvironment.NONE)
-@EmbeddedKafka(topics = { "embedded" }, partitions = 1)
-@DirtiesContext
+@EmbeddedKafka(topics = { AppConfig.TOPIC }, partitions = 1)
 class HeaderInjectionTest {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -34,7 +31,7 @@ class HeaderInjectionTest {
 
     @Test
     void header_01() {
-        kafkaTemplate.send(new ProducerRecord<String, String>("embedded", UUID.randomUUID().toString(), null));
+        kafkaTemplate.send(new ProducerRecord<String, String>(AppConfig.TOPIC, UUID.randomUUID().toString(), null));
 
         final var received = action.take();
 
@@ -44,10 +41,9 @@ class HeaderInjectionTest {
     }
 
     @Test
-    @Timeout(1)
     void header_02() {
         final var header1Value = UUID.randomUUID().toString();
-        kafkaTemplate.send(new ProducerRecord<String, String>("embedded", null, UUID.randomUUID().toString(), null,
+        kafkaTemplate.send(new ProducerRecord<String, String>(AppConfig.TOPIC, null, UUID.randomUUID().toString(), null,
                 List.of(new StringHeader("Header1", header1Value))));
 
         final var received = action.take();
@@ -60,7 +56,7 @@ class HeaderInjectionTest {
     @Test
     void headerList_01() {
         final var header1Value = UUID.randomUUID().toString();
-        kafkaTemplate.send(new ProducerRecord<String, String>("embedded", null, UUID.randomUUID().toString(), null,
+        kafkaTemplate.send(new ProducerRecord<String, String>(AppConfig.TOPIC, null, UUID.randomUUID().toString(), null,
                 List.of(new StringHeader("Header1", header1Value), new StringHeader("HeaderList", header1Value),
                         new StringHeader("HeaderList", header1Value))));
 

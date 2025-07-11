@@ -34,7 +34,7 @@ import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ByKafka {
     /**
-     * Specifies the value for outbound {@linkplain ProducerRecord#topic()}.
+     * Specifies the value for {@linkplain ProducerRecord#topic()}.
      */
     String value();
 
