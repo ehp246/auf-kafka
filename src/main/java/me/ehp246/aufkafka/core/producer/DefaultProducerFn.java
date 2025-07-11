@@ -13,7 +13,7 @@ import me.ehp246.aufkafka.api.producer.ProducerRecordBuilder;
 /**
  * @author Lei Yang
  */
-public final class DefaultProducerFn implements ProducerFn, AutoCloseable {
+final class DefaultProducerFn implements ProducerFn, AutoCloseable {
 
     private final ProducerRecordBuilder recordBuilder;
     private final Producer<String, String> producer;
