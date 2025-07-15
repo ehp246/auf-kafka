@@ -5,7 +5,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Parameter;
-import java.nio.charset.StandardCharsets;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 
@@ -31,12 +30,12 @@ import me.ehp246.aufkafka.api.consumer.EventInvocable;
  * If the argument is <code>null</code>, the header will have a value of
  * zero-length <code>byte []</code>.
  * <p>
- * On the consumer side, applied to a parameter of a
+ * On the consumer side, when applied to a parameter of a
  * {@linkplain ForEvent}/{@linkplain ForKey} {@linkplain Applying} method, it
  * specifies the injection point for the value of the named header of the
- * inbound message.
+ * in-bound message.
  * <p>
- * If there are multiple values specified, inject them as keys.
+ * There is no effect if applied to a method on the consumer side.
  * <p>
  * For {@linkplain String} parameters, <code>byte []</code> values are converted
  * by {@linkplain StandardCharsets#UTF_8}.
