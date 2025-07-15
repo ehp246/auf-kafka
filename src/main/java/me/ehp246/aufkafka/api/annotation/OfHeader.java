@@ -7,16 +7,21 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Parameter;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
+
 import me.ehp246.aufkafka.api.consumer.EventInvocable;
 
 /**
  * Specifies the binding point for a custom header. The annotation can be
  * applied on both the producer side, i.e., {@linkplain ByKafka} interfaces, and
- * the consumer side, i.e., {@linkplain EventInvocable} classes.
+ * the consumer side, i.e., methods of {@linkplain EventInvocable} classes.
  * <p>
- * On the producer side, applied to a parameter on a {@linkplain ByKafka}
- * interface, it specifies the name and argument of a header for the out-going
+ * On the producer side, when applied to a parameter on a {@linkplain ByKafka}
+ * interface, it specifies the key and argument of a header for the out-going
  * message.
+ * <p>
+ * When applied to a method of {@linkplain ByKafka} interface, it specifies both
+ * header keys and values for all out-going message from the method.
  * <p>
  * For out-going messages, all header values will be converted to
  * {@linkplain String} via {@linkplain Object#toString()} then to
@@ -26,14 +31,15 @@ import me.ehp246.aufkafka.api.consumer.EventInvocable;
  * If the argument is <code>null</code>, the header will have a value of
  * zero-length <code>byte []</code>.
  * <p>
- * On the consumer side, applied to a parameter of a {@linkplain ForEvent}
- * {@linkplain Applying} method, it specifies the injection point for the value
- * of the named header of the inbound message.
+ * On the consumer side, applied to a parameter of a
+ * {@linkplain ForEvent}/{@linkplain ForKey} {@linkplain Applying} method, it
+ * specifies the injection point for the value of the named header of the
+ * inbound message.
  * <p>
  * For {@linkplain String} parameters, <code>byte []</code> values are converted
  * by {@linkplain StandardCharsets#UTF_8}.
  * <p>
- * When {@linkplain OfHeader#value()} is not specified, the header name is
+ * When {@linkplain OfHeader#value()} is not specified, the header key is
  * inferred from the parameter name with the first letter capitalized. For the
  * inferencing to work properly, '<code>-parameters</code>' compiler option is
  * probably desired.
@@ -45,12 +51,15 @@ import me.ehp246.aufkafka.api.consumer.EventInvocable;
  *      Names at Runtime</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER })
+@Target({ ElementType.PARAMETER, ElementType.METHOD })
 public @interface OfHeader {
     /**
-     * The name of the header.
+     * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs for
+     * out-going messages.
      * <p>
      * Does not support placeholder.
+     * 
+     * @see ByKafka#headers()
      */
-    String value() default "";
+    String[] value() default {};
 }

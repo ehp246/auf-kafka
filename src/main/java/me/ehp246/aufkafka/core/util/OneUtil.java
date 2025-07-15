@@ -80,6 +80,14 @@ public final class OneUtil {
         }
     }
 
+    public static String orIfBlank(final String[] values, final Supplier<String> supplier) {
+        if (values == null || values.length == 0) {
+            return supplier.get();
+        } else {
+            return values[0];
+        }
+    }
+
     public static Stream<String> streamValues(final Collection<String> values) {
         return Optional.ofNullable(values).orElseGet(ArrayList::new).stream().filter(OneUtil::hasValue);
     }

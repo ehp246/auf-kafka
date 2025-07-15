@@ -143,7 +143,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
                 paramBinders.put(i, InboundEvent::headers);
                 continue;
             } else if (reflectedParam.isType(Header.class)) {
-                final var key = OneUtil.getIfBlank(Optional.ofNullable(reflectedParam.getAnnotation(OfHeader.class))
+                final var key = OneUtil.orIfBlank(Optional.ofNullable(reflectedParam.getAnnotation(OfHeader.class))
                         .map(OfHeader::value).orElse(null), () -> OneUtil.firstUpper(reflectedParam.getName()));
 
                 paramBinders.put(i, event -> event.headers().lastHeader(key));
@@ -171,7 +171,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
              */
             final var headerAnnotation = Stream.of(annotations).filter(OfHeader.class::isInstance).findAny();
             if (headerAnnotation.isPresent()) {
-                final var key = OneUtil.getIfBlank(reflectedParam.getAnnotation(OfHeader.class).value(),
+                final var key = OneUtil.orIfBlank(reflectedParam.getAnnotation(OfHeader.class).value(),
                         () -> OneUtil.firstUpper(reflectedParam.getName()));
 
                 if (reflectedParam.isParameterizedType(Iterable.class)

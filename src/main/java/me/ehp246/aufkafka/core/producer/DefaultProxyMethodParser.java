@@ -120,7 +120,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
         for (final var reflectedParam : reflected.allParametersWith(OfHeader.class)) {
             final var parameter = reflectedParam.parameter();
             headerBinder.put(reflectedParam.index(),
-                    new HeaderParam(OneUtil.getIfBlank(parameter.getAnnotation(OfHeader.class).value(),
+                    new HeaderParam(OneUtil.orIfBlank(parameter.getAnnotation(OfHeader.class).value(),
                             () -> OneUtil.firstUpper(parameter.getName())), parameter.getType()));
         }
         return headerBinder;
