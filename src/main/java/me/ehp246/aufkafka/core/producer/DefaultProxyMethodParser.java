@@ -114,7 +114,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
 
         return new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder,
                 valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, typeOf), headerBinder(reflected),
-                headerStatic(reflected, byKafka));
+                headerStatic(reflected, byKafka.methodAsEvent()));
     }
 
     private Map<Integer, HeaderParam> headerBinder(final ReflectedMethod reflected) {
@@ -128,23 +128,24 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
         return headerBinder;
     }
 
-    private List<OutboundEvent.Header> headerStatic(final ReflectedMethod reflected, final ByKafka byKafka) {
-        final var typeHeaders = byKafka.headers();
+    private List<OutboundEvent.Header> headerStatic(final ReflectedMethod reflected, final String methodAsEvent) {
+        final var typeHeaders = Optional
+                .ofNullable(reflected.method().getDeclaringClass().getAnnotation(OfHeader.class)).map(OfHeader::value)
+                .orElse(new String[] {});
         if ((typeHeaders.length & 1) != 0) {
             throw new IllegalArgumentException(
                     "Headers are not in key/value pairs on " + reflected.method().getDeclaringClass());
         }
 
-        final var methodHeaders = reflected.findOnMethodUp(OfHeader.class).map(OfHeader::value).orElse(new String[] {});
-        if ((typeHeaders.length & 1) != 0) {
+        final var methodHeaders = reflected.findOnMethod(OfHeader.class).map(OfHeader::value).orElse(new String[] {});
+        if ((methodHeaders.length & 1) != 0) {
             throw new IllegalArgumentException("Headers are not in key/value pairs on " + reflected.method());
         }
 
         final List<OutboundEvent.Header> headerStatic = new ArrayList<>();
 
-        if (!byKafka.methodAsEvent().isEmpty()) {
-            headerStatic
-                    .add(new OutboundHeader(byKafka.methodAsEvent(), OneUtil.firstUpper(reflected.method().getName())));
+        if (!methodAsEvent.isEmpty()) {
+            headerStatic.add(new OutboundHeader(methodAsEvent, OneUtil.firstUpper(reflected.method().getName())));
         }
 
         final var allHeaders = Stream.concat(Arrays.stream(typeHeaders), Arrays.stream(methodHeaders))

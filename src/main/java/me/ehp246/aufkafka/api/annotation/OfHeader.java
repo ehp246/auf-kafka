@@ -53,13 +53,29 @@ import me.ehp246.aufkafka.api.consumer.EventInvocable;
  *      Names at Runtime</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.METHOD })
+@Target({ ElementType.PARAMETER, ElementType.METHOD, ElementType.TYPE })
 public @interface OfHeader {
     /**
-     * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs for
-     * out-going messages.
-     * 
-     * @see ByKafka#headers()
+     * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs.
+     * <p>
+     * E.g.,
+     * <p>
+     * <code>
+     *     { "AppName", "AufKafka", "AppVersion", "1.0", ... }
+     * </code>
+     * <p>
+     * Must be specified in pairs. Missing value will trigger an exception.
+     * <p>
+     * E.g., the following is missing value for property '{@code appVersion}' and
+     * will result an exception.
+     * <p>
+     * <code>
+     *     { "AppVersion" }
+     * </code>
+     * <p>
+     * Spring property placeholder and SpEL expression are supported on values but
+     * not on keys.
+     *
      */
     String[] value() default {};
 }

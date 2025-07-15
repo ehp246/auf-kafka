@@ -88,8 +88,8 @@ interface DefaultProxyMethodParserTestCases {
         void m04(UUID uuid, @OfValue UUID value);
     }
 
-    @ByKafka(value = "topic", headers = { "header1", "value1", "header2", "value2", "header1",
-            "value2" }, methodAsEvent = "")
+    @ByKafka(value = "topic", methodAsEvent = "")
+    @OfHeader({ "header1", "value1", "header2", "value2", "header1", "value2" })
     interface HeaderCase01 {
         void m01();
 
@@ -103,7 +103,8 @@ interface DefaultProxyMethodParserTestCases {
         void m03(@OfHeader("header1") Object value1, @OfHeader("header1") Object value2);
     }
 
-    @ByKafka(value = "topic", headers = { "header1", "${value1}", "header2", "value2" }, methodAsEvent = "")
+    @ByKafka(value = "topic", methodAsEvent = "")
+    @OfHeader({ "header1", "${value1}", "header2", "value2" })
     interface HeaderCase03 {
         void m01();
     }
