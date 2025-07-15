@@ -11,31 +11,39 @@ import me.ehp246.aufkafka.api.common.AufKafkaConstant;
  *
  */
 interface TestCases {
-    @ByKafka(value = "embedded", methodAsEvent = "")
+    @ByKafka(value = AppConfig.TOPIC, methodAsEvent = "")
     interface Case01 {
         void header(@OfHeader Object header, @OfHeader("header02") Object value, @OfHeader("header02") Object value2);
     }
 
-    @ByKafka(value = "embedded", headers = { "header", "${static.1}", "header2", "static.2" }, methodAsEvent = "")
+    @ByKafka(value = AppConfig.TOPIC, methodAsEvent = "")
+    @OfHeader({ "header", "${static.1}", "header2", "static.2" })
     interface Case02 {
         void header();
 
         void header(@OfHeader Object header);
     }
 
-    @ByKafka(value = "embedded")
+    @ByKafka(value = AppConfig.TOPIC)
     interface Case03 {
         void methodName();
 
         void paramHeader(@OfHeader(AufKafkaConstant.EVENT_HEADER) Object header);
     }
 
-    @ByKafka(value = "embedded", methodAsEvent = "my.own.event")
+    @ByKafka(value = AppConfig.TOPIC, methodAsEvent = "my.own.event")
     interface Case04 {
         void methodName();
     }
 
-    @ByKafka(value = "embedded")
+    @ByKafka(AppConfig.TOPIC)
+    @OfHeader({ "h1", "hv.1", "h1", "hv.2", "H2", "h2v.1" })
+    interface Case05 {
+        @OfHeader({ "h1", "mh1.1", "h1", "mh1.2", "H2", "mh2.v1" })
+        void header(@OfHeader String h2);
+    }
+
+    @ByKafka(value = AppConfig.TOPIC)
     interface CorrelIdCase01 {
         void ping();
 

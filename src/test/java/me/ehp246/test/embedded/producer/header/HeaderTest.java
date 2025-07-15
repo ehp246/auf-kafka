@@ -5,7 +5,6 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,7 +21,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  */
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, MsgListener.class }, properties = {
         "static.1=234e3609-3edd-4059-b685-fa8a0bed19d3" }, webEnvironment = WebEnvironment.NONE)
-@EmbeddedKafka(topics = { "embedded" }, partitions = 10)
+@EmbeddedKafka(topics = { AppConfig.TOPIC }, partitions = 10)
 class HeaderTest {
     @Autowired
     private TestCases.Case01 case01;
@@ -35,22 +34,21 @@ class HeaderTest {
 
     @Autowired
     private TestCases.Case04 case04;
+
+    @Autowired
+    private TestCases.Case05 case05;
+
     @Autowired
     private TestCases.CorrelIdCase01 correlIdCase01;
 
     @Autowired
     private MsgListener listener;
 
-    @BeforeEach
-    void reset() {
-        listener.reset();
-    }
-
     @Test
     void header_01() throws InterruptedException, ExecutionException {
         this.case01.header(null, null, null);
 
-        final var headers = TestUtil.toList(listener.take().headers());
+        final var headers = listener.take().headerList();
 
         Assertions.assertEquals("Header", headers.get(0).key());
         Assertions.assertEquals(null, headers.get(0).value());
@@ -69,7 +67,7 @@ class HeaderTest {
 
         this.case01.header(header1, header2, null);
 
-        final var headers = TestUtil.toList(listener.take().headers());
+        final var headers = listener.take().headerList();
 
         Assertions.assertEquals("Header", headers.get(0).key());
         Assertions.assertEquals(true,
@@ -87,7 +85,7 @@ class HeaderTest {
     void header_03() throws InterruptedException, ExecutionException {
         this.case02.header();
 
-        final var headers = TestUtil.toList(listener.take().headers());
+        final var headers = listener.take().headerList();
 
         Assertions.assertEquals("header", headers.get(0).key());
         Assertions.assertEquals(true, new String(headers.get(0).value(), StandardCharsets.UTF_8)
@@ -103,7 +101,7 @@ class HeaderTest {
 
         this.case02.header(value);
 
-        final var headers = TestUtil.toList(listener.take().headers());
+        final var headers = listener.take().headerList();
 
         Assertions.assertEquals("header", headers.get(0).key());
         Assertions.assertEquals("234e3609-3edd-4059-b685-fa8a0bed19d3",
@@ -114,6 +112,26 @@ class HeaderTest {
 
         Assertions.assertEquals("Header", headers.get(2).key());
         Assertions.assertEquals(value.toString(), new String(headers.get(2).value(), StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void header_05() throws InterruptedException, ExecutionException {
+        final var value = UUID.randomUUID().toString();
+
+        this.case05.header(value);
+
+        final var headers = listener.take().headerMap();
+
+        Assertions.assertEquals(4, headers.get("h1").size());
+        Assertions.assertEquals("hv.1", headers.get("h1").get(0));
+        Assertions.assertEquals("hv.2", headers.get("h1").get(1));
+        Assertions.assertEquals("mh1.1", headers.get("h1").get(2));
+        Assertions.assertEquals("mh1.2", headers.get("h1").get(3));
+
+        Assertions.assertEquals(3, headers.get("H2").size());
+        Assertions.assertEquals("h2v.1", headers.get("H2").get(0));
+        Assertions.assertEquals("mh2.v1", headers.get("H2").get(1));
+        Assertions.assertEquals(value, headers.get("H2").get(2), "should follow the order");
     }
 
     @Test
@@ -131,7 +149,7 @@ class HeaderTest {
         final var expected = UUID.randomUUID().toString();
         this.case03.paramHeader(expected);
 
-        final var headers = listener.takeInboud().headerMap();
+        final var headers = listener.take().headerMap();
 
         Assertions.assertEquals(2, headers.get(AufKafkaConstant.EVENT_HEADER).size());
         Assertions.assertEquals("ParamHeader", headers.get(AufKafkaConstant.EVENT_HEADER).get(0));
@@ -142,7 +160,7 @@ class HeaderTest {
     void event_03() throws InterruptedException, ExecutionException {
         this.case04.methodName();
 
-        final var headers = listener.takeInboud().headerMap();
+        final var headers = listener.take().headerMap();
 
         Assertions.assertEquals(1, headers.get("my.own.event").size());
         Assertions.assertEquals("MethodName", headers.get("my.own.event").get(0));
@@ -152,7 +170,7 @@ class HeaderTest {
     void correlId_01() {
         this.correlIdCase01.ping();
 
-        final var headers = listener.takeInboud().headerMap();
+        final var headers = listener.take().headerMap();
 
         Assertions.assertEquals(1, headers.get(AufKafkaConstant.CORRELATIONID_HEADER).size());
         Assertions.assertEquals(true, !headers.get(AufKafkaConstant.CORRELATIONID_HEADER).get(0).isBlank());
@@ -163,7 +181,7 @@ class HeaderTest {
         final var expected = UUID.randomUUID().toString();
         this.correlIdCase01.ping(expected);
 
-        final var headers = listener.takeInboud().headerMap();
+        final var headers = listener.take().headerMap();
 
         Assertions.assertEquals(1, headers.get(AufKafkaConstant.CORRELATIONID_HEADER).size());
         Assertions.assertEquals(expected, headers.get(AufKafkaConstant.CORRELATIONID_HEADER).get(0));
