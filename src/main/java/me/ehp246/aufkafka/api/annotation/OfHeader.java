@@ -36,6 +36,8 @@ import me.ehp246.aufkafka.api.consumer.EventInvocable;
  * specifies the injection point for the value of the named header of the
  * inbound message.
  * <p>
+ * If there are multiple values specified, inject them as keys.
+ * <p>
  * For {@linkplain String} parameters, <code>byte []</code> values are converted
  * by {@linkplain StandardCharsets#UTF_8}.
  * <p>
@@ -56,8 +58,6 @@ public @interface OfHeader {
     /**
      * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs for
      * out-going messages.
-     * <p>
-     * Does not support placeholder.
      * 
      * @see ByKafka#headers()
      */

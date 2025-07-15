@@ -34,6 +34,7 @@ class HeaderTest {
 
     @Autowired
     private TestCases.Case04 case04;
+
     @Autowired
     private TestCases.Case05 case05;
 
@@ -121,13 +122,16 @@ class HeaderTest {
 
         final var headers = listener.take().headerMap();
 
-        Assertions.assertEquals(2, headers.get("h1").size());
+        Assertions.assertEquals(4, headers.get("h1").size());
         Assertions.assertEquals("hv.1", headers.get("h1").get(0));
         Assertions.assertEquals("hv.2", headers.get("h1").get(1));
+        Assertions.assertEquals("mh1.1", headers.get("h1").get(2));
+        Assertions.assertEquals("mh1.2", headers.get("h1").get(3));
 
-        Assertions.assertEquals(2, headers.get("H2").size());
+        Assertions.assertEquals(3, headers.get("H2").size());
         Assertions.assertEquals("h2v.1", headers.get("H2").get(0));
-        Assertions.assertEquals(value, headers.get("H2").get(1), "should follow the order");
+        Assertions.assertEquals("mh2.v1", headers.get("H2").get(1));
+        Assertions.assertEquals(value, headers.get("H2").get(2), "should follow the order");
     }
 
     @Test

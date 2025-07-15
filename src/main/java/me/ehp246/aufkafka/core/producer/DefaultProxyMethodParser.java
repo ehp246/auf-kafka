@@ -3,6 +3,7 @@ package me.ehp246.aufkafka.core.producer;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -127,10 +129,15 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
     }
 
     private List<OutboundEvent.Header> headerStatic(final ReflectedMethod reflected, final ByKafka byKafka) {
-        final var headers = byKafka.headers();
-        if ((headers.length & 1) != 0) {
+        final var typeHeaders = byKafka.headers();
+        if ((typeHeaders.length & 1) != 0) {
             throw new IllegalArgumentException(
-                    "Headers are not in name/value pairs on " + reflected.method().getDeclaringClass());
+                    "Headers are not in key/value pairs on " + reflected.method().getDeclaringClass());
+        }
+
+        final var methodHeaders = reflected.findOnMethodUp(OfHeader.class).map(OfHeader::value).orElse(new String[] {});
+        if ((typeHeaders.length & 1) != 0) {
+            throw new IllegalArgumentException("Headers are not in key/value pairs on " + reflected.method());
         }
 
         final List<OutboundEvent.Header> headerStatic = new ArrayList<>();
@@ -140,9 +147,11 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                     .add(new OutboundHeader(byKafka.methodAsEvent(), OneUtil.firstUpper(reflected.method().getName())));
         }
 
-        for (int i = 0; i < headers.length; i += 2) {
-            final var key = headers[i];
-            final var value = expressionResolver.apply(headers[i + 1]);
+        final var allHeaders = Stream.concat(Arrays.stream(typeHeaders), Arrays.stream(methodHeaders))
+                .toArray(String[]::new);
+        for (int i = 0; i < allHeaders.length; i += 2) {
+            final var key = allHeaders[i];
+            final var value = expressionResolver.apply(allHeaders[i + 1]);
 
             headerStatic.add(new OutboundHeader(key, value));
         }

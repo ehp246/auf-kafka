@@ -37,6 +37,7 @@ interface TestCases {
 
     @ByKafka(value = AppConfig.TOPIC, headers = { "h1", "hv.1", "h1", "hv.2", "H2", "h2v.1" })
     interface Case05 {
+        @OfHeader({ "h1", "mh1.1", "h1", "mh1.2", "H2", "mh2.v1" })
         void header(@OfHeader String h2);
     }
 
