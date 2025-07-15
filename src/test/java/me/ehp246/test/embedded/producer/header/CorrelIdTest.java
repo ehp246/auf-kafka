@@ -3,7 +3,6 @@ package me.ehp246.test.embedded.producer.header;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +18,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  */
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, MsgListener.class }, properties = {
         "me.ehp246.aufkafka.header.correlationId=trace.id" }, webEnvironment = WebEnvironment.NONE)
-@EmbeddedKafka(topics = { "embedded" }, partitions = 10)
+@EmbeddedKafka(topics = { AppConfig.TOPIC }, partitions = 10)
 class CorrelIdTest {
     @Autowired
     private TestCases.CorrelIdCase01 correlIdCase01;
@@ -27,16 +26,11 @@ class CorrelIdTest {
     @Autowired
     private MsgListener listener;
 
-    @BeforeEach
-    void reset() {
-        listener.reset();
-    }
-
     @Test
     void correlId_01() {
         this.correlIdCase01.ping();
 
-        final var headers = listener.takeInboud().headerMap();
+        final var headers = listener.take().headerMap();
 
         Assertions.assertEquals(1, headers.get("trace.id").size());
         Assertions.assertEquals(true, !headers.get("trace.id").get(0).isBlank());
@@ -47,7 +41,7 @@ class CorrelIdTest {
         final var expected = UUID.randomUUID();
         this.correlIdCase01.ping(expected);
 
-        final var headers = listener.takeInboud().headerMap();
+        final var headers = listener.take().headerMap();
 
         Assertions.assertEquals(null, headers.get(AufKafkaConstant.CORRELATIONID_HEADER));
         Assertions.assertEquals(1, headers.get("trace.id").size());
@@ -60,7 +54,7 @@ class CorrelIdTest {
 
         this.correlIdCase01.ping(expected.toString());
 
-        final var headers = listener.takeInboud().headerMap();
+        final var headers = listener.take().headerMap();
 
         Assertions.assertEquals(1, headers.get(AufKafkaConstant.CORRELATIONID_HEADER).size());
         Assertions.assertEquals(true,
