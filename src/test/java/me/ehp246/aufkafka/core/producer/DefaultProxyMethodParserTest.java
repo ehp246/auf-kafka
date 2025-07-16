@@ -232,6 +232,92 @@ class DefaultProxyMethodParserTest {
     }
 
     @Test
+    void partition_06() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase01.class);
+
+        captor.proxy().onMethod01();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(null, event.partition(), "should not be specified by negative value");
+    }
+
+    @Test
+    void partition_07() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase01.class);
+
+        captor.proxy().onMethod02();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(6, event.partition());
+    }
+
+    @Test
+    void partition_08() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase02.class);
+
+        captor.proxy().onType();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(2, event.partition());
+    }
+
+    @Test
+    void partition_09() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase02.class);
+
+        final var expected = 12;
+
+        captor.proxy().onParam(expected);
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(expected, event.partition());
+    }
+
+    @Test
+    void partition_10() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase02.class);
+
+        captor.proxy().onMethod01();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(null, event.partition(), "should surpress");
+    }
+
+    @Test
+    void partition_11() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase02.class);
+
+        captor.proxy().onMethod02();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(6, event.partition());
+    }
+
+    @Test
+    void partition_12() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase02.class);
+
+        captor.proxy().onParam(null);
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(null, event.partition(), "should follow the parameter");
+    }
+
+    @Test
     void timestamp_01() throws Throwable {
         final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TimestampCase01.class);
 

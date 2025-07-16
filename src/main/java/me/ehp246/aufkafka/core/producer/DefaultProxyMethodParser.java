@@ -83,8 +83,11 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                         "Un-supported type on parameter " + index + " of " + reflected.method());
             }
             return (Function<Object[], Integer>) args -> (Integer) args[index];
-
-        }).orElseGet(() -> args -> null);
+        }).orElseGet(() -> reflected.findOnMethodUp(OfPartition.class).map(of -> {
+            final Integer partition = of.value();
+            return partition < 0 ? (Function<Object[], Integer>) args -> null
+                    : (Function<Object[], Integer>) args -> partition;
+        }).orElseGet(() -> args -> null));
 
         final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream().findFirst().map(p -> {
             final var index = p.index();

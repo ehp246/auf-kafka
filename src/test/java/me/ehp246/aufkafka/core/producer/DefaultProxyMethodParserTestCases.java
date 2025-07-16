@@ -64,6 +64,30 @@ interface DefaultProxyMethodParserTestCases {
          * Unsupported
          */
         void m04(@OfPartition String partition);
+
+        @OfPartition
+        void onMethod01();
+
+        @OfPartition(6)
+        void onMethod02();
+    }
+
+    @ByKafka("")
+    @OfPartition(2)
+    interface PartitionCase02 {
+        void onType();
+
+        @OfPartition(3)
+        void onParam(@OfPartition int partition);
+
+        @OfPartition
+        void onMethod01();
+
+        @OfPartition(6)
+        void onMethod02();
+
+        @OfPartition(4)
+        void onParam(@OfPartition Integer partition);
     }
 
     @ByKafka("topic")

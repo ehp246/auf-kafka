@@ -5,13 +5,11 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.serializer.jackson.ToJson;
@@ -23,8 +21,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  *
  */
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, MsgListener.class })
-@EmbeddedKafka(topics = { "embedded" }, partitions = 1)
-@DirtiesContext
+@EmbeddedKafka(topics = { AppConfig.TOPIC }, partitions = 1)
 class BasicTest {
     @Autowired
     private TestCases.Case01 case01;
@@ -38,15 +35,10 @@ class BasicTest {
     @Autowired
     private ToJson toJson;
 
-    @BeforeEach
-    void reset() {
-        listener.reset();
-    }
-
     @Test
     void template_01() {
         final var value = UUID.randomUUID().toString();
-        template.send("embedded", "NewEvent", value);
+        template.send(AppConfig.TOPIC, "NewEvent", value);
 
         final var received = listener.take();
 
@@ -61,7 +53,7 @@ class BasicTest {
 
         final var received = listener.take();
 
-        Assertions.assertEquals(true, received.consumerRecord().topic().equals("embedded"));
+        Assertions.assertEquals(true, received.consumerRecord().topic().equals(AppConfig.TOPIC));
         Assertions.assertEquals("NewEvent", received.lastHeader(AufKafkaConstant.EVENT_HEADER).orElse(null));
     }
 
@@ -72,7 +64,7 @@ class BasicTest {
 
         final var received = listener.take();
 
-        Assertions.assertEquals(true, received.consumerRecord().topic().equals("embedded"));
+        Assertions.assertEquals(true, received.consumerRecord().topic().equals(AppConfig.TOPIC));
         Assertions.assertEquals(eventType, received.lastHeader(AufKafkaConstant.EVENT_HEADER).orElse(null));
     }
 
@@ -82,7 +74,7 @@ class BasicTest {
 
         final var received = listener.take();
 
-        Assertions.assertEquals(true, received.consumerRecord().topic().equals("embedded"));
+        Assertions.assertEquals(true, received.consumerRecord().topic().equals(AppConfig.TOPIC));
         Assertions.assertEquals(null, received.consumerRecord().key());
     }
 
@@ -93,7 +85,7 @@ class BasicTest {
 
         final var received = listener.take();
 
-        Assertions.assertEquals(true, received.topic().equals("embedded"));
+        Assertions.assertEquals(true, received.topic().equals(AppConfig.TOPIC));
         Assertions.assertEquals("NewEvent", received.lastHeader(AufKafkaConstant.EVENT_HEADER).orElse(null));
         Assertions.assertEquals(true, received.key().equals(companyId));
     }

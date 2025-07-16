@@ -1,4 +1,4 @@
-package me.ehp246.test.embedded.producer.basic;
+package me.ehp246.test.embedded.producer.partition;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
