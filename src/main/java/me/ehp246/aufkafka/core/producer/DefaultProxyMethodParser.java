@@ -120,7 +120,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
 
         return new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder,
                 valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, typeOf), headerBinder(reflected),
-                headerStatic(reflected, byKafka.methodAsEvent()));
+                headerStatic(reflected, byKafka.header(), byKafka.methodAsEvent()));
     }
 
     private Map<Integer, HeaderParam> headerBinder(final ReflectedMethod reflected) {
@@ -134,10 +134,8 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
         return headerBinder;
     }
 
-    private List<OutboundEvent.Header> headerStatic(final ReflectedMethod reflected, final String methodAsEvent) {
-        final var typeHeaders = Optional
-                .ofNullable(reflected.method().getDeclaringClass().getAnnotation(OfHeader.class)).map(OfHeader::value)
-                .orElse(new String[] {});
+    private List<OutboundEvent.Header> headerStatic(final ReflectedMethod reflected, final String[] typeHeaders,
+            final String methodAsEvent) {
         if ((typeHeaders.length & 1) != 0) {
             throw new IllegalArgumentException(
                     "Headers are not in key/value pairs on " + reflected.method().getDeclaringClass());

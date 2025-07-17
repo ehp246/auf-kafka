@@ -78,4 +78,31 @@ public @interface ByKafka {
      * If set empty string, no such header will be included.
      */
     String methodAsEvent() default AufKafkaConstant.EVENT_HEADER;
+
+    /**
+     * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs for
+     * out-going messages.
+     * <p>
+     * E.g.,
+     * <p>
+     * <code>
+     *     { "AppName", "AufKafka", "AppVersion", "1.0", ... }
+     * </code>
+     * <p>
+     * Must be specified in pairs. Missing value will trigger an exception.
+     * <p>
+     * E.g., the following is missing value for property '{@code appVersion}' and
+     * will result an exception.
+     * <p>
+     * <code>
+     *     { "AppVersion" }
+     * </code>
+     * <p>
+     * Spring property placeholder and SpEL expression are supported on values but
+     * not on keys.
+     *
+     * @see OfHeader
+     * 
+     */
+    String[] header() default {};
 }
