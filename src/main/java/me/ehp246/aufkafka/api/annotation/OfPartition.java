@@ -30,9 +30,9 @@ import me.ehp246.aufkafka.api.producer.OutboundEvent;
  * </ul>
  * <p>
  * When applied to a method, all out-going messages will have the specified
- * partition value unless it's overridden by a parameter. In this case, Spring
- * property placeholder and SpEL expression are supported on values but not on
- * keys.
+ * partition value unless it's overridden by an annotated parameter. In this
+ * case, the value must not be negative. Negative value means <code>null</code>
+ * for partition.
  * <p>
  * On the consumer side, when applied to a parameter of the
  * {@linkplain Applying} method, it specifies the injection point for

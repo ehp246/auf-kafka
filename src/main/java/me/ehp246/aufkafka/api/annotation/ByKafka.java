@@ -38,6 +38,13 @@ public @interface ByKafka {
      */
     String value();
 
+    /**
+     * Specifies the value for {@linkplain ProducerRecord#partition()}.
+     * <p>
+     * Negative value sets it to <code>null</code>.
+     * 
+     * @see OfPartition
+     */
     int partition() default -1;
 
     /**
