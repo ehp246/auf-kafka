@@ -52,6 +52,8 @@ public @interface ByKafka {
     /**
      * Specifies the value for {@linkplain ProducerRecord#key()}.
      * <p>
+     * Blank value means un-specified.
+     * <p>
      * Spring property placeholder and SpEL expression are supported.
      * 
      * @see OfKey
