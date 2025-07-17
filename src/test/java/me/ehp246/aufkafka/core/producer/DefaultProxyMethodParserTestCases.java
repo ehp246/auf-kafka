@@ -72,8 +72,7 @@ interface DefaultProxyMethodParserTestCases {
         void onMethod02();
     }
 
-    @ByKafka("")
-    @OfPartition(2)
+    @ByKafka(value = "", partition = 2)
     interface PartitionCase02 {
         void onType();
 

@@ -48,7 +48,7 @@ import me.ehp246.aufkafka.api.producer.OutboundEvent;
  */
 @Documented
 @Retention(RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.METHOD, ElementType.TYPE })
+@Target({ ElementType.PARAMETER, ElementType.METHOD })
 public @interface OfPartition {
     int value() default -1;
 }

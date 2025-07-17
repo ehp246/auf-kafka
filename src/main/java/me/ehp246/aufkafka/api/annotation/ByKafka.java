@@ -38,6 +38,8 @@ public @interface ByKafka {
      */
     String value();
 
+    int partition() default -1;
+
     /**
      * Specifies a bean name by which the interface can be injected.
      * <p>

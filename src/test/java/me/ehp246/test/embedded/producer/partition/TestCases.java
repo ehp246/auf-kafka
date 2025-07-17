@@ -1,8 +1,9 @@
 package me.ehp246.test.embedded.producer.partition;
 
+import org.apache.kafka.clients.producer.ProducerRecord;
+
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
-import me.ehp246.aufkafka.api.producer.ProducerFn.ProducerFnRecord;
 
 /**
  * @author Lei Yang
@@ -14,23 +15,25 @@ interface TestCases {
         void onParam(@OfPartition int partition);
 
         @OfPartition
-        ProducerFnRecord onMethod01();
+        ProducerRecord<String, String> onMethod01();
 
         @OfPartition(6)
-        void onMethod02();
+        ProducerRecord<String, String> onMethod02();
     }
 
-    @ByKafka(value = AppConfig.TOPIC)
-    @OfPartition(2)
+    @ByKafka(value = AppConfig.TOPIC, partition = 2)
     interface Case02 {
         void onType();
 
-        void onParam(@OfPartition int partition);
+        ProducerRecord<String, String> onParam(@OfPartition Integer partition);
+
+        @OfPartition(7)
+        ProducerRecord<String, String> onParam02(@OfPartition Integer partition);
 
         @OfPartition
-        void onMethod01();
+        ProducerRecord<String, String> onMethod01();
 
         @OfPartition(6)
-        void onMethod02();
+        ProducerRecord<String, String> onMethod02();
     }
 }

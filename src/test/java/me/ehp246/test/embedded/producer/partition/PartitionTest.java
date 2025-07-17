@@ -1,6 +1,7 @@
 package me.ehp246.test.embedded.producer.partition;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +20,15 @@ class PartitionTest {
     private TestCases.Case01 case01;
 
     @Autowired
+    private TestCases.Case02 case02;
+
+    @Autowired
     private MsgListener listener;
+
+    @BeforeEach
+    void reset() {
+        this.listener.reset();
+    }
 
     @Test
     void partition_01() {
@@ -27,11 +36,52 @@ class PartitionTest {
 
         this.case01.onParam(expected);
 
-        Assertions.assertEquals(expected, listener.take().partition());
+        Assertions.assertEquals(expected, listener.get().partition());
     }
 
     @Test
     void partition_02() {
-        Assertions.assertEquals(null, this.case01.onMethod01().record().partition());
+        Assertions.assertEquals(null, this.case01.onMethod01().partition());
+    }
+
+    @Test
+    void partition_03() {
+        Assertions.assertEquals(6, this.case01.onMethod02().partition());
+    }
+
+    @Test
+    void partition_04() {
+        this.case02.onType();
+
+        Assertions.assertEquals(2, this.listener.get().consumerRecord().partition());
+    }
+
+    @Test
+    void partition_05() {
+        this.case02.onParam(0);
+
+        Assertions.assertEquals(0, this.listener.get().consumerRecord().partition());
+    }
+
+    @Test
+    void partition_06() {
+        Assertions.assertEquals(null, this.case02.onParam(null).partition(), "should follow the specified");
+    }
+
+    @Test
+    void partition_07() {
+        Assertions.assertEquals(null, this.case02.onMethod01().partition());
+    }
+
+    @Test
+    void partition_08() {
+        Assertions.assertEquals(6, this.case02.onMethod02().partition());
+        Assertions.assertEquals(6, this.listener.get().consumerRecord().partition());
+    }
+
+    @Test
+    void partition_09() {
+        Assertions.assertEquals(1, this.case02.onParam02(1).partition());
+        Assertions.assertEquals(null, this.case02.onParam02(null).partition());
     }
 }

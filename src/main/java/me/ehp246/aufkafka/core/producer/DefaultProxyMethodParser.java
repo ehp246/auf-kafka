@@ -84,10 +84,13 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
             }
             return (Function<Object[], Integer>) args -> (Integer) args[index];
         }).orElseGet(() -> reflected.findOnMethodUp(OfPartition.class).map(of -> {
-            final Integer partition = of.value();
-            return partition < 0 ? (Function<Object[], Integer>) args -> null
-                    : (Function<Object[], Integer>) args -> partition;
-        }).orElseGet(() -> args -> null));
+            final Integer method = of.value();
+            return method < 0 ? (Function<Object[], Integer>) args -> null
+                    : (Function<Object[], Integer>) args -> method;
+        }).orElseGet(() -> {
+            final Integer global = byKafka.partition() < 0 ? null : byKafka.partition();
+            return args -> global;
+        }));
 
         final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream().findFirst().map(p -> {
             final var index = p.index();
