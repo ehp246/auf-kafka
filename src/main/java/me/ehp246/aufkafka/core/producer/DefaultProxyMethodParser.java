@@ -73,12 +73,12 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                 .map(p -> (Function<Object[], String>) args -> {
                     final var value = args[p.index()];
                     return value == null ? null : value + "";
-                }).orElseGet(() -> reflected.findOnMethodUp(OfKey.class).map(ofKey -> {
-                    final var key = ofKey.value();
+                }).orElseGet(() -> reflected.findOnMethodUp(OfKey.class).map(of -> {
+                    final var key = expressionResolver.apply(of.value());
                     return key.isBlank() ? (Function<Object[], String>) args -> null
                             : (Function<Object[], String>) args -> key;
                 }).orElseGet(() -> {
-                    final var global = byKafka.key().isBlank() ? null : byKafka.key();
+                    final var global = byKafka.key().isBlank() ? null : expressionResolver.apply(byKafka.key());
                     return args -> global;
                 }));
 

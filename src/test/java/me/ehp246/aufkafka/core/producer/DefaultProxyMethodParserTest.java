@@ -24,6 +24,8 @@ import me.ehp246.test.TestUtil;
 class DefaultProxyMethodParserTest {
     private final ProxyMethodParser parser = new DefaultProxyMethodParser(
             new MockEnvironment().withProperty("method.topic.name", "666d98f8-7be4-49da-8de4-f35149624c64")
+                    .withProperty("key.type", "b2f7b595-642d-4bd0-a63a-c76e26ff0c76")
+                    .withProperty("key.m03", "f5e2c26a-5a01-4f07-9db1-2d5d841c0583")
                     .withProperty("topic.name", "bc5beb1b-569c-4055-bedf-3b06f9af2e5d")::resolvePlaceholders);
 
     @Test
@@ -207,6 +209,30 @@ class DefaultProxyMethodParserTest {
                 .apply(captor.invocation().target(), captor.invocation().args());
 
         Assertions.assertEquals(null, event.key(), "should surpress the value on type");
+    }
+
+    @Test
+    void key3_01() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase03.class);
+
+        captor.proxy().m03();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals("f5e2c26a-5a01-4f07-9db1-2d5d841c0583", event.key());
+    }
+
+    @Test
+    void key3_02() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase03.class);
+
+        captor.proxy().m01();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals("b2f7b595-642d-4bd0-a63a-c76e26ff0c76", event.key());
     }
 
     @Test

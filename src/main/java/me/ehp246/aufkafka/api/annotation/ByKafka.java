@@ -49,6 +49,13 @@ public @interface ByKafka {
      */
     int partition() default -1;
 
+    /**
+     * Specifies the value for {@linkplain ProducerRecord#key()}.
+     * <p>
+     * Spring property placeholder and SpEL expression are supported.
+     * 
+     * @see OfKey
+     */
     String key() default "";
 
     /**

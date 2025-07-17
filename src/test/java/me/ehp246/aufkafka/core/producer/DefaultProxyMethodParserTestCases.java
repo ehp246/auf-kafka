@@ -62,6 +62,14 @@ interface DefaultProxyMethodParserTestCases {
         void m04();
     }
 
+    @ByKafka(value = "", key = "${key.type}")
+    interface KeyCase03 {
+        void m01();
+
+        @OfKey("${key.m03}")
+        void m03();
+    }
+
     @ByKafka("topic")
     interface EventTypeCase01 {
         void m01();
