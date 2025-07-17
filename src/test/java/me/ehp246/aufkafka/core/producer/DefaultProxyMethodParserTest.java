@@ -136,6 +136,42 @@ class DefaultProxyMethodParserTest {
     }
 
     @Test
+    void key2_01() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase02.class);
+
+        captor.proxy().m01();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals("244c50cd-3624-4194-9546-86c486281b4f", event.key());
+    }
+
+    @Test
+    void key2_02() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase02.class);
+
+        captor.proxy().m04();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals("887114e5-5770-4f7f-b0c6-e0803753eb58", event.key());
+    }
+
+    @Test
+    void key2_03() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase02.class);
+
+        captor.proxy().m03();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(null, event.key(), "should surpress the value on type");
+    }
+
+    @Test
     void event_01() throws Throwable {
         final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.EventTypeCase01.class);
 

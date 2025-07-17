@@ -45,6 +45,17 @@ interface DefaultProxyMethodParserTestCases {
         void m04();
     }
 
+    @ByKafka(value = "", key = "244c50cd-3624-4194-9546-86c486281b4f")
+    interface KeyCase02 {
+        void m01();
+
+        @OfKey
+        void m03();
+
+        @OfKey("887114e5-5770-4f7f-b0c6-e0803753eb58")
+        void m04();
+    }
+
     @ByKafka("topic")
     interface EventTypeCase01 {
         void m01();

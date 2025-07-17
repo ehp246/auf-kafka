@@ -47,37 +47,7 @@ public @interface ByKafka {
      */
     int partition() default -1;
 
-    /**
-     * Specifies a bean name by which the interface can be injected.
-     * <p>
-     * The default is from {@link Class#getSimpleName()} with the first letter in
-     * lower-case.
-     *
-     * @return the bean name of the interface.
-     * @see Qualifier
-     */
-    String name() default "";
-
-    /**
-     * Specifies the name to pass to {@linkplain ProducerConfigProvider} to retrieve
-     * producer configuration with which a {@linkplain Producer} is to be created.
-     * Each unique name will result in a single {@linkplain Producer} instance,
-     * i.e., the same instance could be re-used by multiple proxies.
-     * 
-     * @see ProducerFnProvider
-     * @see ProducerConfigProvider
-     */
-    String configName() default "";
-
-    /**
-     * Specifies the header key for the method name.
-     * <p>
-     * The value of the header is the method name with the first letter changed to
-     * upper case.
-     * <p>
-     * If set empty string, no such header will be included.
-     */
-    String methodAsEvent() default AufKafkaConstant.EVENT_HEADER;
+    String key() default "";
 
     /**
      * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs for
@@ -105,4 +75,36 @@ public @interface ByKafka {
      * 
      */
     String[] header() default {};
+
+    /**
+     * Specifies the header key for the method name.
+     * <p>
+     * The value of the header is the method name with the first letter changed to
+     * upper case.
+     * <p>
+     * If set empty string, no such header will be included.
+     */
+    String methodAsEvent() default AufKafkaConstant.EVENT_HEADER;
+
+    /**
+     * Specifies a bean name by which the interface can be injected.
+     * <p>
+     * The default is from {@link Class#getSimpleName()} with the first letter in
+     * lower-case.
+     *
+     * @return the bean name of the interface.
+     * @see Qualifier
+     */
+    String name() default "";
+
+    /**
+     * Specifies the name to pass to {@linkplain ProducerConfigProvider} to retrieve
+     * producer configuration with which a {@linkplain Producer} is to be created.
+     * Each unique name will result in a single {@linkplain Producer} instance,
+     * i.e., the same instance could be re-used by multiple proxies.
+     * 
+     * @see ProducerFnProvider
+     * @see ProducerConfigProvider
+     */
+    String configName() default "";
 }

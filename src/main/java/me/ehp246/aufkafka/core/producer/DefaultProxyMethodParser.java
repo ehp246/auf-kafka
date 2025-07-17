@@ -73,7 +73,10 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                     final var key = ofKey.value();
                     return key.isBlank() ? (Function<Object[], String>) args -> null
                             : (Function<Object[], String>) args -> key;
-                }).orElseGet(() -> args -> null));
+                }).orElseGet(() -> {
+                    final var global = byKafka.key().isBlank() ? null : byKafka.key();
+                    return args -> global;
+                }));
 
         final var partitionBinder = reflected.allParametersWith(OfPartition.class).stream().findFirst().map(p -> {
             final var index = p.index();
