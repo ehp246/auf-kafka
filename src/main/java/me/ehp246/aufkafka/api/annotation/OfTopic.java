@@ -1,9 +1,9 @@
 package me.ehp246.aufkafka.api.annotation;
 
-import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
@@ -21,6 +21,10 @@ import me.ehp246.aufkafka.api.consumer.EventInvocable;
  */
 @Documented
 @Retention(RUNTIME)
-@Target(PARAMETER)
+@Target({ ElementType.PARAMETER, ElementType.METHOD })
 public @interface OfTopic {
+    /**
+     * Spring property placeholder and SpEL expression are supported.
+     */
+    String value() default "";
 }

@@ -35,6 +35,8 @@ import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 public @interface ByKafka {
     /**
      * Specifies the value for {@linkplain ProducerRecord#topic()}.
+     * <p>
+     * Spring property placeholder and SpEL expression are supported.
      */
     String value();
 

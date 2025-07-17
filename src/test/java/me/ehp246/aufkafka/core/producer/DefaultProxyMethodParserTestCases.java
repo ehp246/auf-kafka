@@ -24,6 +24,12 @@ interface DefaultProxyMethodParserTestCases {
         void m01();
 
         void m02(@OfTopic String topic);
+
+        @OfTopic("22c33a9d-24ec-438c-a8d7-d4821fde0bea")
+        void m03(@OfTopic String topic);
+
+        @OfTopic("${method.topic.name}")
+        void m03();
     }
 
     @ByKafka("${topic.name}")

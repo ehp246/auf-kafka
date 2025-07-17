@@ -60,10 +60,14 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                 .map(p -> (Function<Object[], String>) args -> {
                     final Object value = args[p.index()];
                     return value == null ? null : value + "";
+                }).orElseGet(() -> reflected.findOnMethodUp(OfTopic.class).map(of -> {
+                    final var topic = expressionResolver.apply(of.value());
+                    return topic.isBlank() ? (Function<Object[], String>) args -> null
+                            : (Function<Object[], String>) args -> topic;
                 }).orElseGet(() -> {
                     final var topic = expressionResolver.apply(byKafka.value());
                     return (Function<Object[], String>) args -> topic;
-                });
+                }));
 
         final var keyBinder = reflected.allParametersWith(OfKey.class).stream().findFirst()
                 .map(p -> (Function<Object[], String>) args -> {

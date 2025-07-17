@@ -22,8 +22,9 @@ import me.ehp246.test.TestUtil;
  *
  */
 class DefaultProxyMethodParserTest {
-    private final ProxyMethodParser parser = new DefaultProxyMethodParser(new MockEnvironment()
-            .withProperty("topic.name", "bc5beb1b-569c-4055-bedf-3b06f9af2e5d")::resolvePlaceholders);
+    private final ProxyMethodParser parser = new DefaultProxyMethodParser(
+            new MockEnvironment().withProperty("method.topic.name", "666d98f8-7be4-49da-8de4-f35149624c64")
+                    .withProperty("topic.name", "bc5beb1b-569c-4055-bedf-3b06f9af2e5d")::resolvePlaceholders);
 
     @Test
     void topic_01() throws Throwable {
@@ -72,6 +73,43 @@ class DefaultProxyMethodParserTest {
                 .apply(captor.invocation().target(), captor.invocation().args());
 
         Assertions.assertEquals("bc5beb1b-569c-4055-bedf-3b06f9af2e5d", event.topic());
+    }
+
+    @Test
+    void topic_05() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TopicCase01.class);
+
+        captor.proxy().m03();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals("666d98f8-7be4-49da-8de4-f35149624c64", event.topic());
+    }
+
+    @Test
+    void topic_06() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TopicCase01.class);
+
+        captor.proxy().m03(null);
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(null, event.topic());
+    }
+
+    @Test
+    void topic_07() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TopicCase01.class);
+
+        final var expected = UUID.randomUUID().toString();
+        captor.proxy().m03(expected);
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(expected, event.topic());
     }
 
     @Test
