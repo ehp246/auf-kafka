@@ -24,6 +24,12 @@ interface DefaultProxyMethodParserTestCases {
         void m01();
 
         void m02(@OfTopic String topic);
+
+        @OfTopic("22c33a9d-24ec-438c-a8d7-d4821fde0bea")
+        void m03(@OfTopic String topic);
+
+        @OfTopic("${method.topic.name}")
+        void m03();
     }
 
     @ByKafka("${topic.name}")
@@ -45,6 +51,25 @@ interface DefaultProxyMethodParserTestCases {
         void m04();
     }
 
+    @ByKafka(value = "", key = "244c50cd-3624-4194-9546-86c486281b4f")
+    interface KeyCase02 {
+        void m01();
+
+        @OfKey
+        void m03();
+
+        @OfKey("887114e5-5770-4f7f-b0c6-e0803753eb58")
+        void m04();
+    }
+
+    @ByKafka(value = "", key = "${key.type}")
+    interface KeyCase03 {
+        void m01();
+
+        @OfKey("${key.m03}")
+        void m03();
+    }
+
     @ByKafka("topic")
     interface EventTypeCase01 {
         void m01();
@@ -64,6 +89,29 @@ interface DefaultProxyMethodParserTestCases {
          * Unsupported
          */
         void m04(@OfPartition String partition);
+
+        @OfPartition
+        void onMethod01();
+
+        @OfPartition(6)
+        void onMethod02();
+    }
+
+    @ByKafka(value = "", partition = 2)
+    interface PartitionCase02 {
+        void onType();
+
+        @OfPartition(3)
+        void onParam(@OfPartition int partition);
+
+        @OfPartition
+        void onMethod01();
+
+        @OfPartition(6)
+        void onMethod02();
+
+        @OfPartition(4)
+        void onParam(@OfPartition Integer partition);
     }
 
     @ByKafka("topic")
@@ -88,8 +136,8 @@ interface DefaultProxyMethodParserTestCases {
         void m04(UUID uuid, @OfValue UUID value);
     }
 
-    @ByKafka(value = "topic", methodAsEvent = "")
-    @OfHeader({ "header1", "value1", "header2", "value2", "header1", "value2" })
+    @ByKafka(value = "topic", header = { "header1", "value1", "header2", "value2", "header1",
+            "value2" }, methodAsEvent = "")
     interface HeaderCase01 {
         void m01();
 
@@ -103,8 +151,7 @@ interface DefaultProxyMethodParserTestCases {
         void m03(@OfHeader("header1") Object value1, @OfHeader("header1") Object value2);
     }
 
-    @ByKafka(value = "topic", methodAsEvent = "")
-    @OfHeader({ "header1", "${value1}", "header2", "value2" })
+    @ByKafka(value = "topic", methodAsEvent = "", header = { "header1", "${value1}", "header2", "value2" })
     interface HeaderCase03 {
         void m01();
     }

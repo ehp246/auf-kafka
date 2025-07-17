@@ -5,7 +5,6 @@ import java.time.Instant;
 import me.ehp246.aufkafka.api.annotation.ByKafka;
 import me.ehp246.aufkafka.api.annotation.OfHeader;
 import me.ehp246.aufkafka.api.annotation.OfKey;
-import me.ehp246.aufkafka.api.annotation.OfPartition;
 import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.producer.ProducerFn.ProducerFnRecord;
@@ -15,7 +14,7 @@ import me.ehp246.aufkafka.api.producer.ProducerFn.ProducerFnRecord;
  *
  */
 interface TestCases {
-    @ByKafka(value = "embedded")
+    @ByKafka(value = AppConfig.TOPIC)
     interface Case01 {
         void newEvent();
 
@@ -28,7 +27,5 @@ interface TestCases {
         void newEvent(@OfTimestamp Instant timestamp);
 
         void newEvent(@OfTimestamp Long timestamp);
-
-        void newEventWithPartition(@OfPartition Object partitionKey);
     }
 }

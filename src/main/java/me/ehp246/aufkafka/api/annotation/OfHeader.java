@@ -52,7 +52,7 @@ import me.ehp246.aufkafka.api.consumer.EventInvocable;
  *      Names at Runtime</a>
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.PARAMETER, ElementType.METHOD, ElementType.TYPE })
+@Target({ ElementType.PARAMETER, ElementType.METHOD })
 public @interface OfHeader {
     /**
      * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs.

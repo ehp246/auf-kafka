@@ -22,8 +22,11 @@ import me.ehp246.test.TestUtil;
  *
  */
 class DefaultProxyMethodParserTest {
-    private final ProxyMethodParser parser = new DefaultProxyMethodParser(new MockEnvironment()
-            .withProperty("topic.name", "bc5beb1b-569c-4055-bedf-3b06f9af2e5d")::resolvePlaceholders);
+    private final ProxyMethodParser parser = new DefaultProxyMethodParser(
+            new MockEnvironment().withProperty("method.topic.name", "666d98f8-7be4-49da-8de4-f35149624c64")
+                    .withProperty("key.type", "b2f7b595-642d-4bd0-a63a-c76e26ff0c76")
+                    .withProperty("key.m03", "f5e2c26a-5a01-4f07-9db1-2d5d841c0583")
+                    .withProperty("topic.name", "bc5beb1b-569c-4055-bedf-3b06f9af2e5d")::resolvePlaceholders);
 
     @Test
     void topic_01() throws Throwable {
@@ -72,6 +75,43 @@ class DefaultProxyMethodParserTest {
                 .apply(captor.invocation().target(), captor.invocation().args());
 
         Assertions.assertEquals("bc5beb1b-569c-4055-bedf-3b06f9af2e5d", event.topic());
+    }
+
+    @Test
+    void topic_05() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TopicCase01.class);
+
+        captor.proxy().m03();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals("666d98f8-7be4-49da-8de4-f35149624c64", event.topic());
+    }
+
+    @Test
+    void topic_06() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TopicCase01.class);
+
+        captor.proxy().m03(null);
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(null, event.topic());
+    }
+
+    @Test
+    void topic_07() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.TopicCase01.class);
+
+        final var expected = UUID.randomUUID().toString();
+        captor.proxy().m03(expected);
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(expected, event.topic());
     }
 
     @Test
@@ -133,6 +173,66 @@ class DefaultProxyMethodParserTest {
                 .apply(captor.invocation().target(), captor.invocation().args());
 
         Assertions.assertEquals("887114e5-5770-4f7f-b0c6-e0803753eb58", event.key(), "should follow annotation");
+    }
+
+    @Test
+    void key2_01() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase02.class);
+
+        captor.proxy().m01();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals("244c50cd-3624-4194-9546-86c486281b4f", event.key());
+    }
+
+    @Test
+    void key2_02() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase02.class);
+
+        captor.proxy().m04();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals("887114e5-5770-4f7f-b0c6-e0803753eb58", event.key());
+    }
+
+    @Test
+    void key2_03() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase02.class);
+
+        captor.proxy().m03();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(null, event.key(), "should surpress the value on type");
+    }
+
+    @Test
+    void key3_01() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase03.class);
+
+        captor.proxy().m03();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals("f5e2c26a-5a01-4f07-9db1-2d5d841c0583", event.key());
+    }
+
+    @Test
+    void key3_02() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.KeyCase03.class);
+
+        captor.proxy().m01();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals("b2f7b595-642d-4bd0-a63a-c76e26ff0c76", event.key());
     }
 
     @Test
@@ -229,6 +329,92 @@ class DefaultProxyMethodParserTest {
         captor.proxy().m04(null);
 
         Assertions.assertThrows(UnsupportedOperationException.class, () -> parser.parse(captor.invocation().method()));
+    }
+
+    @Test
+    void partition_06() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase01.class);
+
+        captor.proxy().onMethod01();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(null, event.partition(), "should not be specified by negative value");
+    }
+
+    @Test
+    void partition_07() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase01.class);
+
+        captor.proxy().onMethod02();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(6, event.partition());
+    }
+
+    @Test
+    void partition_08() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase02.class);
+
+        captor.proxy().onType();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(2, event.partition());
+    }
+
+    @Test
+    void partition_09() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase02.class);
+
+        final var expected = 12;
+
+        captor.proxy().onParam(expected);
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(expected, event.partition());
+    }
+
+    @Test
+    void partition_10() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase02.class);
+
+        captor.proxy().onMethod01();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(null, event.partition(), "should surpress");
+    }
+
+    @Test
+    void partition_11() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase02.class);
+
+        captor.proxy().onMethod02();
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(6, event.partition());
+    }
+
+    @Test
+    void partition_12() throws Throwable {
+        final var captor = TestUtil.newCaptor(DefaultProxyMethodParserTestCases.PartitionCase02.class);
+
+        captor.proxy().onParam(null);
+
+        final var event = parser.parse(captor.invocation().method()).invocationBinder()
+                .apply(captor.invocation().target(), captor.invocation().args());
+
+        Assertions.assertEquals(null, event.partition(), "should follow the parameter");
     }
 
     @Test

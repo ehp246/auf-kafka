@@ -1,4 +1,4 @@
-package me.ehp246.test.embedded.producer.basic;
+package me.ehp246.test.embedded.producer.partition;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -17,14 +17,16 @@ class MsgListener {
     private final AtomicReference<CompletableFuture<InboundEvent>> ref = new AtomicReference<>(
             new CompletableFuture<InboundEvent>());
 
+    void reset() {
+        ref.set(new CompletableFuture<InboundEvent>());
+    }
+
     @KafkaListener(topics = AppConfig.TOPIC)
     void onMsg(final ConsumerRecord<String, String> received) {
         ref.get().complete(new InboundEvent(received));
     }
 
-    InboundEvent take() {
-        final var value = OneUtil.orThrow(() -> ref.get().get());
-        ref.set(new CompletableFuture<InboundEvent>());
-        return value;
+    InboundEvent get() {
+        return OneUtil.orThrow(ref.get()::get);
     }
 }

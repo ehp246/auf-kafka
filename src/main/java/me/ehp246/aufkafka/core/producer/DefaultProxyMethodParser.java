@@ -60,20 +60,27 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                 .map(p -> (Function<Object[], String>) args -> {
                     final Object value = args[p.index()];
                     return value == null ? null : value + "";
+                }).orElseGet(() -> reflected.findOnMethodUp(OfTopic.class).map(of -> {
+                    final var topic = expressionResolver.apply(of.value());
+                    return topic.isBlank() ? (Function<Object[], String>) args -> null
+                            : (Function<Object[], String>) args -> topic;
                 }).orElseGet(() -> {
                     final var topic = expressionResolver.apply(byKafka.value());
                     return (Function<Object[], String>) args -> topic;
-                });
+                }));
 
         final var keyBinder = reflected.allParametersWith(OfKey.class).stream().findFirst()
                 .map(p -> (Function<Object[], String>) args -> {
                     final var value = args[p.index()];
                     return value == null ? null : value + "";
-                }).orElseGet(() -> reflected.findOnMethodUp(OfKey.class).map(ofKey -> {
-                    final var key = ofKey.value();
+                }).orElseGet(() -> reflected.findOnMethodUp(OfKey.class).map(of -> {
+                    final var key = expressionResolver.apply(of.value());
                     return key.isBlank() ? (Function<Object[], String>) args -> null
                             : (Function<Object[], String>) args -> key;
-                }).orElseGet(() -> args -> null));
+                }).orElseGet(() -> {
+                    final var global = byKafka.key().isBlank() ? null : expressionResolver.apply(byKafka.key());
+                    return args -> global;
+                }));
 
         final var partitionBinder = reflected.allParametersWith(OfPartition.class).stream().findFirst().map(p -> {
             final var index = p.index();
@@ -83,8 +90,14 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
                         "Un-supported type on parameter " + index + " of " + reflected.method());
             }
             return (Function<Object[], Integer>) args -> (Integer) args[index];
-
-        }).orElseGet(() -> args -> null);
+        }).orElseGet(() -> reflected.findOnMethodUp(OfPartition.class).map(of -> {
+            final Integer method = of.value();
+            return method < 0 ? (Function<Object[], Integer>) args -> null
+                    : (Function<Object[], Integer>) args -> method;
+        }).orElseGet(() -> {
+            final Integer global = byKafka.partition() < 0 ? null : byKafka.partition();
+            return args -> global;
+        }));
 
         final var timestampBinder = reflected.allParametersWith(OfTimestamp.class).stream().findFirst().map(p -> {
             final var index = p.index();
@@ -114,7 +127,7 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
 
         return new DefaultProxyInvocationBinder(topicBinder, keyBinder, partitionBinder, timestampBinder,
                 valueParamIndex == -1 ? null : new ValueParam(valueParamIndex, typeOf), headerBinder(reflected),
-                headerStatic(reflected, byKafka.methodAsEvent()));
+                headerStatic(reflected, byKafka.header(), byKafka.methodAsEvent()));
     }
 
     private Map<Integer, HeaderParam> headerBinder(final ReflectedMethod reflected) {
@@ -128,10 +141,8 @@ public final class DefaultProxyMethodParser implements ProxyMethodParser {
         return headerBinder;
     }
 
-    private List<OutboundEvent.Header> headerStatic(final ReflectedMethod reflected, final String methodAsEvent) {
-        final var typeHeaders = Optional
-                .ofNullable(reflected.method().getDeclaringClass().getAnnotation(OfHeader.class)).map(OfHeader::value)
-                .orElse(new String[] {});
+    private List<OutboundEvent.Header> headerStatic(final ReflectedMethod reflected, final String[] typeHeaders,
+            final String methodAsEvent) {
         if ((typeHeaders.length & 1) != 0) {
             throw new IllegalArgumentException(
                     "Headers are not in key/value pairs on " + reflected.method().getDeclaringClass());

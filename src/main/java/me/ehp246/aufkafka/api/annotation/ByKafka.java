@@ -35,8 +35,67 @@ import me.ehp246.aufkafka.api.producer.ProducerFnProvider;
 public @interface ByKafka {
     /**
      * Specifies the value for {@linkplain ProducerRecord#topic()}.
+     * <p>
+     * Spring property placeholder and SpEL expression are supported.
      */
     String value();
+
+    /**
+     * Specifies the value for {@linkplain ProducerRecord#partition()}.
+     * <p>
+     * Negative value sets it to <code>null</code>.
+     * 
+     * @see OfPartition
+     */
+    int partition() default -1;
+
+    /**
+     * Specifies the value for {@linkplain ProducerRecord#key()}.
+     * <p>
+     * Blank value means un-specified.
+     * <p>
+     * Spring property placeholder and SpEL expression are supported.
+     * 
+     * @see OfKey
+     */
+    String key() default "";
+
+    /**
+     * Specifies {@linkplain ProducerRecord#headers() header} key/value pairs for
+     * out-going messages.
+     * <p>
+     * E.g.,
+     * <p>
+     * <code>
+     *     { "AppName", "AufKafka", "AppVersion", "1.0", ... }
+     * </code>
+     * <p>
+     * Must be specified in pairs. Missing value will trigger an exception.
+     * <p>
+     * E.g., the following is missing value for property '{@code appVersion}' and
+     * will result an exception.
+     * <p>
+     * <code>
+     *     { "AppVersion" }
+     * </code>
+     * <p>
+     * Spring property placeholder and SpEL expression are supported on values but
+     * not on keys.
+     *
+     * @see OfHeader
+     * 
+     */
+    String[] header() default {};
+
+    /**
+     * Specifies the header key for the method name.
+     * <p>
+     * The value of the header is the method name with the first letter changed to
+     * upper case.
+     * <p>
+     * If set empty string, no such header will be included.
+     */
+    String methodAsEvent() default AufKafkaConstant.EVENT_HEADER;
 
     /**
      * Specifies a bean name by which the interface can be injected.
@@ -59,14 +118,4 @@ public @interface ByKafka {
      * @see ProducerConfigProvider
      */
     String configName() default "";
-
-    /**
-     * Specifies the header key for the method name.
-     * <p>
-     * The value of the header is the method name with the first letter changed to
-     * upper case.
-     * <p>
-     * If set empty string, no such header will be included.
-     */
-    String methodAsEvent() default AufKafkaConstant.EVENT_HEADER;
 }
