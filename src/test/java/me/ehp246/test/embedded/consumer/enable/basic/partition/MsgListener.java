@@ -20,6 +20,9 @@ class MsgListener {
 
     @KafkaListener(topicPartitions = @TopicPartition(topic = AppConfig.TOPIC, partitions = "4"), groupId = "59ed3099-0f0d-40be-90af-5ac9e2ddf517")
     void onMsg(final ConsumerRecord<String, String> received) {
+        if (ref.get().isDone()) {
+            throw new RuntimeException("Has been completed");
+        }
         ref.get().complete(new InboundEvent(received));
     }
 

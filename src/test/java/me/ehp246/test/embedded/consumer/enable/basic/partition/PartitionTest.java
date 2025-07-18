@@ -1,7 +1,9 @@
 package me.ehp246.test.embedded.consumer.enable.basic.partition;
 
-import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,15 +41,13 @@ class PartitionTest {
     }
 
     @Test
-    void partition_01() throws InterruptedException {
-        final var key = UUID.randomUUID().toString();
+    void partition_01() throws InterruptedException, ExecutionException {
+        final var keys = List.of(UUID.randomUUID().toString(), UUID.randomUUID().toString());
 
-        kafkaTemplate.send(AppConfig.TOPIC, 4, key, null);
+        CompletableFuture.allOf(kafkaTemplate.send(AppConfig.TOPIC, 3, keys.get(0), null),
+                kafkaTemplate.send(AppConfig.TOPIC, 4, keys.get(1), null)).get();
 
-        final var event = listener.take();
-
-        Assertions.assertEquals(key, event.key());
-        Thread.sleep(Duration.ofSeconds(1));
-        Assertions.assertEquals(true, !this.action.future().isDone(), "should not have received anything.");
+        Assertions.assertEquals(keys.get(0), this.action.take().key());
+        Assertions.assertEquals(keys.get(1), this.listener.take().key());
     }
 }

@@ -19,6 +19,9 @@ public class WildcardAction {
             new CompletableFuture<>());
 
     public void apply(InboundEvent event) {
+        if (ref.get().isDone()) {
+            throw new RuntimeException("Has been completed");
+        }
         ref.get().complete(event);
     }
 

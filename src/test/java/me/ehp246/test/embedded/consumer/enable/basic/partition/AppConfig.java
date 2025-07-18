@@ -13,7 +13,7 @@ import me.ehp246.test.mock.WildcardAction;
  */
 @EnableKafka
 @EnableForKafka({
-        @Inbound(value = @From(value = AppConfig.TOPIC, partitions = "${p.3}"), register = WildcardAction.class) })
+        @Inbound(value = @From(value = AppConfig.TOPIC, partitions = { "${p.3}" }), register = WildcardAction.class) })
 class AppConfig {
     final static String TOPIC = "aaa7b9d5-48ad-4542-8290-77c222fc146f";
 }
