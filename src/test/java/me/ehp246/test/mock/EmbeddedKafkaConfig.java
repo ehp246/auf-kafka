@@ -41,7 +41,7 @@ public final class EmbeddedKafkaConfig {
 
     @Bean
     ConsumerFactory<String, String> consumerFactory() {
-        final var configMap = KafkaTestUtils.consumerProps("test", "true", embeddedKafka);
+        final var configMap = KafkaTestUtils.consumerProps("MsgListener", "true", embeddedKafka);
         configMap.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         configMap.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         configMap.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
@@ -60,7 +60,7 @@ public final class EmbeddedKafkaConfig {
 
     @Bean
     ConsumerConfigProvider consumerConfigProvider() {
-        final Map<String, Object> configMap = KafkaTestUtils.consumerProps("test", "true", embeddedKafka);
+        final Map<String, Object> configMap = KafkaTestUtils.consumerProps("InboundConsumer", "true", embeddedKafka);
 
         return name -> configMap;
     }

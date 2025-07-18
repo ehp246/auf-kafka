@@ -195,9 +195,9 @@ public @interface EnableForKafka {
             String value();
 
             /**
-             * 
+             * Supports Spring property placeholder and SpEL expression.
              */
-            int partition() default -1;
+            String[] partitions() default {};
         }
     }
 }

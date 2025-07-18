@@ -1,6 +1,7 @@
 package me.ehp246.aufkafka.api.consumer;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,8 +23,6 @@ public interface InboundEndpoint {
 
     /**
      * Defines optional consumer properties.
-     * 
-     * @return
      */
     default Map<String, Object> consumerProperties() {
         return null;
@@ -51,5 +50,9 @@ public interface InboundEndpoint {
 
     interface From {
         String topic();
+
+        default List<Integer> partitions() {
+            return null;
+        }
     }
 }
