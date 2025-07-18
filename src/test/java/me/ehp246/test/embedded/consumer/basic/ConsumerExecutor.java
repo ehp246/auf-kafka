@@ -34,7 +34,7 @@ class ConsumerExecutor {
         this.recRef.set(new CompletableFuture<ConsumerRecords<String, String>>());
         this.executor.execute(() -> {
             try (final var consumer = this.consumerProvider.get("", Map.of())) {
-                consumer.subscribe(Set.of("embedded"));
+                consumer.subscribe(Set.of(AppConfig.TOPIC));
                 this.recRef.get().complete(consumer.poll(Duration.ofSeconds(100)));
             }
         });

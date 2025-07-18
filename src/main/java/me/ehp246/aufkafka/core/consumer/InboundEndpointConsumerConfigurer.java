@@ -59,7 +59,7 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
 	    LOGGER.atTrace().setMessage("Registering '{}' on '{}'").addArgument(endpoint::name)
 		    .addArgument(() -> endpoint.from().topic()).log();
 
-	    final var consumer = this.consumerProvider.get(endpoint.consumerConfigName(),
+	    final var consumer = this.consumerProvider.get(endpoint.configName(),
 		    endpoint.consumerProperties());
 	    consumer.subscribe(Set.of(endpoint.from().topic()));
 
