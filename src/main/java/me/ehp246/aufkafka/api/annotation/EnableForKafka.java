@@ -194,6 +194,9 @@ public @interface EnableForKafka {
              */
             String value();
 
+            /**
+             * 
+             */
             int partition() default -1;
         }
     }
