@@ -20,7 +20,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  */
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class,
         ConsumerExecutor.class }, webEnvironment = WebEnvironment.NONE)
-@EmbeddedKafka(topics = { "embedded" })
+@EmbeddedKafka(topics = { AppConfig.TOPIC })
 @DirtiesContext
 class BasicTest {
     @Autowired
@@ -33,7 +33,7 @@ class BasicTest {
     void basic_01() throws InterruptedException, ExecutionException {
         final var v1 = UUID.randomUUID().toString();
 
-        template.send("embedded", v1, null).get();
+        template.send(AppConfig.TOPIC, v1, null).get();
 
         executor.startPolling();
 
