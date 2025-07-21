@@ -34,11 +34,10 @@ public final class AnnotatedInboundEndpointRegistrar implements ImportBeanDefini
             return;
         }
 
-        final var inbounds = Arrays
-                .asList(((Map<String, Object>[]) enablerAttributes.get("value")));
+        final var inbounds = Arrays.asList(((Map<String, Object>[]) enablerAttributes.get("value")));
         for (int i = 0; i < inbounds.size(); i++) {
             final var inbound = inbounds.get(i);
-            final var beanDefinition = newBeanDefinition(inbound);
+            final var beanDefinition = newBeanDefinition();
 
             final Set<String> scanPackages;
             final var base = (Class<?>[]) inbound.get("scan");
@@ -50,8 +49,7 @@ public final class AnnotatedInboundEndpointRegistrar implements ImportBeanDefini
                 scanPackages = Set.of(baseName.substring(0, baseName.lastIndexOf(".")));
             }
 
-            final var beanName = Optional.of(inbound.get("name").toString())
-                    .filter(OneUtil::hasValue)
+            final var beanName = Optional.of(inbound.get("name").toString()).filter(OneUtil::hasValue)
                     .orElse(AufKafkaConstant.BEAN_NAME_PREFIX_INBOUND_ENDPOINT + i);
 
             final var constructorArgumentValues = new ConstructorArgumentValues();
@@ -70,8 +68,7 @@ public final class AnnotatedInboundEndpointRegistrar implements ImportBeanDefini
         }
     }
 
-    private GenericBeanDefinition newBeanDefinition(
-            final Map<String, Object> annotationAttributes) {
+    private GenericBeanDefinition newBeanDefinition() {
         final var beanDefinition = new GenericBeanDefinition();
         beanDefinition.setBeanClass(InboundEndpoint.class);
         beanDefinition.setFactoryBeanName(InboundEndpointFactory.class.getName());

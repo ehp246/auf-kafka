@@ -70,7 +70,8 @@ public final class InboundEndpointFactory {
         final InboundEndpoint.From from = new InboundEndpoint.From() {
             private final String topic = expressionResolver.apply(fromAttribute.get("value").toString());
             private final List<Integer> partitions = Arrays.stream((String[]) fromAttribute.get("partitions"))
-                    .map(expressionResolver::apply).filter(OneUtil::hasValue).map(Integer::valueOf).toList();
+                    .map(expressionResolver::apply).filter(OneUtil::hasValue).flatMap(OneUtil::parseIntegerRange)
+                    .sorted().distinct().toList();
 
             @Override
             public String topic() {
