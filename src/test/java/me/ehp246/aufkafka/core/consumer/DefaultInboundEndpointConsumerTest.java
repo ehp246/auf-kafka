@@ -19,7 +19,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import me.ehp246.aufkafka.api.consumer.DispatchListener;
-import me.ehp246.aufkafka.api.consumer.EventInvocableRunnableBuilder;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 

@@ -15,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.ehp246.aufkafka.api.consumer.DispatchListener;
-import me.ehp246.aufkafka.api.consumer.EventInvocableRunnableBuilder;
 import me.ehp246.aufkafka.api.consumer.InboundEndpointConsumer;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
+import me.ehp246.aufkafka.api.consumer.InboundEventContext;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.exception.UnknownEventException;
 import me.ehp246.aufkafka.api.spi.EventMdcContext;
@@ -125,6 +125,7 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
     }
 
     private void dispatchEvent(final InboundEvent event) throws Exception {
+        final var context = new InboundEventContext(event, this.consumer);
         try (final var closeable = EventMdcContext.set(event);) {
             this.onDispatching.stream().forEach(l -> l.onDispatching(event));
 
@@ -137,7 +138,7 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
                     onUnknown.onUnknown(event);
                 }
             } else {
-                runnableBuilder.apply(invocable, event).run();
+                runnableBuilder.apply(invocable, context).run();
             }
         }
     }

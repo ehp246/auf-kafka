@@ -87,7 +87,7 @@ class DefaultEventInvocableRunnableBuilderTest {
                         List.of((InvocationListener.InvokingListener) b -> {
                             throw expected;
                         }, invoking, completed, failed))
-                        .apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
+                        .apply(eventInvocable, new MockConsumerRecord().toEventContext())::run);
 
         Assertions.assertEquals(actual, expected, "should be the thrown from invocable");
 
@@ -102,7 +102,7 @@ class DefaultEventInvocableRunnableBuilderTest {
 
         final var actual = Assertions.assertThrows(RuntimeException.class,
                 new DefaultEventInvocableRunnableBuilder(bindToFail(expected), null).apply(eventInvocable,
-                        new MockConsumerRecord().toEvent())::run);
+                        new MockConsumerRecord().toEventContext())::run);
 
         Assertions.assertEquals(actual, expected, "should be the thrown from invocable");
     }
@@ -117,7 +117,7 @@ class DefaultEventInvocableRunnableBuilderTest {
         final var threw = Assertions.assertThrows(RuntimeException.class,
                 new DefaultEventInvocableRunnableBuilder(binder, List.of((InvocationListener.FailedListener) m -> {
                     ref[0] = m;
-                })).apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
+                })).apply(eventInvocable, new MockConsumerRecord().toEventContext())::run);
 
         final var failed = ref[0];
 
@@ -134,7 +134,7 @@ class DefaultEventInvocableRunnableBuilderTest {
                 new DefaultEventInvocableRunnableBuilder(bindToFail(new IllegalArgumentException()),
                         List.of((InvocationListener.FailedListener) m -> {
                             throw expected;
-                        })).apply(eventInvocable, new MockConsumerRecord().toEvent())::run,
+                        })).apply(eventInvocable, new MockConsumerRecord().toEventContext())::run,
                 "should allow the listener to throw back to the broker");
 
         Assertions.assertEquals(expected, actual.getSuppressed()[0], "should have it as suppressed");
@@ -154,7 +154,7 @@ class DefaultEventInvocableRunnableBuilderTest {
                         }, (InvocationListener.FailedListener) m -> {
                             ref[1] = m;
                             throw supressed;
-                        })).apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
+                        })).apply(eventInvocable, new MockConsumerRecord().toEventContext())::run);
 
         Assertions.assertEquals(failure, actual, "should be from the invoker");
         Assertions.assertEquals(actual, ref[0].thrown(), "should call with best effort");
@@ -188,7 +188,7 @@ class DefaultEventInvocableRunnableBuilderTest {
             return bound;
         }, List.of((InvocationListener.FailedListener) m -> {
             threadRef[1] = Thread.currentThread();
-        })).apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
+        })).apply(eventInvocable, new MockConsumerRecord().toEventContext())::run);
 
         Assertions.assertEquals(threadRef[0], threadRef[1], "should be the same thread for binder, failed listener");
     }
@@ -201,7 +201,7 @@ class DefaultEventInvocableRunnableBuilderTest {
                 new DefaultEventInvocableRunnableBuilder(bindToComplete(Mockito.mock(Completed.class)),
                         List.of((InvocationListener.CompletedListener) c -> {
                             throw expected;
-                        })).apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
+                        })).apply(eventInvocable, new MockConsumerRecord().toEventContext())::run);
 
         Assertions.assertEquals(expected, actual, "should be thrown the broker");
     }
@@ -213,7 +213,7 @@ class DefaultEventInvocableRunnableBuilderTest {
         Mockito.doThrow(new IllegalStateException("Don't close me")).when(eventInvocable).close();
 
         new DefaultEventInvocableRunnableBuilder(bindToComplete(Mockito.mock(Completed.class)), List.of(completed))
-                .apply(eventInvocable, new MockConsumerRecord().toEvent()).run();
+                .apply(eventInvocable, new MockConsumerRecord().toEventContext()).run();
 
         Mockito.verify(eventInvocable, times(1)).close();
         // Exception from the close should be suppressed.
@@ -223,7 +223,7 @@ class DefaultEventInvocableRunnableBuilderTest {
     @Test
     void close_01() throws Exception {
         new DefaultEventInvocableRunnableBuilder(bindToComplete(Mockito.mock(Completed.class)), null)
-                .apply(eventInvocable, new MockConsumerRecord().toEvent()).run();
+                .apply(eventInvocable, new MockConsumerRecord().toEventContext()).run();
 
         // Should close on completed invocation
         Mockito.verify(eventInvocable, times(1)).close();
@@ -233,7 +233,7 @@ class DefaultEventInvocableRunnableBuilderTest {
     void close_02() throws Exception {
         Assertions.assertThrows(RuntimeException.class,
                 new DefaultEventInvocableRunnableBuilder(bindToFail(new RuntimeException()), null).apply(eventInvocable,
-                        new MockConsumerRecord().toEvent())::run);
+                        new MockConsumerRecord().toEventContext())::run);
 
         // Should close on failed invocation
         Mockito.verify(eventInvocable, times(1)).close();
@@ -242,7 +242,7 @@ class DefaultEventInvocableRunnableBuilderTest {
     @Test
     void close_03() throws Exception {
         Assertions.assertThrows(RuntimeException.class, new DefaultEventInvocableRunnableBuilder((i, m) -> null, null)
-                .apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
+                .apply(eventInvocable, new MockConsumerRecord().toEventContext())::run);
 
         // Should close on wrong data
         Mockito.verify(eventInvocable, times(1)).close();
@@ -252,7 +252,7 @@ class DefaultEventInvocableRunnableBuilderTest {
     void close_04() throws Exception {
         Assertions.assertThrows(IllegalArgumentException.class, new DefaultEventInvocableRunnableBuilder((i, m) -> {
             throw new IllegalArgumentException();
-        }, null).apply(eventInvocable, new MockConsumerRecord().toEvent())::run);
+        }, null).apply(eventInvocable, new MockConsumerRecord().toEventContext())::run);
 
         // Should close on binder exception
         Mockito.verify(eventInvocable, times(1)).close();
@@ -267,7 +267,7 @@ class DefaultEventInvocableRunnableBuilderTest {
         final var invocable = new InvocableRecord(new InvocableBinderTestCases.PerfCase(),
                 new ReflectedClass<>(InvocableBinderTestCases.PerfCase.class).findMethods("m01").get(0));
 
-        IntStream.range(0, LOOP).forEach(i -> dispatcher.apply(invocable, msg.toEvent()).run());
+        IntStream.range(0, LOOP).forEach(i -> dispatcher.apply(invocable, msg.toEventContext()).run());
     }
 
     @Test
@@ -303,7 +303,7 @@ class DefaultEventInvocableRunnableBuilderTest {
                     return bound;
                 }, List.of((InvocationListener.FailedListener) m -> {
                     contextRef[1] = ThreadContext.getContext();
-                })).apply(eventInvocable, new MockConsumerRecord().toEvent()).run());
+                })).apply(eventInvocable, new MockConsumerRecord().toEventContext()).run());
 
         Assertions.assertEquals(null, ThreadContext.get(key), "should clean up");
         Assertions.assertEquals(context.get(key), contextRef[0].get(key), "should be there for the invoke");
@@ -340,7 +340,7 @@ class DefaultEventInvocableRunnableBuilderTest {
                     return bound;
                 }, List.of((InvocationListener.FailedListener) m -> {
                     contextRef[1] = ThreadContext.getContext();
-                })).apply(eventInvocable, new MockConsumerRecord().toEvent()).run());
+                })).apply(eventInvocable, new MockConsumerRecord().toEventContext()).run());
 
         Assertions.assertEquals(0, ThreadContext.getContext().size());
         Assertions.assertEquals(0, contextRef[0].size());

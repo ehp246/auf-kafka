@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
@@ -56,7 +57,7 @@ interface InvocableBinderTestCases {
     /**
      * Type-based injection
      */
-    static class HeaderTypeCase01 {
+    static class TypeCase01 {
         public void m01() {
         }
 
@@ -64,6 +65,10 @@ interface InvocableBinderTestCases {
         }
 
         public void m01(final InboundEvent event) {
+        }
+
+        public Consumer<String, String> m01(final Consumer<String, String> consumer) {
+            return consumer;
         }
 
         public ConsumerRecord<String, String> m01(final ConsumerRecord<String, String> msg) {
