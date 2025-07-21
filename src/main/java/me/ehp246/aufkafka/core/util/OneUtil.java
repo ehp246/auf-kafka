@@ -150,4 +150,41 @@ public final class OneUtil {
 
         return new String(c);
     }
+
+    /**
+     * Parse an Integer-range string into a {@linkplain Stream} of
+     * {@linkplain Integer}. E.g., "0-5,10-15".
+     */
+    public static Stream<Integer> parseIntegerRange(final String rangeString) {
+        final var partsStrings = rangeString.split(",");
+        if (partsStrings.length == 1 && !partsStrings[0].contains("-")) {
+            return Stream.of(Integer.parseInt(partsStrings[0].trim()));
+        }
+
+        final List<Integer> parts = new ArrayList<>();
+        for (String part : partsStrings) {
+            if (part.contains("-")) {
+                final var startEnd = part.split("-");
+
+                if (startEnd.length != 2) {
+                    throw new RuntimeException("Only one hyphen allowed for a range: " + part);
+                }
+
+                final var start = Integer.parseInt(startEnd[0].trim());
+                final var end = Integer.parseInt(startEnd[1].trim());
+
+                if (end < start) {
+                    throw new RuntimeException("Invalid range: " + part);
+                }
+                for (var i = start; i <= end; i++) {
+                    parts.add(i);
+                }
+            } else {
+                parseIntegerRange(part).forEach(parts::add);
+            }
+        }
+
+        return parts.stream();
+    }
+
 }

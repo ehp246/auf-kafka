@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
+import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
@@ -36,60 +37,67 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
     private final String correlIdHeader;
 
     public InboundEndpointConsumerConfigurer(final List<InboundEndpoint> endpoints,
-	    final InboundConsumerExecutorProvider executorProvider, final ConsumerProvider consumerProvider,
-	    final EventInvocableBinder binder, final InboundDispatchingLogger inboundDispatchingLogger,
-	    final AutowireCapableBeanFactory autowireCapableBeanFactory,
-	    final DefaultInboundConsumerRegistry consumerRegistry,
-	    @Value("${" + AufKafkaConstant.PROPERTY_HEADER_CORRELATIONID + ":" + AufKafkaConstant.CORRELATIONID_HEADER
-		    + "}") final String correlIdHeader) {
-	super();
-	this.endpoints = endpoints;
-	this.executorProvider = executorProvider;
-	this.consumerProvider = consumerProvider;
-	this.binder = binder;
-	this.onDispatching = inboundDispatchingLogger == null ? List.of() : List.of(inboundDispatchingLogger);
-	this.autowireCapableBeanFactory = autowireCapableBeanFactory;
-	this.consumerRegistry = consumerRegistry;
-	this.correlIdHeader = correlIdHeader;
+            final InboundConsumerExecutorProvider executorProvider, final ConsumerProvider consumerProvider,
+            final EventInvocableBinder binder, final InboundDispatchingLogger inboundDispatchingLogger,
+            final AutowireCapableBeanFactory autowireCapableBeanFactory,
+            final DefaultInboundConsumerRegistry consumerRegistry,
+            @Value("${" + AufKafkaConstant.PROPERTY_HEADER_CORRELATIONID + ":" + AufKafkaConstant.CORRELATIONID_HEADER
+                    + "}") final String correlIdHeader) {
+        super();
+        this.endpoints = endpoints;
+        this.executorProvider = executorProvider;
+        this.consumerProvider = consumerProvider;
+        this.binder = binder;
+        this.onDispatching = inboundDispatchingLogger == null ? List.of() : List.of(inboundDispatchingLogger);
+        this.autowireCapableBeanFactory = autowireCapableBeanFactory;
+        this.consumerRegistry = consumerRegistry;
+        this.correlIdHeader = correlIdHeader;
     }
 
     @Override
     public void afterSingletonsInstantiated() {
-	for (final var endpoint : this.endpoints) {
-	    LOGGER.atTrace().setMessage("Registering '{}' on '{}'").addArgument(endpoint::name)
-		    .addArgument(() -> endpoint.from().topic()).log();
+        for (final var endpoint : this.endpoints) {
+            final var topic = endpoint.from().topic();
+            final var partitions = endpoint.from().partitions();
 
-	    final var consumer = this.consumerProvider.get(endpoint.consumerConfigName(),
-		    endpoint.consumerProperties());
-	    consumer.subscribe(Set.of(endpoint.from().topic()));
+            LOGGER.atTrace().setMessage("Registering '{}' on '{}:{}'").addArgument(endpoint::name).addArgument(topic)
+                    .addArgument(partitions).log();
 
-	    final var consumerRunner = new DefaultInboundEndpointConsumer(consumer, endpoint::pollDuration,
-		    new DefaultEventInvocableRunnableBuilder(this.binder,
-			    endpoint.invocationListener() == null ? null : List.of(endpoint.invocationListener())),
-		    new AutowireCapableInvocableFactory(autowireCapableBeanFactory, endpoint.invocableRegistry()),
-		    this.onDispatching, endpoint.unknownEventListener(), endpoint.dispatchExceptionListener());
+            final var consumer = this.consumerProvider.get(endpoint.configName(), endpoint.consumerProperties());
 
-	    this.consumerRegistry.put(endpoint.name(), consumerRunner);
+            if (partitions == null || partitions.size() == 0) {
+                consumer.subscribe(Set.of(topic));
+            } else {
+                consumer.assign(partitions.stream().map(i -> new TopicPartition(topic, i)).toList());
+            }
 
-	    this.executorProvider.get().execute(() -> {
-		try (final var closeable = EventMdcContext.setMdcHeaders(Set.of(this.correlIdHeader))) {
-		    consumerRunner.run();
-		} catch (Exception e) {
-		    LOGGER.atError().setCause(e).setMessage("{} consumer failed. Terminating.")
-			    .addArgument(endpoint.name()).log();
-		}
-	    });
-	}
+            final var consumerRunner = new DefaultInboundEndpointConsumer(consumer, endpoint::pollDuration,
+                    new DefaultEventInvocableRunnableBuilder(this.binder,
+                            endpoint.invocationListener() == null ? null : List.of(endpoint.invocationListener())),
+                    new AutowireCapableInvocableFactory(autowireCapableBeanFactory, endpoint.invocableRegistry()),
+                    this.onDispatching, endpoint.unknownEventListener(), endpoint.dispatchExceptionListener());
+
+            this.consumerRegistry.put(endpoint.name(), consumerRunner);
+
+            this.executorProvider.get().execute(() -> {
+                try (final var closeable = EventMdcContext.setMdcHeaders(Set.of(this.correlIdHeader))) {
+                    consumerRunner.run();
+                } catch (Exception e) {
+                    LOGGER.atError().setCause(e).setMessage("{} consumer failed. Terminating.")
+                            .addArgument(endpoint.name()).log();
+                }
+            });
+        }
     }
 
     @Override
     public void close() throws Exception {
-	LOGGER.atTrace().setMessage("Closing consumers").log();
+        LOGGER.atTrace().setMessage("Closing consumers").log();
 
-	final var closedFutures = new HashSet<CompletableFuture<Boolean>>(this.consumerRegistry.getNames().size());
+        final var closedFutures = new HashSet<CompletableFuture<Boolean>>(this.consumerRegistry.getNames().size());
 
-	this.consumerRegistry.getNames().forEach(name -> closedFutures.add(this.consumerRegistry.get(name).close()));
+        this.consumerRegistry.getNames().forEach(name -> closedFutures.add(this.consumerRegistry.get(name).close()));
 
-	closedFutures.stream().forEach(CompletableFuture::join);
+        closedFutures.stream().forEach(CompletableFuture::join);
     }
 }

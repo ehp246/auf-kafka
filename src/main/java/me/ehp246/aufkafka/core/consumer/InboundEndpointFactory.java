@@ -34,124 +34,133 @@ public final class InboundEndpointFactory {
     private final InvocableScanner invocableScanner;
 
     public InboundEndpointFactory(final AutowireCapableBeanFactory autowireCapableBeanFactory,
-	    final ExpressionResolver expressionResolver, final InvocableScanner invocableScanner) {
-	super();
-	this.autowireCapableBeanFactory = autowireCapableBeanFactory;
-	this.expressionResolver = expressionResolver;
-	this.invocableScanner = invocableScanner;
+            final ExpressionResolver expressionResolver, final InvocableScanner invocableScanner) {
+        super();
+        this.autowireCapableBeanFactory = autowireCapableBeanFactory;
+        this.expressionResolver = expressionResolver;
+        this.invocableScanner = invocableScanner;
     }
 
     @SuppressWarnings("unchecked")
     public InboundEndpoint newInstance(final Map<String, Object> inboundAttributes, final Set<String> scanPackages,
-	    final String beanName) {
-	final var fromAttribute = (Map<String, Object>) inboundAttributes.get("value");
+            final String beanName) {
+        final var fromAttribute = (Map<String, Object>) inboundAttributes.get("value");
 
-	final var consumerConfigName = inboundAttributes.get("consumerConfigName").toString();
+        final var configName = inboundAttributes.get("configName").toString();
 
-	final var unknowListener = Optional.ofNullable(inboundAttributes.get("unknownEventListener").toString())
-		.map(expressionResolver::apply).filter(OneUtil::hasValue)
-		.map(name -> autowireCapableBeanFactory.getBean(name, DispatchListener.UnknownEventListener.class))
-		.orElse(null);
+        final var unknowListener = Optional.ofNullable(inboundAttributes.get("unknownEventListener").toString())
+                .map(expressionResolver::apply).filter(OneUtil::hasValue)
+                .map(name -> autowireCapableBeanFactory.getBean(name, DispatchListener.UnknownEventListener.class))
+                .orElse(null);
 
-	final var exceptionListener = Optional.ofNullable(inboundAttributes.get("dispatchExceptionListener").toString())
-		.map(expressionResolver::apply).filter(OneUtil::hasValue)
-		.map(name -> autowireCapableBeanFactory.getBean(name, DispatchListener.ExceptionListener.class))
-		.orElse(null);
+        final var exceptionListener = Optional.ofNullable(inboundAttributes.get("dispatchExceptionListener").toString())
+                .map(expressionResolver::apply).filter(OneUtil::hasValue)
+                .map(name -> autowireCapableBeanFactory.getBean(name, DispatchListener.ExceptionListener.class))
+                .orElse(null);
 
-	final var consumerProperties = consumerProperties(
-		Arrays.asList((String[]) inboundAttributes.get("consumerProperties")), beanName);
+        final var consumerProperties = consumerProperties(
+                Arrays.asList((String[]) inboundAttributes.get("consumerProperties")), beanName);
 
-	final var autoStartup = Boolean
-		.parseBoolean(expressionResolver.apply(inboundAttributes.get("autoStartup").toString()));
+        final var autoStartup = Boolean
+                .parseBoolean(expressionResolver.apply(inboundAttributes.get("autoStartup").toString()));
 
-	final var pollDuration = Duration
-		.parse(expressionResolver.apply(inboundAttributes.get("pollDuration").toString()));
+        final var pollDuration = Duration
+                .parse(expressionResolver.apply(inboundAttributes.get("pollDuration").toString()));
 
-	final InboundEndpoint.From from = new InboundEndpoint.From() {
-	    private final String topic = expressionResolver.apply(fromAttribute.get("value").toString());
+        final InboundEndpoint.From from = new InboundEndpoint.From() {
+            private final String topic = expressionResolver.apply(fromAttribute.get("value").toString());
+            private final List<Integer> partitions = Arrays.stream((String[]) fromAttribute.get("partitions"))
+                    .map(expressionResolver::apply).filter(OneUtil::hasValue).flatMap(OneUtil::parseIntegerRange)
+                    .sorted().distinct().toList();
 
-	    @Override
-	    public String topic() {
-		return topic;
-	    }
-	};
+            @Override
+            public String topic() {
+                return topic;
+            }
 
-	final var registery = new DefaultEventInvocableRegistry(inboundAttributes.get("eventHeader").toString());
+            @Override
+            public List<Integer> partitions() {
+                return partitions;
+            }
 
-	this.invocableScanner.apply(
-		Arrays.asList((Class<?>[]) inboundAttributes.get("register")).stream().collect(Collectors.toSet()),
-		scanPackages).entrySet().stream().forEach(entry -> {
-		    final var key = entry.getKey();
-		    entry.getValue().stream().forEach(value -> registery.register(key, value));
-		});
+        };
 
-	final var invocationListener = Optional.ofNullable(inboundAttributes.get("invocationListener").toString())
-		.map(expressionResolver::apply).filter(OneUtil::hasValue)
-		.map(name -> autowireCapableBeanFactory.getBean(name, InvocationListener.class)).orElse(null);
+        final var registery = new DefaultEventInvocableRegistry(inboundAttributes.get("eventHeader").toString());
 
-	return new InboundEndpoint() {
-	    @Override
-	    public From from() {
-		return from;
-	    }
+        this.invocableScanner.apply(
+                Arrays.asList((Class<?>[]) inboundAttributes.get("register")).stream().collect(Collectors.toSet()),
+                scanPackages).entrySet().stream().forEach(entry -> {
+                    final var key = entry.getKey();
+                    entry.getValue().stream().forEach(value -> registery.register(key, value));
+                });
 
-	    @Override
-	    public EventInvocableRegistry invocableRegistry() {
-		return registery;
-	    }
+        final var invocationListener = Optional.ofNullable(inboundAttributes.get("invocationListener").toString())
+                .map(expressionResolver::apply).filter(OneUtil::hasValue)
+                .map(name -> autowireCapableBeanFactory.getBean(name, InvocationListener.class)).orElse(null);
 
-	    @Override
-	    public String name() {
-		return beanName;
-	    }
+        return new InboundEndpoint() {
+            @Override
+            public From from() {
+                return from;
+            }
 
-	    @Override
-	    public String consumerConfigName() {
-		return consumerConfigName;
-	    }
+            @Override
+            public EventInvocableRegistry invocableRegistry() {
+                return registery;
+            }
 
-	    @Override
-	    public Map<String, Object> consumerProperties() {
-		return consumerProperties;
-	    }
+            @Override
+            public String name() {
+                return beanName;
+            }
 
-	    @Override
-	    public boolean autoStartup() {
-		return autoStartup;
-	    }
+            @Override
+            public String configName() {
+                return configName;
+            }
 
-	    @Override
-	    public InvocationListener invocationListener() {
-		return invocationListener;
-	    }
+            @Override
+            public Map<String, Object> consumerProperties() {
+                return consumerProperties;
+            }
 
-	    @Override
-	    public DispatchListener.UnknownEventListener unknownEventListener() {
-		return unknowListener;
-	    }
+            @Override
+            public boolean autoStartup() {
+                return autoStartup;
+            }
 
-	    @Override
-	    public DispatchListener.ExceptionListener dispatchExceptionListener() {
-		return exceptionListener;
-	    }
+            @Override
+            public InvocationListener invocationListener() {
+                return invocationListener;
+            }
 
-	    @Override
-	    public Duration pollDuration() {
-		return pollDuration;
-	    }
-	};
+            @Override
+            public DispatchListener.UnknownEventListener unknownEventListener() {
+                return unknowListener;
+            }
+
+            @Override
+            public DispatchListener.ExceptionListener dispatchExceptionListener() {
+                return exceptionListener;
+            }
+
+            @Override
+            public Duration pollDuration() {
+                return pollDuration;
+            }
+        };
     }
 
     private Map<String, Object> consumerProperties(final List<String> properties, final String beanName) {
-	if ((properties.size() & 1) != 0) {
-	    throw new IllegalArgumentException(
-		    "Consumer properties should be in name/value pair on '" + beanName + "'");
-	}
+        if ((properties.size() & 1) != 0) {
+            throw new IllegalArgumentException(
+                    "Consumer properties should be in name/value pair on '" + beanName + "'");
+        }
 
-	final Map<String, Object> resolvedProperties = new HashMap<>();
-	for (int i = 0; i < properties.size(); i += 2) {
-	    resolvedProperties.put(properties.get(i), expressionResolver.apply(properties.get(i + 1)));
-	}
-	return resolvedProperties;
+        final Map<String, Object> resolvedProperties = new HashMap<>();
+        for (int i = 0; i < properties.size(); i += 2) {
+            resolvedProperties.put(properties.get(i), expressionResolver.apply(properties.get(i + 1)));
+        }
+        return resolvedProperties;
     }
 }

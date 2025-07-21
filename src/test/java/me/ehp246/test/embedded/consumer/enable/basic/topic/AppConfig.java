@@ -14,8 +14,9 @@ import me.ehp246.test.mock.WildcardAction;
  */
 @EnableConfigurationProperties({ KafkaConfig.class })
 @EnableKafka
-@EnableForKafka({ @Inbound(value = @From("embedded.1"), register = WildcardAction.class),
+@EnableForKafka({ @Inbound(value = @From(AppConfig.TOPIC + ".1"), register = WildcardAction.class),
         @Inbound(value = @From("${topic2}"), register = WildcardAction.class),
         @Inbound(value = @From("#{@'kafka.config-me.ehp246.test.embedded.consumer.enable.basic.topic.KafkaConfig'.topic}"), register = WildcardAction.class) })
 class AppConfig {
+    final static String TOPIC = "7d9052da-86e0-4851-aac9-9e59cce05f05";
 }
