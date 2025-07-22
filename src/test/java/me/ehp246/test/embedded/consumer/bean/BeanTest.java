@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.util.PlaceholderResolutionException;
 
-import me.ehp246.aufkafka.api.consumer.InboundConsumerRegistry;
+import me.ehp246.aufkafka.api.consumer.InboundEndpointConsumerRegistry;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
@@ -32,7 +32,7 @@ class BeanTest {
     @Test
     void inbound_01() {
         final var endpointMap = beanFactory.getBeansOfType(InboundEndpoint.class);
-        final var registry = beanFactory.getBean(InboundConsumerRegistry.class);
+        final var registry = beanFactory.getBean(InboundEndpointConsumerRegistry.class);
 
         Assertions.assertEquals(2, endpointMap.size());
         Assertions.assertEquals(true, endpointMap.containsKey("inboundEndpoint-0"));

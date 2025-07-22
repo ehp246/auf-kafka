@@ -33,14 +33,14 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
     private final ConsumerProvider consumerProvider;
     private final List<DispatchListener.DispatchingListener> onDispatching;
     private final AutowireCapableBeanFactory autowireCapableBeanFactory;
-    private final DefaultInboundConsumerRegistry consumerRegistry;
+    private final DefaultInboundEndpointConsumerRegistry consumerRegistry;
     private final String correlIdHeader;
 
     public InboundEndpointConsumerConfigurer(final List<InboundEndpoint> endpoints,
             final InboundConsumerExecutorProvider executorProvider, final ConsumerProvider consumerProvider,
             final EventInvocableBinder binder, final InboundDispatchingLogger inboundDispatchingLogger,
             final AutowireCapableBeanFactory autowireCapableBeanFactory,
-            final DefaultInboundConsumerRegistry consumerRegistry,
+            final DefaultInboundEndpointConsumerRegistry consumerRegistry,
             @Value("${" + AufKafkaConstant.PROPERTY_HEADER_CORRELATIONID + ":" + AufKafkaConstant.CORRELATIONID_HEADER
                     + "}") final String correlIdHeader) {
         super();

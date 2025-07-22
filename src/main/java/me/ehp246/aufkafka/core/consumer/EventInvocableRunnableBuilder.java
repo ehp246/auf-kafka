@@ -24,5 +24,5 @@ import me.ehp246.aufkafka.api.consumer.InvocationModel;
  */
 @FunctionalInterface
 interface EventInvocableRunnableBuilder {
-    Runnable apply(EventInvocable eventInvocable, InboundEventContext event);
+    Runnable apply(EventInvocable eventInvocable, InboundEventContext eventContext);
 }

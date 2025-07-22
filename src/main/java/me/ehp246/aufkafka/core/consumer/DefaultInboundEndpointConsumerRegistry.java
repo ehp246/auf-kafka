@@ -5,13 +5,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import me.ehp246.aufkafka.api.consumer.InboundConsumerRegistry;
 import me.ehp246.aufkafka.api.consumer.InboundEndpointConsumer;
+import me.ehp246.aufkafka.api.consumer.InboundEndpointConsumerRegistry;
 
 /**
  * @author Lei Yang
  */
-final class DefaultInboundConsumerRegistry implements InboundConsumerRegistry {
+final class DefaultInboundEndpointConsumerRegistry implements InboundEndpointConsumerRegistry {
     private final Map<String, InboundEndpointConsumer> map = new ConcurrentHashMap<>();
 
     @Override
