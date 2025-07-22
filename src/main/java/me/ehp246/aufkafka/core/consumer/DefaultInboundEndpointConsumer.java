@@ -126,7 +126,7 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 
     private void dispatchEvent(final InboundEvent event) throws Exception {
         final var context = new InboundEventContext(event, this.consumer);
-        try (final var closeable = EventMdcContext.set(event);) {
+        try (final var closeable = EventMdcContext.set(context);) {
             this.onDispatching.stream().forEach(l -> l.onDispatching(event));
 
             final var invocable = invocableFactory.get(event);

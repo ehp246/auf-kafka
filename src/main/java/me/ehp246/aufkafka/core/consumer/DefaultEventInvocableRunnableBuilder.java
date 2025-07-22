@@ -57,11 +57,11 @@ final class DefaultEventInvocableRunnableBuilder implements EventInvocableRunnab
      * caller simply invokes this runnable without further processing.
      */
     @Override
-    public Runnable apply(final EventInvocable eventInvocable, final InboundEventContext event) {
+    public Runnable apply(final EventInvocable eventInvocable, final InboundEventContext eventContext) {
         final var boundRef = new BoundInvocable[] { null };
         return () -> {
             try {
-                boundRef[0] = binder.bind(eventInvocable, event);
+                boundRef[0] = binder.bind(eventInvocable, eventContext);
 
                 Optional.ofNullable(boundRef[0].mdcMap()).map(Map::entrySet).filter(set -> !set.isEmpty())
                         .ifPresent(set -> set.stream().forEach(entry -> MDC.put(entry.getKey(), entry.getValue())));

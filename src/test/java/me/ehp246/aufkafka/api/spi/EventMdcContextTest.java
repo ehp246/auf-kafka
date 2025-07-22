@@ -24,7 +24,7 @@ class EventMdcContextTest {
         final var completed = new CompletableFuture<String>();
         final var key = UUID.randomUUID().toString();
         final var value = UUID.randomUUID().toString();
-        final var event = MockConsumerRecord.withHeaders(key, value).toEvent();
+        final var event = MockConsumerRecord.withHeaders(key, value).toEventContext();
 
         executor.execute(() -> {
             EventMdcContext.setMdcHeaders(Set.of(key));
@@ -42,7 +42,7 @@ class EventMdcContextTest {
         final var completed = new CompletableFuture<String>();
         final var key = UUID.randomUUID().toString();
         final var value = UUID.randomUUID().toString();
-        final var event = MockConsumerRecord.withHeaders(key, value).toEvent();
+        final var event = MockConsumerRecord.withHeaders(key, value).toEventContext();
 
         executor.execute(() -> {
             EventMdcContext.set(event);
@@ -59,7 +59,7 @@ class EventMdcContextTest {
         final var completed = new CompletableFuture<String>();
         final var key = UUID.randomUUID().toString();
         final var value = UUID.randomUUID().toString();
-        final var event = MockConsumerRecord.withHeaders(key, value).toEvent();
+        final var event = MockConsumerRecord.withHeaders(key, value).toEventContext();
 
         EventMdcContext.setMdcHeaders(Set.of(key));
         executor.execute(() -> {
@@ -77,7 +77,7 @@ class EventMdcContextTest {
         final var completed = new CompletableFuture<String>();
         final var key = UUID.randomUUID().toString();
         final var value = UUID.randomUUID().toString();
-        final var event = MockConsumerRecord.withHeaders(key, value).toEvent();
+        final var event = MockConsumerRecord.withHeaders(key, value).toEventContext();
 
         executor.execute(() -> {
             try (final var closable = EventMdcContext.setMdcHeaders(Set.of(key))) {
@@ -98,7 +98,7 @@ class EventMdcContextTest {
         final var completed = new CompletableFuture<String>();
         final var key = UUID.randomUUID().toString();
         final var value = UUID.randomUUID().toString();
-        final var event = MockConsumerRecord.withHeaders(key, value).toEvent();
+        final var event = MockConsumerRecord.withHeaders(key, value).toEventContext();
 
         executor.execute(() -> {
             try (final var closable = EventMdcContext.setMdcHeaders(Set.of(key))) {
@@ -106,7 +106,7 @@ class EventMdcContextTest {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            EventMdcContext.set(MockConsumerRecord.withHeaders(key, UUID.randomUUID().toString()).toEvent());
+            EventMdcContext.set(MockConsumerRecord.withHeaders(key, UUID.randomUUID().toString()).toEventContext());
             completed.complete(MDC.get(key));
         });
 
@@ -119,7 +119,7 @@ class EventMdcContextTest {
     void mdcHeaders_06() {
         final var completed = new CompletableFuture<String>();
         final var key = UUID.randomUUID().toString();
-        final var event = MockConsumerRecord.withHeaders(key, null).toEvent();
+        final var event = MockConsumerRecord.withHeaders(key, null).toEventContext();
 
         executor.execute(() -> {
             EventMdcContext.setMdcHeaders(Set.of(key));
@@ -136,7 +136,7 @@ class EventMdcContextTest {
         final var completed = new CompletableFuture<String>();
         final var missingHeder = UUID.randomUUID().toString();
         final var event = MockConsumerRecord.withHeaders(UUID.randomUUID().toString(), UUID.randomUUID().toString())
-                .toEvent();
+                .toEventContext();
 
         executor.execute(() -> {
             EventMdcContext.setMdcHeaders(Set.of(missingHeder));

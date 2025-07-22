@@ -6,7 +6,7 @@ import java.util.Set;
 import org.slf4j.MDC;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
-import me.ehp246.aufkafka.api.consumer.InboundEvent;
+import me.ehp246.aufkafka.api.consumer.InboundEventContext;
 import me.ehp246.aufkafka.core.util.OneUtil;
 
 /**
@@ -39,12 +39,13 @@ public final class EventMdcContext {
      * Returned {@linkplain AutoCloseable} must be executed on the same thread as
      * invoking this method.
      */
-    public static AutoCloseable set(final InboundEvent event) {
-        if (event == null) {
+    public static AutoCloseable set(final InboundEventContext eventContext) {
+        if (eventContext == null) {
             return () -> {
             };
         }
-        final AutoCloseable closeable = () -> EventMdcContext.clear(event);
+        final var event = eventContext.event();
+        final AutoCloseable closeable = () -> EventMdcContext.clear(eventContext);
 
         MDC.put(InboundContextName.AufKafkaFrom.name(), OneUtil.toString(event.topic()));
         MDC.put(InboundContextName.AufKafkaKey.name(), event.key());
@@ -63,7 +64,8 @@ public final class EventMdcContext {
         return closeable;
     }
 
-    public static void clear(final InboundEvent event) {
+    public static void clear(final InboundEventContext eventContext) {
+        final var event = eventContext.event();
         MDC_HEADERS.get().stream().forEach(MDC::remove);
 
         if (event == null) {
