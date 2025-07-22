@@ -92,12 +92,13 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
 
         this.executor.execute(() -> {
             StreamSupport.stream(polled.spliterator(), false).map(InboundEvent::new).forEach(event -> {
+                final var context = new InboundEventContext(event, this.consumer);
                 try {
-                    dispatchEvent(event);
+                    dispatchEvent(context);
                 } catch (Exception e) {
                     if (this.onException != null) {
                         try {
-                            this.onException.onException(event, e);
+                            this.onException.onException(context, e);
                         } catch (Exception e1) {
                             LOGGER.atError().setCause(e)
                                     .setMessage(
@@ -124,18 +125,17 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
         });
     }
 
-    private void dispatchEvent(final InboundEvent event) throws Exception {
-        final var context = new InboundEventContext(event, this.consumer);
+    private void dispatchEvent(final InboundEventContext context) throws Exception {
         try (final var closeable = EventMdcContext.set(context);) {
-            this.onDispatching.stream().forEach(l -> l.onDispatching(event));
+            this.onDispatching.stream().forEach(l -> l.onDispatching(context));
 
-            final var invocable = invocableFactory.get(event);
+            final var invocable = invocableFactory.get(context.event());
 
             if (invocable == null) {
                 if (onUnknown == null) {
-                    throw new UnknownEventException(event);
+                    throw new UnknownEventException(context.event());
                 } else {
-                    onUnknown.onUnknown(event);
+                    onUnknown.onUnknown(context);
                 }
             } else {
                 runnableBuilder.apply(invocable, context).run();

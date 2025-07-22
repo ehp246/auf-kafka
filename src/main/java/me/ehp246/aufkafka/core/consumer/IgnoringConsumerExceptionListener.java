@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.DispatchListener;
-import me.ehp246.aufkafka.api.consumer.InboundEvent;
+import me.ehp246.aufkafka.api.consumer.InboundEventContext;
 
 /**
  * @author Lei Yang
@@ -15,14 +15,16 @@ public final class IgnoringConsumerExceptionListener implements DispatchListener
     private final static Logger LOGGER = LoggerFactory.getLogger(IgnoringConsumerExceptionListener.class);
 
     @Override
-    public void onException(final InboundEvent event, final Exception thrown) {
-	LOGGER.atError().setCause(thrown).addMarker(AufKafkaConstant.EXCEPTION)
-		.setMessage("Failed to consume: {}, {}, {} because of {}").addArgument(() -> event.topic())
-		.addArgument(() -> event.key()).addArgument(() -> event.offset()).addArgument(() -> thrown.getMessage())
-		.log();
+    public void onException(final InboundEventContext context, final Exception thrown) {
+        final var event = context.event();
 
-	LOGGER.atTrace().setCause(thrown).setMessage("{}").addMarker(AufKafkaConstant.EXCEPTION)
-		.addMarker(AufKafkaConstant.VALUE).addArgument(() -> event.value()).log();
+        LOGGER.atError().setCause(thrown).addMarker(AufKafkaConstant.EXCEPTION)
+                .setMessage("Failed to consume: {}, {}, {} because of {}").addArgument(() -> event.topic())
+                .addArgument(() -> event.key()).addArgument(() -> event.offset()).addArgument(() -> thrown.getMessage())
+                .log();
+
+        LOGGER.atTrace().setCause(thrown).setMessage("{}").addMarker(AufKafkaConstant.EXCEPTION)
+                .addMarker(AufKafkaConstant.VALUE).addArgument(() -> event.value()).log();
     }
 
 }
