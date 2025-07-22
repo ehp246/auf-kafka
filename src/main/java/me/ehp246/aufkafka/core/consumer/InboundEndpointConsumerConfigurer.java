@@ -94,7 +94,7 @@ public final class InboundEndpointConsumerConfigurer implements SmartInitializin
     public void close() throws Exception {
         LOGGER.atTrace().setMessage("Closing consumers").log();
 
-        final var closedFutures = new HashSet<CompletableFuture<Boolean>>(this.consumerRegistry.getNames().size());
+        final var closedFutures = new HashSet<CompletableFuture<Void>>(this.consumerRegistry.getNames().size());
 
         this.consumerRegistry.getNames().forEach(name -> closedFutures.add(this.consumerRegistry.get(name).close()));
 

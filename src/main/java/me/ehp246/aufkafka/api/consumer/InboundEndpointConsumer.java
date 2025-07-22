@@ -6,5 +6,5 @@ import java.util.concurrent.CompletableFuture;
  * @author Lei Yang
  */
 public interface InboundEndpointConsumer {
-    CompletableFuture<Boolean> close();
+    CompletableFuture<Void> close();
 }

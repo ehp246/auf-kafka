@@ -37,9 +37,9 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
     private final DispatchListener.UnknownEventListener onUnknown;
     private final DispatchListener.ExceptionListener onException;
 
-    private volatile CompletableFuture<Object> isDispatchingDone = CompletableFuture.completedFuture(null);
+    private volatile CompletableFuture<Void> isDispatchingDone = CompletableFuture.completedFuture(null);
     private volatile boolean isClosed = false;
-    private final CompletableFuture<Boolean> hasClosed = new CompletableFuture<Boolean>();
+    private final CompletableFuture<Void> hasClosed = new CompletableFuture<>();
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     DefaultInboundEndpointConsumer(final Consumer<String, String> consumer,
@@ -87,7 +87,7 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
             return;
         }
 
-        this.isDispatchingDone = new CompletableFuture<Object>();
+        this.isDispatchingDone = new CompletableFuture<>();
         this.consumer.pause(this.consumer.assignment());
 
         this.executor.execute(() -> {
@@ -154,12 +154,12 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
             this.consumer.close();
         }
 
-        this.hasClosed.complete(true);
+        this.hasClosed.complete(null);
         this.isClosed = true;
     }
 
     @Override
-    public CompletableFuture<Boolean> close() {
+    public CompletableFuture<Void> close() {
         this.isClosed = true;
         this.consumer.wakeup();
         return this.hasClosed;
