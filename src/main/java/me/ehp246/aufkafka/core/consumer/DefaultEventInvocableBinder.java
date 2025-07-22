@@ -20,6 +20,7 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
+import org.apache.kafka.common.record.TimestampType;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -152,6 +153,12 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
                 continue;
             } else if (reflectedParam.isType(Consumer.class)) {
                 paramBinders.put(i, context -> context.consumer());
+                continue;
+            } else if (reflectedParam.isType(InboundEventContext.class)) {
+                paramBinders.put(i, context -> context);
+                continue;
+            } else if (reflectedParam.isType(TimestampType.class)) {
+                paramBinders.put(i, context -> context.event().timestampType());
                 continue;
             }
 

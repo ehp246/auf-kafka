@@ -15,6 +15,7 @@ import java.util.stream.StreamSupport;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
+import org.apache.kafka.common.record.TimestampType;
 
 /**
  * A convenient wrapper of {@linkplain ConsumerRecord}.
@@ -58,6 +59,10 @@ public class InboundEvent {
 
     public Long timestamp() {
         return this.consumerRecord.timestamp();
+    }
+
+    public TimestampType timestampType() {
+        return this.consumerRecord.timestampType();
     }
 
     public int partition() {

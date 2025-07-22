@@ -11,6 +11,7 @@ import org.apache.kafka.clients.consumer.MockConsumer;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
+import org.apache.kafka.common.record.TimestampType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -101,6 +102,20 @@ class DefaultEventInvocableBinderTest {
 
         Assertions.assertEquals(1, bound.arguments().length);
         Assertions.assertEquals(context.consumer(), bound.arguments()[0]);
+    }
+
+    @Test
+    void typeArg_05() {
+        final var method = new ReflectedClass<>(InvocableBinderTestCases.TypeCase01.class).findMethod("typeArg",
+                InboundEventContext.class);
+
+        final var context = new InboundEventContext(new InboundEvent(new MockConsumerRecord()),
+                new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST));
+
+        final var bound = binder.bind(new InvocableRecord(new InvocableBinderTestCases.TypeCase01(), method), context);
+
+        Assertions.assertEquals(1, bound.arguments().length);
+        Assertions.assertEquals(context, bound.arguments()[0]);
     }
 
     @SuppressWarnings("unchecked")
@@ -309,6 +324,20 @@ class DefaultEventInvocableBinderTest {
         final var returned = (Object[]) ((Completed) outcome).returned();
 
         Assertions.assertEquals(true, returned[0].equals(Instant.ofEpochMilli(event.timestamp())));
+    }
+
+    @Test
+    void timestamp_04() {
+        final var case01 = new InvocableBinderTestCases.TimestampCase01();
+        final var context = new MockConsumerRecord().toEventContext();
+        final var outcome = binder
+                .bind(new InvocableRecord(case01, new ReflectedClass<>(InvocableBinderTestCases.TimestampCase01.class)
+                        .findMethod("m01", TimestampType.class)), context)
+                .invoke();
+
+        final var returned = (Object[]) ((Completed) outcome).returned();
+
+        Assertions.assertEquals(true, returned[0].equals(context.event().timestampType()));
     }
 
     @Test
