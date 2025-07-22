@@ -8,6 +8,7 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
+import org.apache.kafka.common.record.TimestampType;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -21,6 +22,7 @@ import me.ehp246.aufkafka.api.annotation.OfTimestamp;
 import me.ehp246.aufkafka.api.annotation.OfTopic;
 import me.ehp246.aufkafka.api.annotation.OfValue;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
+import me.ehp246.aufkafka.api.consumer.InboundEventContext;
 import me.ehp246.aufkafka.api.serializer.jackson.FromJson;
 import me.ehp246.aufkafka.api.spi.ValueView;
 
@@ -86,6 +88,10 @@ interface InvocableBinderTestCases {
         public Object[] header(final Headers headers, final Header myHeader) {
             return new Object[] { headers, myHeader };
         }
+
+        public Object[] typeArg(InboundEventContext context) {
+            return new Object[] { context };
+        }
     }
 
     static class TopicCase01 {
@@ -143,6 +149,10 @@ interface InvocableBinderTestCases {
 
         public Object[] m01(@OfTimestamp Instant timestamp) {
             return new Object[] { timestamp };
+        }
+
+        public Object[] m01(final TimestampType timestampType) {
+            return new Object[] { timestampType };
         }
     }
 

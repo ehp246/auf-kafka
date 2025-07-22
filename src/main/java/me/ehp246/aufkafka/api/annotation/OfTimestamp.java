@@ -29,5 +29,4 @@ import me.ehp246.aufkafka.api.consumer.EventInvocable;
 @Retention(RUNTIME)
 @Target(PARAMETER)
 public @interface OfTimestamp {
-
 }
