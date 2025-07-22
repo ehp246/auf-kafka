@@ -21,10 +21,12 @@ public final class InboundDispatchingLogger implements DispatchListener.Dispatch
     }
 
     @Override
-    public void onDispatching(final InboundEvent event) {
+    public void onDispatching(final InboundEventContext context) {
         if (!this.enabled) {
             return;
         }
+
+        final var event = context.event();
 
         LOGGER.atInfo().setMessage("{}:{}, {}, {}").addArgument(event::topic).addArgument(event::partition)
                 .addArgument(event::key).addArgument(event::offset).log();

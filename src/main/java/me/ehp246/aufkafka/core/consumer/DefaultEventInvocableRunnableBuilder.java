@@ -15,8 +15,7 @@ import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.aufkafka.api.consumer.BoundInvocable;
 import me.ehp246.aufkafka.api.consumer.EventInvocable;
 import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
-import me.ehp246.aufkafka.api.consumer.EventInvocableRunnableBuilder;
-import me.ehp246.aufkafka.api.consumer.InboundEvent;
+import me.ehp246.aufkafka.api.consumer.InboundEventContext;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
@@ -58,11 +57,11 @@ final class DefaultEventInvocableRunnableBuilder implements EventInvocableRunnab
      * caller simply invokes this runnable without further processing.
      */
     @Override
-    public Runnable apply(final EventInvocable eventInvocable, final InboundEvent event) {
+    public Runnable apply(final EventInvocable eventInvocable, final InboundEventContext eventContext) {
         final var boundRef = new BoundInvocable[] { null };
         return () -> {
             try {
-                boundRef[0] = binder.bind(eventInvocable, event);
+                boundRef[0] = binder.bind(eventInvocable, eventContext);
 
                 Optional.ofNullable(boundRef[0].mdcMap()).map(Map::entrySet).filter(set -> !set.isEmpty())
                         .ifPresent(set -> set.stream().forEach(entry -> MDC.put(entry.getKey(), entry.getValue())));

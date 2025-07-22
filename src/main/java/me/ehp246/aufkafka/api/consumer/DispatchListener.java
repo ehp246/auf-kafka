@@ -12,7 +12,7 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 public sealed interface DispatchListener {
     @FunctionalInterface
     non-sealed interface DispatchingListener extends DispatchListener {
-	void onDispatching(InboundEvent event);
+        void onDispatching(InboundEventContext eventContext);
     }
 
     /**
@@ -24,7 +24,7 @@ public sealed interface DispatchListener {
      */
     @FunctionalInterface
     non-sealed interface UnknownEventListener extends DispatchListener {
-	void onUnknown(InboundEvent event);
+        void onUnknown(InboundEventContext eventContext);
     }
 
     /**
@@ -32,6 +32,6 @@ public sealed interface DispatchListener {
      */
     @FunctionalInterface
     non-sealed interface ExceptionListener extends DispatchListener {
-	void onException(InboundEvent event, Exception thrown);
+        void onException(InboundEventContext eventContext, Exception thrown);
     }
 }

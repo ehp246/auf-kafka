@@ -1,6 +1,12 @@
-package me.ehp246.aufkafka.api.consumer;
+package me.ehp246.aufkafka.core.consumer;
 
 import java.util.concurrent.Executor;
+
+import me.ehp246.aufkafka.api.consumer.EventInvocable;
+import me.ehp246.aufkafka.api.consumer.InboundEvent;
+import me.ehp246.aufkafka.api.consumer.InboundEventContext;
+import me.ehp246.aufkafka.api.consumer.InvocationListener;
+import me.ehp246.aufkafka.api.consumer.InvocationModel;
 
 /**
  * The abstraction that builds a {@linkplain Runnable} from an
@@ -17,6 +23,6 @@ import java.util.concurrent.Executor;
  * @since 1.0
  */
 @FunctionalInterface
-public interface EventInvocableRunnableBuilder {
-    Runnable apply(EventInvocable eventInvocable, InboundEvent event);
+interface EventInvocableRunnableBuilder {
+    Runnable apply(EventInvocable eventInvocable, InboundEventContext event);
 }

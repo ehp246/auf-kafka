@@ -19,7 +19,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import me.ehp246.aufkafka.api.consumer.DispatchListener;
-import me.ehp246.aufkafka.api.consumer.EventInvocableRunnableBuilder;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 
@@ -61,7 +60,7 @@ class DefaultInboundEndpointConsumerTest {
         final var task = new DefaultInboundEndpointConsumer(consumer, Duration.ofDays(1)::abs, dispatcher,
                 (InvocableFactory) (r -> {
                     throw thrown;
-                }), null, null, (DispatchListener.ExceptionListener) (e, t) -> ref.set(new Context(e, t)));
+                }), null, null, (DispatchListener.ExceptionListener) (e, t) -> ref.set(new Context(e.event(), t)));
 
         Executors.newVirtualThreadPerTaskExecutor().execute(task::run);
 

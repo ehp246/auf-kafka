@@ -15,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.ehp246.aufkafka.api.consumer.DispatchListener;
-import me.ehp246.aufkafka.api.consumer.EventInvocableRunnableBuilder;
 import me.ehp246.aufkafka.api.consumer.InboundEndpointConsumer;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
+import me.ehp246.aufkafka.api.consumer.InboundEventContext;
 import me.ehp246.aufkafka.api.consumer.InvocableFactory;
 import me.ehp246.aufkafka.api.exception.UnknownEventException;
 import me.ehp246.aufkafka.api.spi.EventMdcContext;
@@ -37,9 +37,9 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
     private final DispatchListener.UnknownEventListener onUnknown;
     private final DispatchListener.ExceptionListener onException;
 
-    private volatile CompletableFuture<Object> isDispatchingDone = CompletableFuture.completedFuture(null);
+    private volatile CompletableFuture<Void> isDispatchingDone = CompletableFuture.completedFuture(null);
     private volatile boolean isClosed = false;
-    private final CompletableFuture<Boolean> hasClosed = new CompletableFuture<Boolean>();
+    private final CompletableFuture<Void> hasClosed = new CompletableFuture<>();
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
     DefaultInboundEndpointConsumer(final Consumer<String, String> consumer,
@@ -87,17 +87,18 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
             return;
         }
 
-        this.isDispatchingDone = new CompletableFuture<Object>();
+        this.isDispatchingDone = new CompletableFuture<>();
         this.consumer.pause(this.consumer.assignment());
 
         this.executor.execute(() -> {
             StreamSupport.stream(polled.spliterator(), false).map(InboundEvent::new).forEach(event -> {
+                final var context = new InboundEventContext(event, this.consumer);
                 try {
-                    dispatchEvent(event);
+                    dispatchEvent(context);
                 } catch (Exception e) {
                     if (this.onException != null) {
                         try {
-                            this.onException.onException(event, e);
+                            this.onException.onException(context, e);
                         } catch (Exception e1) {
                             LOGGER.atError().setCause(e)
                                     .setMessage(
@@ -124,20 +125,20 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
         });
     }
 
-    private void dispatchEvent(final InboundEvent event) throws Exception {
-        try (final var closeable = EventMdcContext.set(event);) {
-            this.onDispatching.stream().forEach(l -> l.onDispatching(event));
+    private void dispatchEvent(final InboundEventContext context) throws Exception {
+        try (final var closeable = EventMdcContext.set(context);) {
+            this.onDispatching.stream().forEach(l -> l.onDispatching(context));
 
-            final var invocable = invocableFactory.get(event);
+            final var invocable = invocableFactory.get(context.event());
 
             if (invocable == null) {
                 if (onUnknown == null) {
-                    throw new UnknownEventException(event);
+                    throw new UnknownEventException(context.event());
                 } else {
-                    onUnknown.onUnknown(event);
+                    onUnknown.onUnknown(context);
                 }
             } else {
-                runnableBuilder.apply(invocable, event).run();
+                runnableBuilder.apply(invocable, context).run();
             }
         }
     }
@@ -153,12 +154,12 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
             this.consumer.close();
         }
 
-        this.hasClosed.complete(true);
+        this.hasClosed.complete(null);
         this.isClosed = true;
     }
 
     @Override
-    public CompletableFuture<Boolean> close() {
+    public CompletableFuture<Void> close() {
         this.isClosed = true;
         this.consumer.wakeup();
         return this.hasClosed;

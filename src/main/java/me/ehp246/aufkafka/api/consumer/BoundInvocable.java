@@ -18,7 +18,7 @@ import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 public interface BoundInvocable {
     EventInvocable eventInvocable();
 
-    InboundEvent event();
+    InboundEventContext eventContext();
 
     /**
      * Resolved arguments. Might not contain a value but the array should never be

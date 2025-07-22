@@ -13,10 +13,12 @@ public final class NoOpUnknownListener implements DispatchListener.UnknownEventL
     private final static Logger LOGGER = LoggerFactory.getLogger(NoOpUnknownListener.class);
 
     @Override
-    public void onUnknown(final InboundEvent event) {
-	LOGGER.atInfo().setMessage("No op on: key '{}', topic '{}', offset '{}'").addArgument(event::key)
-		.addArgument(event::topic).addArgument(event::offset).log();
+    public void onUnknown(final InboundEventContext context) {
+        final var event = context.event();
 
-	LOGGER.atTrace().addMarker(AufKafkaConstant.VALUE).setMessage("{}").addArgument(event::value).log();
+        LOGGER.atInfo().setMessage("No op on: key '{}', topic '{}', offset '{}'").addArgument(event::key)
+                .addArgument(event::topic).addArgument(event::offset).log();
+
+        LOGGER.atTrace().addMarker(AufKafkaConstant.VALUE).setMessage("{}").addArgument(event::value).log();
     }
 }

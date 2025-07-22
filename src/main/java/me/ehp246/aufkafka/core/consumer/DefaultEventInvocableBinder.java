@@ -16,6 +16,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
@@ -34,6 +35,7 @@ import me.ehp246.aufkafka.api.consumer.BoundInvocable;
 import me.ehp246.aufkafka.api.consumer.EventInvocable;
 import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
+import me.ehp246.aufkafka.api.consumer.InboundEventContext;
 import me.ehp246.aufkafka.api.exception.UnboundParameterException;
 import me.ehp246.aufkafka.api.serializer.jackson.FromJson;
 import me.ehp246.aufkafka.api.serializer.jackson.TypeOfJson;
@@ -66,7 +68,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
     }
 
     @Override
-    public BoundInvocable bind(final EventInvocable target, final InboundEvent event) {
+    public BoundInvocable bind(final EventInvocable target, final InboundEventContext context) {
         final var method = target.method();
 
         final var argBinders = this.parsed.computeIfAbsent(method, this::parse);
@@ -79,7 +81,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
          */
         final var arguments = new Object[parameterCount];
         for (int i = 0; i < parameterCount; i++) {
-            arguments[i] = paramBinders.get(i).apply(event);
+            arguments[i] = paramBinders.get(i).apply(context);
         }
 
         /*
@@ -101,8 +103,8 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
             }
 
             @Override
-            public InboundEvent event() {
-                return event;
+            public InboundEventContext eventContext() {
+                return context;
             }
 
             @Override
@@ -121,7 +123,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
     @SuppressWarnings({ "unchecked", "rawtypes" })
     private EventBinders parse(final Method method) {
         final var parameters = method.getParameters();
-        final Map<Integer, Function<InboundEvent, Object>> paramBinders = new HashMap<>();
+        final Map<Integer, Function<InboundEventContext, Object>> paramBinders = new HashMap<>();
         final var valueParamRef = new ReflectedParameter[] { null };
 
         for (int i = 0; i < parameters.length; i++) {
@@ -131,22 +133,25 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
              * Bindings in descending priorities.
              */
             if (reflectedParam.isType(InboundEvent.class)) {
-                paramBinders.put(i, event -> event);
+                paramBinders.put(i, context -> context.event());
                 continue;
             } else if (reflectedParam.isType(ConsumerRecord.class)) {
-                paramBinders.put(i, InboundEvent::consumerRecord);
+                paramBinders.put(i, context -> context.event().consumerRecord());
                 continue;
             } else if (reflectedParam.isType(FromJson.class)) {
-                paramBinders.put(i, event -> fromJson);
+                paramBinders.put(i, context -> this.fromJson);
                 continue;
             } else if (reflectedParam.isType(Headers.class)) {
-                paramBinders.put(i, InboundEvent::headers);
+                paramBinders.put(i, context -> context.event().headers());
                 continue;
             } else if (reflectedParam.isType(Header.class)) {
                 final var key = OneUtil.orIfBlank(Optional.ofNullable(reflectedParam.getAnnotation(OfHeader.class))
                         .map(OfHeader::value).orElse(null), () -> OneUtil.firstUpper(reflectedParam.getName()));
 
-                paramBinders.put(i, event -> event.headers().lastHeader(key));
+                paramBinders.put(i, context -> context.event().headers().lastHeader(key));
+                continue;
+            } else if (reflectedParam.isType(Consumer.class)) {
+                paramBinders.put(i, context -> context.consumer());
                 continue;
             }
 
@@ -159,9 +164,9 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
             if (propertyAnnotation.isPresent()) {
                 final var fn = HEADER_VALUE_SUPPLIERS.get(propertyAnnotation.get().annotationType());
                 if (propertyAnnotation.get() instanceof OfTimestamp && reflectedParam.isAssignableFrom(Instant.class)) {
-                    paramBinders.put(i, event -> Instant.ofEpochMilli((long) fn.apply(event)));
+                    paramBinders.put(i, context -> Instant.ofEpochMilli((long) fn.apply(context.event())));
                 } else {
-                    paramBinders.put(i, fn::apply);
+                    paramBinders.put(i, context -> fn.apply(context.event()));
                 }
                 continue;
             }
@@ -176,52 +181,52 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
 
                 if (reflectedParam.isParameterizedType(Iterable.class)
                         && reflectedParam.isTypeArgumentClass(Header.class)) {
-                    paramBinders.put(i, event -> event.headers().headers(key));
+                    paramBinders.put(i, context -> context.event().headers().headers(key));
                     continue;
                 } else if (reflectedParam.isParameterizedType(List.class)
                         && reflectedParam.isTypeArgumentClass(String.class)) {
-                    paramBinders.put(i, event -> event.headerValues(key));
+                    paramBinders.put(i, context -> context.event().headerValues(key));
                     continue;
                 } else if (reflectedParam.isAssignableFrom(Map.class)) {
-                    paramBinders.put(i, InboundEvent::headerMap);
+                    paramBinders.put(i, context -> context.event().headerMap());
                     continue;
                 } else if (reflectedParam.isAssignableFrom(String.class)) {
-                    paramBinders.put(i, event -> event.lastHeader(key).orElse(null));
+                    paramBinders.put(i, context -> context.event().lastHeader(key).orElse(null));
                     continue;
                 } else if (reflectedParam.isAssignableFrom(Boolean.class)
                         || reflectedParam.isAssignableFrom(boolean.class)) {
-                    paramBinders.put(i, event -> event.lastHeader(key, Boolean::valueOf));
+                    paramBinders.put(i, context -> context.event().lastHeader(key, Boolean::valueOf));
                     continue;
                 } else if (reflectedParam.isAssignableFrom(Byte.class) || reflectedParam.isAssignableFrom(byte.class)) {
-                    paramBinders.put(i, event -> event.lastHeader(key, Byte::valueOf));
+                    paramBinders.put(i, context -> context.event().lastHeader(key, Byte::valueOf));
                     continue;
                 } else if (reflectedParam.isAssignableFrom(Short.class)
                         || reflectedParam.isAssignableFrom(short.class)) {
-                    paramBinders.put(i, event -> event.lastHeader(key, Short::valueOf));
+                    paramBinders.put(i, context -> context.event().lastHeader(key, Short::valueOf));
                     continue;
                 } else if (reflectedParam.isAssignableFrom(Integer.class)
                         || reflectedParam.isAssignableFrom(int.class)) {
-                    paramBinders.put(i, event -> event.lastHeader(key, Integer::valueOf));
+                    paramBinders.put(i, context -> context.event().lastHeader(key, Integer::valueOf));
                     continue;
                 } else if (reflectedParam.isAssignableFrom(Long.class) || reflectedParam.isAssignableFrom(long.class)) {
-                    paramBinders.put(i, event -> event.lastHeader(key, Long::valueOf));
+                    paramBinders.put(i, context -> context.event().lastHeader(key, Long::valueOf));
                     continue;
                 } else if (reflectedParam.isAssignableFrom(Double.class)
                         || reflectedParam.isAssignableFrom(double.class)) {
-                    paramBinders.put(i, event -> event.lastHeader(key, Double::valueOf));
+                    paramBinders.put(i, context -> context.event().lastHeader(key, Double::valueOf));
                     continue;
                 } else if (reflectedParam.isAssignableFrom(Float.class)
                         || reflectedParam.isAssignableFrom(float.class)) {
-                    paramBinders.put(i, event -> event.lastHeader(key, Float::valueOf));
+                    paramBinders.put(i, context -> context.event().lastHeader(key, Float::valueOf));
                     continue;
                 } else if (reflectedParam.isAssignableFrom(Instant.class)) {
-                    paramBinders.put(i, event -> event.lastHeader(key, Instant::parse));
+                    paramBinders.put(i, context -> context.event().lastHeader(key, Instant::parse));
                     continue;
                 } else if (reflectedParam.isAssignableFrom(UUID.class)) {
-                    paramBinders.put(i, event -> event.lastHeader(key, UUID::fromString));
+                    paramBinders.put(i, context -> context.event().lastHeader(key, UUID::fromString));
                     continue;
                 } else if (reflectedParam.isEnum()) {
-                    paramBinders.put(i, event -> event.lastHeader(key,
+                    paramBinders.put(i, context -> context.event().lastHeader(key,
                             str -> Enum.valueOf((Class<Enum>) reflectedParam.getType(), str)));
                     continue;
                 }
@@ -238,7 +243,8 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
                         Optional.ofNullable(reflectedParam.getAnnotation(JsonView.class)).map(JsonView::value)
                                 .map(OneUtil::firstOrNull).orElse(null));
 
-                paramBinders.put(i, event -> event.value() == null ? null : fromJson.fromJson(event.value(), typeOf));
+                paramBinders.put(i, context -> context.event().value() == null ? null
+                        : fromJson.fromJson(context.event().value(), typeOf));
                 valueParamRef[0] = reflectedParam;
 
                 continue;
@@ -319,7 +325,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
         return new EventBinders(paramBinders, mdcMapBinders);
     }
 
-    private record EventBinders(Map<Integer, Function<InboundEvent, Object>> eventBinders,
+    private record EventBinders(Map<Integer, Function<InboundEventContext, Object>> eventBinders,
             Map<String, Function<Object[], String>> mdcMapBinders) {
     };
 }
