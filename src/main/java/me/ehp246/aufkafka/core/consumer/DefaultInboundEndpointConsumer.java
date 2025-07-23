@@ -2,6 +2,7 @@ package me.ehp246.aufkafka.core.consumer;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -10,11 +11,13 @@ import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
 import org.apache.kafka.clients.consumer.Consumer;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import me.ehp246.aufkafka.api.consumer.DispatchListener;
+import me.ehp246.aufkafka.api.consumer.EndpointAt;
 import me.ehp246.aufkafka.api.consumer.InboundEndpointConsumer;
 import me.ehp246.aufkafka.api.consumer.InboundEvent;
 import me.ehp246.aufkafka.api.consumer.InboundEventContext;
@@ -29,6 +32,7 @@ import me.ehp246.aufkafka.api.spi.EventMdcContext;
 final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
     private final static Logger LOGGER = LoggerFactory.getLogger(DefaultInboundEndpointConsumer.class);
 
+    private final EndpointAt at;
     private final Consumer<String, String> consumer;
     private final Supplier<Duration> pollDurationSupplier;
     private final EventInvocableRunnableBuilder runnableBuilder;
@@ -42,12 +46,13 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
     private final CompletableFuture<Void> hasClosed = new CompletableFuture<>();
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
 
-    DefaultInboundEndpointConsumer(final Consumer<String, String> consumer,
+    DefaultInboundEndpointConsumer(final EndpointAt at, final Consumer<String, String> consumer,
             final Supplier<Duration> pollDurationSupplier, final EventInvocableRunnableBuilder dispatcher,
             final InvocableFactory invocableFactory, final List<DispatchListener.DispatchingListener> onDispatching,
             final DispatchListener.UnknownEventListener onUnmatched,
             final DispatchListener.ExceptionListener onException) {
         super();
+        this.at = at;
         this.consumer = consumer;
         this.pollDurationSupplier = pollDurationSupplier;
         this.runnableBuilder = dispatcher;
@@ -57,7 +62,17 @@ final class DefaultInboundEndpointConsumer implements InboundEndpointConsumer {
         this.onException = onException;
     }
 
+    @Override
     public void run() {
+        final var topic = this.at.topic();
+        final var partitions = this.at.partitions();
+
+        if (partitions == null || partitions.size() == 0) {
+            consumer.subscribe(Set.of(topic));
+        } else {
+            consumer.assign(partitions.stream().map(i -> new TopicPartition(topic, i)).toList());
+        }
+
         while (!this.isClosed) {
             try {
                 synchronized (this.consumer) {

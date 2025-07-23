@@ -24,6 +24,7 @@ import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
 import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointRegistrar;
 import me.ehp246.aufkafka.core.consumer.ConsumerConfiguration;
 import me.ehp246.aufkafka.core.consumer.DefaultEventInvocableBinder;
+import me.ehp246.aufkafka.core.consumer.DefaultInboundEndpointConsumerFactory;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableScanner;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointConsumerConfigurer;
 import me.ehp246.aufkafka.core.consumer.InboundEndpointFactory;
@@ -42,7 +43,7 @@ import me.ehp246.aufkafka.core.consumer.InboundEndpointFactory;
 @Target(ElementType.TYPE)
 @Import({ AufKafkaConfiguration.class, ConsumerConfiguration.class, AnnotatedInboundEndpointRegistrar.class,
         InboundEndpointFactory.class, InboundEndpointConsumerConfigurer.class, DefaultInvocableScanner.class,
-        DefaultEventInvocableBinder.class })
+        DefaultEventInvocableBinder.class, DefaultInboundEndpointConsumerFactory.class })
 public @interface EnableForKafka {
     /**
      * Specifies the topics to listen for in-bound messages and their

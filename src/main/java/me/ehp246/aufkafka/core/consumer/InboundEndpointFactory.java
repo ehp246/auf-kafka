@@ -15,6 +15,7 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.api.consumer.DispatchListener;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
+import me.ehp246.aufkafka.api.consumer.EndpointAt;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
@@ -67,23 +68,9 @@ public final class InboundEndpointFactory {
         final var pollDuration = Duration
                 .parse(expressionResolver.apply(inboundAttributes.get("pollDuration").toString()));
 
-        final InboundEndpoint.From from = new InboundEndpoint.From() {
-            private final String topic = expressionResolver.apply(fromAttribute.get("value").toString());
-            private final List<Integer> partitions = Arrays.stream((String[]) fromAttribute.get("partitions"))
-                    .map(expressionResolver::apply).filter(OneUtil::hasValue).flatMap(OneUtil::parseIntegerRange)
-                    .sorted().distinct().toList();
-
-            @Override
-            public String topic() {
-                return topic;
-            }
-
-            @Override
-            public List<Integer> partitions() {
-                return partitions;
-            }
-
-        };
+        final EndpointAt from = new EndpointAt(expressionResolver.apply(fromAttribute.get("value").toString()),
+                Arrays.stream((String[]) fromAttribute.get("partitions")).map(expressionResolver::apply)
+                        .filter(OneUtil::hasValue).flatMap(OneUtil::parseIntegerRange).sorted().distinct().toList());
 
         final var registery = new DefaultEventInvocableRegistry(inboundAttributes.get("eventHeader").toString());
 
@@ -100,7 +87,7 @@ public final class InboundEndpointFactory {
 
         return new InboundEndpoint() {
             @Override
-            public From from() {
+            public EndpointAt from() {
                 return from;
             }
 

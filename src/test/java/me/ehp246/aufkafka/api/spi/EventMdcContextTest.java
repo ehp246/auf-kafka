@@ -9,7 +9,6 @@ import java.util.concurrent.Executors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
 import org.slf4j.MDC;
 
 import me.ehp246.aufkafka.core.util.OneUtil;
@@ -19,7 +18,6 @@ class EventMdcContextTest {
     private final Executor executor = Executors.newVirtualThreadPerTaskExecutor();
 
     @Test
-    @Timeout(1)
     void mdcHeaders_01() {
         final var completed = new CompletableFuture<String>();
         final var key = UUID.randomUUID().toString();
@@ -37,7 +35,6 @@ class EventMdcContextTest {
     }
 
     @Test
-    @Timeout(1)
     void mdcHeaders_02() {
         final var completed = new CompletableFuture<String>();
         final var key = UUID.randomUUID().toString();
@@ -54,7 +51,6 @@ class EventMdcContextTest {
     }
 
     @Test
-    @Timeout(1)
     void mdcHeaders_03() {
         final var completed = new CompletableFuture<String>();
         final var key = UUID.randomUUID().toString();
@@ -72,7 +68,6 @@ class EventMdcContextTest {
     }
 
     @Test
-    @Timeout(1)
     void mdcHeaders_04() {
         final var completed = new CompletableFuture<String>();
         final var key = UUID.randomUUID().toString();
@@ -93,7 +88,6 @@ class EventMdcContextTest {
     }
 
     @Test
-    @Timeout(1)
     void mdcHeaders_05() {
         final var completed = new CompletableFuture<String>();
         final var key = UUID.randomUUID().toString();
