@@ -4,7 +4,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound;
-import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
+import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.At;
 import me.ehp246.test.mock.WildcardAction;
 
 /**
@@ -13,7 +13,7 @@ import me.ehp246.test.mock.WildcardAction;
  */
 @EnableKafka
 @EnableForKafka({
-        @Inbound(value = @From(value = AppConfig.TOPIC, partitions = { "${p.3}" }), register = WildcardAction.class) })
+        @Inbound(value = @At(value = AppConfig.TOPIC, partitions = { "${p.3}" }), register = WildcardAction.class) })
 class AppConfig {
     final static String TOPIC = "aaa7b9d5-48ad-4542-8290-77c222fc146f";
 }

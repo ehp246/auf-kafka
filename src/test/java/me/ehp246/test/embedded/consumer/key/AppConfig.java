@@ -4,13 +4,13 @@ import org.springframework.kafka.annotation.EnableKafka;
 
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound;
-import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
+import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.At;
 
 /**
  * @author Lei Yang
  *
  */
 @EnableKafka
-@EnableForKafka({ @Inbound(value = @From("embedded")) })
+@EnableForKafka({ @Inbound(value = @At("embedded")) })
 class AppConfig {
 }

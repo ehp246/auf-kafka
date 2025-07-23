@@ -1,7 +1,6 @@
 package me.ehp246.aufkafka.api.consumer;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -9,7 +8,7 @@ import java.util.Map;
  * @since 1.0
  */
 public interface InboundEndpoint {
-    From from();
+    EndpointAt at();
 
     EventInvocableRegistry invocableRegistry();
 
@@ -46,13 +45,5 @@ public interface InboundEndpoint {
 
     default DispatchListener.ExceptionListener dispatchExceptionListener() {
         return null;
-    }
-
-    interface From {
-        String topic();
-
-        default List<Integer> partitions() {
-            return null;
-        }
     }
 }
