@@ -16,7 +16,7 @@ import me.ehp246.aufkafka.api.spi.EventMdcContext;
 
 /**
  * @author Lei Yang
- * @see InboundEndpointFactory
+ * @see AnnotatedInboundEndpointFactory
  */
 public final class InboundEndpointConsumerConfigurer implements SmartInitializingSingleton {
     private final static Logger LOGGER = LoggerFactory.getLogger(InboundEndpointConsumerConfigurer.class);

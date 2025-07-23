@@ -29,12 +29,12 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * @see EnableForKafka
  * 
  */
-public final class InboundEndpointFactory {
+public final class AnnotatedInboundEndpointFactory {
     private final ExpressionResolver expressionResolver;
     private final AutowireCapableBeanFactory autowireCapableBeanFactory;
     private final InvocableScanner invocableScanner;
 
-    public InboundEndpointFactory(final AutowireCapableBeanFactory autowireCapableBeanFactory,
+    public AnnotatedInboundEndpointFactory(final AutowireCapableBeanFactory autowireCapableBeanFactory,
             final ExpressionResolver expressionResolver, final InvocableScanner invocableScanner) {
         super();
         this.autowireCapableBeanFactory = autowireCapableBeanFactory;
