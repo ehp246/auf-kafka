@@ -87,7 +87,7 @@ public final class InboundEndpointFactory {
 
         return new InboundEndpoint() {
             @Override
-            public EndpointAt from() {
+            public EndpointAt at() {
                 return from;
             }
 

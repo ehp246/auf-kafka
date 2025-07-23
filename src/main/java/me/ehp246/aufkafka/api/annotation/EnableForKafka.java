@@ -56,7 +56,7 @@ public @interface EnableForKafka {
         /**
          * Topic of the incoming messages.
          */
-        From value();
+        At value();
 
         /**
          * Specifies the name to pass to {@linkplain ConsumerConfigProvider} to retrieve
@@ -187,7 +187,7 @@ public @interface EnableForKafka {
         String consumerListener() default "";
 
         @Target({})
-        @interface From {
+        @interface At {
             /**
              * Defines the topic name.
              * <p>

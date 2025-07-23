@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Import;
 import me.ehp246.aufkafka.api.annotation.EnableByKafka;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound;
-import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
+import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.At;
 import me.ehp246.aufkafka.api.consumer.InvocationListener.FailedListener;
 import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 import me.ehp246.test.embedded.consumer.listener.failed.invocation.FailMsg;
@@ -21,7 +21,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  */
 @ComponentScan
 @EnableByKafka
-@EnableForKafka({ @Inbound(value = @From("embedded"), scan = FailMsg.class,
+@EnableForKafka({ @Inbound(value = @At("embedded"), scan = FailMsg.class,
         invocationListener = "consumer1") })
 @Import(EmbeddedKafkaConfig.class)
 class AppConfig {

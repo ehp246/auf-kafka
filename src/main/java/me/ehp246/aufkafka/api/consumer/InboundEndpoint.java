@@ -8,7 +8,7 @@ import java.util.Map;
  * @since 1.0
  */
 public interface InboundEndpoint {
-    EndpointAt from();
+    EndpointAt at();
 
     EventInvocableRegistry invocableRegistry();
 

@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Bean;
 import me.ehp246.aufkafka.api.annotation.EnableByKafka;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound;
-import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
+import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.At;
 
 /**
  * @author Lei Yang
@@ -13,7 +13,7 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.From;
  */
 @EnableByKafka
 @EnableForKafka(value = {
-        @Inbound(value = @From("embedded"), unknownEventListener = "${default.consumer.name:}") })
+        @Inbound(value = @At("embedded"), unknownEventListener = "${default.consumer.name:}") })
 class AppConfig {
     @Bean
     Unknown unknown() {

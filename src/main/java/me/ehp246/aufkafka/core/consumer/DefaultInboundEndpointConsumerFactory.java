@@ -42,7 +42,7 @@ public final class DefaultInboundEndpointConsumerFactory implements InboundEndpo
     public InboundEndpointConsumer get(final InboundEndpoint endpoint) {
         final var consumer = this.consumerProvider.get(endpoint.configName(), endpoint.consumerProperties());
 
-        final var endpointConsumer = new DefaultInboundEndpointConsumer(endpoint.from(), consumer,
+        final var endpointConsumer = new DefaultInboundEndpointConsumer(endpoint.at(), consumer,
                 endpoint::pollDuration,
                 new DefaultEventInvocableRunnableBuilder(this.binder,
                         endpoint.invocationListener() == null ? null : List.of(endpoint.invocationListener())),

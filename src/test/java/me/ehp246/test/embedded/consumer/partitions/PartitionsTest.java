@@ -27,12 +27,12 @@ class PartitionsTest {
     @Test
     void partitions_01() {
         Assertions.assertEquals(0,
-                beanFactory.getBeansOfType(InboundEndpoint.class).get("inboundEndpoint-0").from().partitions().size());
+                beanFactory.getBeansOfType(InboundEndpoint.class).get("inboundEndpoint-0").at().partitions().size());
     }
 
     @Test
     void partitions_02() {
-        final var partitions = beanFactory.getBeansOfType(InboundEndpoint.class).get("inboundEndpoint-1").from()
+        final var partitions = beanFactory.getBeansOfType(InboundEndpoint.class).get("inboundEndpoint-1").at()
                 .partitions();
 
         Assertions.assertEquals(11, partitions.size());
