@@ -61,6 +61,9 @@
 		<nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
 		<versions-plugin.version>2.18.0</versions-plugin.version>
 		<scm-plugin.version>2.1.0</scm-plugin.version>
+
+		<sonar.organization>me-ehp246</sonar.organization>
+  		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 
 	<dependencies>
