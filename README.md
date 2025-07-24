@@ -1,4 +1,15 @@
 # Auf Kafka
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=bugs)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
 
 ## Introduction
 Auf Kafka is aimed at Spring-based applications that need to implement a messaging-based architecture on top of Apache Kafka platform. It offers an annotation-driven and declarative programming model that abstracts away low-level API's. It offers a set of annotations and conventions with which application developers can declare the intentions via plain Java classes.
