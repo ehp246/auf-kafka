@@ -5,7 +5,7 @@ import java.util.Map;
 import org.apache.kafka.clients.consumer.Consumer;
 
 /**
- * Internal beans used by {@linkplain InboundEndpointConsumerConfigurer}.
+ * Internal beans used by {@linkplain AnnotatedInboundEndpointConsumerConfigurer}.
  * 
  * @author Lei Yang
  * @since 1.0

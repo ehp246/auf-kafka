@@ -13,9 +13,9 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.api.consumer.DispatchListener;
+import me.ehp246.aufkafka.api.consumer.EndpointAt;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
-import me.ehp246.aufkafka.api.consumer.EndpointAt;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
@@ -25,16 +25,16 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * @author Lei Yang
  * @since 1.0
  * @see AnnotatedInboundEndpointRegistrar
- * @see InboundEndpointConsumerConfigurer
+ * @see AnnotatedInboundEndpointConsumerConfigurer
  * @see EnableForKafka
  * 
  */
-public final class InboundEndpointFactory {
+public final class AnnotatedInboundEndpointFactory {
     private final ExpressionResolver expressionResolver;
     private final AutowireCapableBeanFactory autowireCapableBeanFactory;
     private final InvocableScanner invocableScanner;
 
-    public InboundEndpointFactory(final AutowireCapableBeanFactory autowireCapableBeanFactory,
+    public AnnotatedInboundEndpointFactory(final AutowireCapableBeanFactory autowireCapableBeanFactory,
             final ExpressionResolver expressionResolver, final InvocableScanner invocableScanner) {
         super();
         this.autowireCapableBeanFactory = autowireCapableBeanFactory;

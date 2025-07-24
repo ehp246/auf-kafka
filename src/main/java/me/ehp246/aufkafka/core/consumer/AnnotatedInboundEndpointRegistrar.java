@@ -71,7 +71,7 @@ public final class AnnotatedInboundEndpointRegistrar implements ImportBeanDefini
     private GenericBeanDefinition newBeanDefinition() {
         final var beanDefinition = new GenericBeanDefinition();
         beanDefinition.setBeanClass(InboundEndpoint.class);
-        beanDefinition.setFactoryBeanName(InboundEndpointFactory.class.getName());
+        beanDefinition.setFactoryBeanName(AnnotatedInboundEndpointFactory.class.getName());
         beanDefinition.setFactoryMethodName("newInstance");
 
         return beanDefinition;
