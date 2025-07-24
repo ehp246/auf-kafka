@@ -27,8 +27,12 @@ public class EventAction {
     public synchronized InboundEvent take() {
         return OneUtil.orThrow(() -> {
             final var received = ref.get().get();
-            ref.set(new CompletableFuture<>());
+            reset();
             return received;
         });
+    }
+
+    public void reset() {
+        ref.set(new CompletableFuture<>());
     }
 }

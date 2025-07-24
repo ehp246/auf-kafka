@@ -4,13 +4,13 @@ import java.util.UUID;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 
 import me.ehp246.aufkafka.api.common.AufKafkaConstant;
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
@@ -24,12 +24,16 @@ import me.ehp246.test.mock.StringHeader;
         EventAction.class }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { "42de72b9-c551-4d38-b56e-9ce0ea77e7a2", "efec8bfb-77d8-4091-b2a7-fc9e050030b4",
         "c67e2456-8427-439a-af2b-ba19eb2b7945" })
-@DirtiesContext
 class EventHeaderTest {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
     @Autowired
     private EventAction action;
+
+    @BeforeEach
+    void reset() {
+        action.reset();
+    }
 
     @Test
     void topic1_header_01() {
