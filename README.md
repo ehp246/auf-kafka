@@ -1,4 +1,6 @@
 # Auf Kafka
+[![Java CI with Maven](https://github.com/ehp246/auf-kafka/actions/workflows/build.yml/badge.svg)](https://github.com/ehp246/auf-kafka/actions/workflows/build.yml)
+
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=bugs)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=ehp246_auf-kafka&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=ehp246_auf-kafka)
