@@ -13,9 +13,9 @@ import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 import me.ehp246.aufkafka.api.annotation.EnableForKafka;
 import me.ehp246.aufkafka.api.consumer.DispatchListener;
+import me.ehp246.aufkafka.api.consumer.EndpointAt;
 import me.ehp246.aufkafka.api.consumer.EventInvocableRegistry;
 import me.ehp246.aufkafka.api.consumer.InboundEndpoint;
-import me.ehp246.aufkafka.api.consumer.EndpointAt;
 import me.ehp246.aufkafka.api.consumer.InvocableScanner;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
 import me.ehp246.aufkafka.api.spi.ExpressionResolver;
@@ -25,7 +25,7 @@ import me.ehp246.aufkafka.core.util.OneUtil;
  * @author Lei Yang
  * @since 1.0
  * @see AnnotatedInboundEndpointRegistrar
- * @see InboundEndpointConsumerConfigurer
+ * @see AnnotatedInboundEndpointConsumerConfigurer
  * @see EnableForKafka
  * 
  */
