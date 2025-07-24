@@ -20,7 +20,7 @@ public class EventAction {
     private final AtomicReference<CompletableFuture<InboundEvent>> ref = new AtomicReference<>(
             new CompletableFuture<>());
 
-    public void apply(final ConsumerRecord<String, String> consumerRecord) {
+    public synchronized void apply(final ConsumerRecord<String, String> consumerRecord) {
         ref.get().complete(new InboundEvent(consumerRecord));
     }
 
@@ -32,7 +32,7 @@ public class EventAction {
         });
     }
 
-    public void reset() {
+    public synchronized void reset() {
         ref.set(new CompletableFuture<>());
     }
 }
