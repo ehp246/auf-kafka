@@ -26,6 +26,7 @@ import me.ehp246.test.mock.WildcardAction;
 @EmbeddedKafka(topics = { "7d9052da-86e0-4851-aac9-9e59cce05f05.1", "7d9052da-86e0-4851-aac9-9e59cce05f05.2",
         "7d9052da-86e0-4851-aac9-9e59cce05f05.3" }, partitions = 1)
 class TopicTest {
+
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
