@@ -89,7 +89,7 @@ public @interface OfMdc {
          */
         Default,
         /**
-         * Specifies to look for {@linkplain OfMDC}-annotated supplier methods for
+         * Specifies to look for {@linkplain OfMdc}-annotated supplier methods for
          * values instead of the argument itself.
          */
         Introspect
