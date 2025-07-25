@@ -1,5 +1,7 @@
 package me.ehp246.test.embedded.producer.partition;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,8 +77,13 @@ class PartitionTest {
 
     @Test
     void partition_08() {
-        Assertions.assertEquals(6, this.case02.onMethod02().partition());
-        Assertions.assertEquals(6, this.listener.get().consumerRecord().partition());
+        final var sent = this.case02.onMethod02(UUID.randomUUID().toString());
+        final var inboundEvent = this.listener.get();
+
+        Assertions.assertEquals(6, sent.partition());
+
+        Assertions.assertEquals(sent.key(), inboundEvent.key());
+        Assertions.assertEquals(6, inboundEvent.partition());
     }
 
     @Test

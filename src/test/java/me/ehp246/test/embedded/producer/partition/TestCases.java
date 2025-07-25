@@ -3,6 +3,7 @@ package me.ehp246.test.embedded.producer.partition;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
+import me.ehp246.aufkafka.api.annotation.OfKey;
 import me.ehp246.aufkafka.api.annotation.OfPartition;
 
 /**
@@ -34,6 +35,6 @@ interface TestCases {
         ProducerRecord<String, String> onMethod01();
 
         @OfPartition(6)
-        ProducerRecord<String, String> onMethod02();
+        ProducerRecord<String, String> onMethod02(@OfKey String key);
     }
 }
