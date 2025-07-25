@@ -1,9 +1,11 @@
 package me.ehp246.test.embedded.consumer.enable.basic.topic;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,16 +26,23 @@ import me.ehp246.test.mock.WildcardAction;
 @EmbeddedKafka(topics = { "7d9052da-86e0-4851-aac9-9e59cce05f05.1", "7d9052da-86e0-4851-aac9-9e59cce05f05.2",
         "7d9052da-86e0-4851-aac9-9e59cce05f05.3" }, partitions = 1)
 class TopicTest {
+
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
     @Autowired
     private WildcardAction action;
 
+    @BeforeEach
+    void reset() {
+        this.action.reset();
+    }
+
     @Test
-    void topic_01() {
+    void topic_01() throws InterruptedException, ExecutionException {
         final var key = UUID.randomUUID().toString();
-        kafkaTemplate.send(new ProducerRecord<String, String>(AppConfig.TOPIC + ".1", key, null));
+
+        kafkaTemplate.send(new ProducerRecord<String, String>(AppConfig.TOPIC + ".1", key, null)).get();
 
         final var event = action.take();
 
@@ -41,9 +50,10 @@ class TopicTest {
     }
 
     @Test
-    void topic_02() {
+    void topic_02() throws InterruptedException, ExecutionException {
         final var key = UUID.randomUUID().toString();
-        kafkaTemplate.send(new ProducerRecord<String, String>(AppConfig.TOPIC + ".2", key, null));
+
+        kafkaTemplate.send(new ProducerRecord<String, String>(AppConfig.TOPIC + ".2", key, null)).get();
 
         final var event = action.take();
 
@@ -51,9 +61,10 @@ class TopicTest {
     }
 
     @Test
-    void topic_03() {
+    void topic_03() throws InterruptedException, ExecutionException {
         final var key = UUID.randomUUID().toString();
-        kafkaTemplate.send(new ProducerRecord<String, String>(AppConfig.TOPIC + ".3", key, null));
+
+        kafkaTemplate.send(new ProducerRecord<String, String>(AppConfig.TOPIC + ".3", key, null)).get();
 
         final var event = action.take();
 

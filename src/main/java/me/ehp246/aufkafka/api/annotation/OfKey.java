@@ -16,12 +16,10 @@ import java.lang.annotation.Target;
  * <li>When applied to a parameter, the argument will be converted to
  * {@linkplain String} via {@linkplain Object#toString()}.
  * {@linkplain OfKey#value()} is ignored.</li>
- * <p>
  * <li>When applied to a method of {@linkplain ByKafka} interfaces, a
  * {@linkplain ByKafka#value() value} of {@linkplain String#isBlank()} sets the
  * key to <code>null</code>.</li>
- * <p>
- * <ul>
+ * </ul>
  * 
  * @author Lei Yang
  * @since 1.0

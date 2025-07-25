@@ -61,6 +61,9 @@
 		<nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
 		<versions-plugin.version>2.18.0</versions-plugin.version>
 		<scm-plugin.version>2.1.0</scm-plugin.version>
+
+		<sonar.organization>me-ehp246</sonar.organization>
+  		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 	</properties>
 
 	<dependencies>
@@ -106,7 +109,6 @@
 		</dependency>
 
 		<!-- Test -->
-
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
@@ -194,6 +196,13 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
 		<dependency>
 			<groupId>com.fasterxml.jackson.module</groupId>
 			<artifactId>jackson-module-mrbean</artifactId>
@@ -297,7 +306,12 @@
 						<goals>
 							<goal>report</goal>
 						</goals>
-					</execution>
+						<configuration>
+							<formats>
+						    	<format>XML</format>
+						    </formats>
+						</configuration>
+          			</execution>
 				</executions>
 			</plugin>
 			<plugin>

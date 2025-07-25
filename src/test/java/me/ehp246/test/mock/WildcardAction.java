@@ -2,7 +2,6 @@ package me.ehp246.test.mock;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicReference;
 
 import me.ehp246.aufkafka.api.annotation.Execution;
 import me.ehp246.aufkafka.api.annotation.ForKey;
@@ -15,21 +14,17 @@ import me.ehp246.aufkafka.api.consumer.InstanceScope;
  */
 @ForKey(value = ".*", execution = @Execution(scope = InstanceScope.BEAN))
 public class WildcardAction {
-    private final AtomicReference<CompletableFuture<InboundEvent>> ref = new AtomicReference<>(
-            new CompletableFuture<>());
+    private volatile CompletableFuture<InboundEvent> ref = new CompletableFuture<>();
 
     public void apply(InboundEvent event) {
-        if (ref.get().isDone()) {
-            throw new RuntimeException("Has been completed");
-        }
-        ref.get().complete(event);
+        ref.complete(event);
     }
 
     public InboundEvent take() {
         final InboundEvent event;
 
         try {
-            event = ref.get().get();
+            event = ref.get();
             reset();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
@@ -39,10 +34,10 @@ public class WildcardAction {
     }
 
     public CompletableFuture<InboundEvent> future() {
-        return this.ref.get();
+        return this.ref;
     }
 
     public void reset() {
-        ref.set(new CompletableFuture<>());
+        this.ref = new CompletableFuture<>();
     }
 }

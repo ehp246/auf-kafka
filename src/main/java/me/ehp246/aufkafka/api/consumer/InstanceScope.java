@@ -4,6 +4,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 
+import me.ehp246.aufkafka.api.annotation.Execution;
 import me.ehp246.aufkafka.api.annotation.ForKey;
 
 /**
@@ -12,7 +13,7 @@ import me.ehp246.aufkafka.api.annotation.ForKey;
  *
  * @author Lei Yang
  * @since 1.0
- * @see ForKey#scope()
+ * @see Execution#scope()
  */
 public enum InstanceScope {
     /**

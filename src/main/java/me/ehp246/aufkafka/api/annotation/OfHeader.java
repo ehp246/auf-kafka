@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Parameter;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 
