@@ -85,16 +85,20 @@ class DefaultInboundEndpointConsumerTest {
         final var expected = Duration.ofDays(2);
         final var pollFuture = new CompletableFuture<Duration>();
 
-        Executors.newVirtualThreadPerTaskExecutor().execute(
-                new DefaultInboundEndpointConsumer(at, new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST) {
+        final var consumer = new MockConsumer<String, String>(OffsetResetStrategy.EARLIEST) {
 
-                    @Override
-                    public synchronized ConsumerRecords<String, String> poll(Duration timeout) {
-                        pollFuture.complete(timeout);
-                        return super.poll(timeout);
-                    }
+            @Override
+            public synchronized ConsumerRecords<String, String> poll(Duration timeout) {
+                pollFuture.complete(timeout);
+                return super.poll(timeout);
+            }
 
-                }, () -> expected, dispatcher, factory, null, null, null)::run);
+        };
+
+        consumer.updateBeginningOffsets(Map.of(partition, 0L));
+
+        Executors.newVirtualThreadPerTaskExecutor().execute(new DefaultInboundEndpointConsumer(at, consumer,
+                () -> expected, dispatcher, factory, null, null, null)::run);
 
         Assertions.assertEquals(expected, pollFuture.get());
     }
