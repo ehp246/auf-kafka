@@ -62,9 +62,9 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
             configMap.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
 
             return new DefaultProducerFn(recordBuilder, producerSupplier.apply(configMap),
-                    Optional.ofNullable(configMap.get(AufKafkaConstant.PRODUCERFN_FLUSH)).map(Object::toString)
+                    Optional.ofNullable(configMap.get(AufKafkaConstant.PRODUCER_FLUSH)).map(Object::toString)
                             .map(Boolean::valueOf).orElse(Boolean.FALSE),
-                    Optional.ofNullable(configMap.get(AufKafkaConstant.PRODUCERFN_CALLBACK)).map(Object::toString)
+                    Optional.ofNullable(configMap.get(AufKafkaConstant.PRODUCER_CALLBACK)).map(Object::toString)
                             .filter(OneUtil::hasValue).map(name -> this.callbackBeanResolver.apply(name)).orElse(null));
         });
     }

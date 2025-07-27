@@ -36,9 +36,9 @@ public final class AufKafkaConstant {
      * @see ProducerFnProvider
      * @see ProducerConfigProvider
      */
-    public static final String PRODUCERFN_FLUSH = "me.ehp246.aufkafka.producerfn.flush";
+    public static final String PRODUCER_FLUSH = "me.ehp246.aufkafka.producer.flush";
 
-    public static final String PRODUCERFN_CALLBACK = "me.ehp246.aufkafka.producerfn.callback";
+    public static final String PRODUCER_CALLBACK = "me.ehp246.aufkafka.producer.callback";
 
     public static final String HEADER_PREFIX = "aufkafka_";
     public static final String EVENT_HEADER = HEADER_PREFIX + "event";

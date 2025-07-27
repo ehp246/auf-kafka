@@ -53,8 +53,8 @@ final class CallbackKafkaConfig {
     ProducerConfigProvider producerConfigProvider() {
         final Map<String, Object> configMap = KafkaTestUtils.producerProps(embeddedKafka);
 
-        configMap.put(AufKafkaConstant.PRODUCERFN_FLUSH, "true");
-        configMap.put(AufKafkaConstant.PRODUCERFN_CALLBACK, "callmeback");
+        configMap.put(AufKafkaConstant.PRODUCER_FLUSH, "true");
+        configMap.put(AufKafkaConstant.PRODUCER_CALLBACK, "callmeback");
 
         return name -> configMap;
     }
