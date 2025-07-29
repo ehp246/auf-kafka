@@ -64,10 +64,6 @@
 
 		<sonar.organization>me-ehp246</sonar.organization>
   		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
-  		
-  		<mockito.argLine>-javaagent:"${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar"</mockito.argLine>
-  		<shareOff.argLine>-Xshare:off</shareOff.argLine>
-  		<argLine>${mockito.argLine} ${shareOff.argLine}</argLine>
 	</properties>
 
 	<dependencies>
@@ -260,6 +256,7 @@
 						<spring.main.banner-mode>off</spring.main.banner-mode>
 					</systemPropertyVariables>
 					<argLine>
+						-javaagent:"${settings.localRepository}/org/jacoco/org.jacoco.agent/${maven-jacoco-plugin.version}/org.jacoco.agent-${maven-jacoco-plugin.version}-runtime.jar=destfile=${project.build.directory}/jacoco.exec,output=file"
 						-javaagent:"${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar"
 						-Xshare:off
 					</argLine>
