@@ -58,18 +58,7 @@ class DefaultEventInvocableRunnableBuilderTest {
     private static EventInvocableBinder bindToFail(final Exception ex) {
         final BoundInvocable bound = Mockito.mock(BoundInvocable.class);
 
-        final var failed = new Failed() {
-
-            @Override
-            public BoundInvocable bound() {
-                return bound;
-            }
-
-            @Override
-            public Throwable thrown() {
-                return ex;
-            }
-        };
+        final var failed = (Failed) () -> ex;
         Mockito.when(bound.invoke()).thenReturn(failed);
 
         return (i, m) -> bound;
@@ -92,8 +81,8 @@ class DefaultEventInvocableRunnableBuilderTest {
         Assertions.assertEquals(actual, expected, "should be the thrown from invocable");
 
         Mockito.verify(invoking, never()).onInvoking(Mockito.any());
-        Mockito.verify(completed, never()).onCompleted(Mockito.any());
-        Mockito.verify(failed, never()).onFailed(Mockito.any());
+        Mockito.verify(completed, never()).onCompleted(Mockito.any(), Mockito.any());
+        Mockito.verify(failed, never()).onFailed(Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -115,7 +104,7 @@ class DefaultEventInvocableRunnableBuilderTest {
         final var binder = bindToFail(expected);
 
         final var threw = Assertions.assertThrows(RuntimeException.class,
-                new DefaultEventInvocableRunnableBuilder(binder, List.of((InvocationListener.FailedListener) m -> {
+                new DefaultEventInvocableRunnableBuilder(binder, List.of((InvocationListener.FailedListener) (b, m) -> {
                     ref[0] = m;
                 })).apply(eventInvocable, new MockConsumerRecord().toEventContext())::run);
 
@@ -123,7 +112,6 @@ class DefaultEventInvocableRunnableBuilderTest {
 
         Assertions.assertEquals(expected, failed.thrown(), "should be the one thrown by application code");
         Assertions.assertEquals(expected, threw);
-        Assertions.assertEquals(binder.bind(null, null), failed.bound());
     }
 
     @Test
@@ -132,7 +120,7 @@ class DefaultEventInvocableRunnableBuilderTest {
 
         final var actual = Assertions.assertThrows(RuntimeException.class,
                 new DefaultEventInvocableRunnableBuilder(bindToFail(new IllegalArgumentException()),
-                        List.of((InvocationListener.FailedListener) m -> {
+                        List.of((InvocationListener.FailedListener) (b, m) -> {
                             throw expected;
                         })).apply(eventInvocable, new MockConsumerRecord().toEventContext())::run,
                 "should allow the listener to throw back to the broker");
@@ -148,10 +136,10 @@ class DefaultEventInvocableRunnableBuilderTest {
 
         final var actual = Assertions.assertThrows(RuntimeException.class,
                 new DefaultEventInvocableRunnableBuilder(bindToFail(failure),
-                        List.of((InvocationListener.FailedListener) m -> {
+                        List.of((InvocationListener.FailedListener) (b, m) -> {
                             ref[0] = m;
                             throw supressed;
-                        }, (InvocationListener.FailedListener) m -> {
+                        }, (InvocationListener.FailedListener) (b, m) -> {
                             ref[1] = m;
                             throw supressed;
                         })).apply(eventInvocable, new MockConsumerRecord().toEventContext())::run);
@@ -176,17 +164,12 @@ class DefaultEventInvocableRunnableBuilderTest {
                 private final Exception e = new IllegalArgumentException();
 
                 @Override
-                public BoundInvocable bound() {
-                    return bound;
-                }
-
-                @Override
                 public Throwable thrown() {
                     return e;
                 }
             });
             return bound;
-        }, List.of((InvocationListener.FailedListener) m -> {
+        }, List.of((InvocationListener.FailedListener) (b, m) -> {
             threadRef[1] = Thread.currentThread();
         })).apply(eventInvocable, new MockConsumerRecord().toEventContext())::run);
 
@@ -199,7 +182,7 @@ class DefaultEventInvocableRunnableBuilderTest {
 
         final var actual = Assertions.assertThrows(RuntimeException.class,
                 new DefaultEventInvocableRunnableBuilder(bindToComplete(Mockito.mock(Completed.class)),
-                        List.of((InvocationListener.CompletedListener) c -> {
+                        List.of((InvocationListener.CompletedListener) (b, c) -> {
                             throw expected;
                         })).apply(eventInvocable, new MockConsumerRecord().toEventContext())::run);
 
@@ -217,7 +200,8 @@ class DefaultEventInvocableRunnableBuilderTest {
 
         Mockito.verify(eventInvocable, times(1)).close();
         // Exception from the close should be suppressed.
-        Mockito.verify(completed, times(1)).onCompleted(Mockito.any(Completed.class));
+        Mockito.verify(completed, times(1)).onCompleted(Mockito.any(BoundInvocable.class),
+                Mockito.any(Completed.class));
     }
 
     @Test
@@ -289,11 +273,6 @@ class DefaultEventInvocableRunnableBuilderTest {
                                 private final Exception e = new IllegalArgumentException();
 
                                 @Override
-                                public BoundInvocable bound() {
-                                    return bound;
-                                }
-
-                                @Override
                                 public Throwable thrown() {
                                     return e;
                                 }
@@ -301,7 +280,7 @@ class DefaultEventInvocableRunnableBuilderTest {
                         }
                     });
                     return bound;
-                }, List.of((InvocationListener.FailedListener) m -> {
+                }, List.of((InvocationListener.FailedListener) (b, m) -> {
                     contextRef[1] = ThreadContext.getContext();
                 })).apply(eventInvocable, new MockConsumerRecord().toEventContext()).run());
 
@@ -326,11 +305,6 @@ class DefaultEventInvocableRunnableBuilderTest {
                                 private final Exception e = new IllegalArgumentException();
 
                                 @Override
-                                public BoundInvocable bound() {
-                                    return bound;
-                                }
-
-                                @Override
                                 public Throwable thrown() {
                                     return e;
                                 }
@@ -338,7 +312,7 @@ class DefaultEventInvocableRunnableBuilderTest {
                         }
                     });
                     return bound;
-                }, List.of((InvocationListener.FailedListener) m -> {
+                }, List.of((InvocationListener.FailedListener) (b, m) -> {
                     contextRef[1] = ThreadContext.getContext();
                 })).apply(eventInvocable, new MockConsumerRecord().toEventContext()).run());
 

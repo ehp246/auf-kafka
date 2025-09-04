@@ -26,7 +26,7 @@ class CompletedListener implements InvokingListener, InvocationListener.Complete
     }
 
     @Override
-    public void onCompleted(final Completed completed) {
+    public void onCompleted(final BoundInvocable bound, final Completed completed) {
         this.completedRef.get().complete(completed);
     }
 

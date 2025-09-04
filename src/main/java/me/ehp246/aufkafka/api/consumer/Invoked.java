@@ -9,12 +9,12 @@ import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
  */
 
 public sealed interface Invoked permits Completed, Failed {
-    BoundInvocable bound();
-
+    @FunctionalInterface
     public non-sealed interface Completed extends Invoked {
         Object returned();
     }
 
+    @FunctionalInterface
     public non-sealed interface Failed extends Invoked {
         Throwable thrown();
     }

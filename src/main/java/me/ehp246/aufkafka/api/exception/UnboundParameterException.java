@@ -10,8 +10,8 @@ import me.ehp246.aufkafka.api.annotation.ForKey;
 import me.ehp246.aufkafka.api.consumer.EventInvocableBinder;
 
 /**
- * Thrown when {@linkplain EventInvocableBinder} doesn't know how to bind a parameter
- * on a {@linkplain ForKey} {@linkplain Applying} method to
+ * Thrown when {@linkplain EventInvocableBinder} doesn't know how to bind a
+ * parameter on a {@linkplain ForKey} {@linkplain Applying} method to
  * {@linkplain ConsumerRecord} .
  * 
  * @author Lei Yang
@@ -27,5 +27,13 @@ public class UnboundParameterException extends RuntimeException {
         super("Unbound parameter '" + parameter + "' on method '" + method + "'");
         this.parameter = parameter;
         this.method = method;
+    }
+
+    public Parameter getParameter() {
+        return parameter;
+    }
+
+    public Method getMethod() {
+        return method;
     }
 }

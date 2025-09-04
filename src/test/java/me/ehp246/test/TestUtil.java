@@ -79,7 +79,7 @@ public final class TestUtil {
         }
 
         return OneUtil.toString(StreamSupport.stream(headers.spliterator(), false)
-                .filter(header -> header.key().equals(key)).collect(Collectors.toMap(header -> header.key(), header -> {
+                .filter(header -> header.key().equals(key)).collect(Collectors.toMap(Header::key, header -> {
                     final var list = new ArrayList<>();
                     list.add(header.value());
                     return list;
@@ -88,7 +88,7 @@ public final class TestUtil {
                     return l;
                 })).get(key).getLast());
     }
-    
+
     public static String valueString(final org.apache.kafka.common.header.Header header) {
         return new String(header.value(), StandardCharsets.UTF_8);
     }

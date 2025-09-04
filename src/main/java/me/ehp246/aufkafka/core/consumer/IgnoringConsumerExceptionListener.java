@@ -1,5 +1,7 @@
 package me.ehp246.aufkafka.core.consumer;
 
+import java.util.function.Supplier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,12 +21,12 @@ public final class IgnoringConsumerExceptionListener implements DispatchListener
         final var event = context.event();
 
         LOGGER.atError().setCause(thrown).addMarker(AufKafkaConstant.EXCEPTION)
-                .setMessage("Failed to consume: {}, {}, {} because of {}").addArgument(() -> event.topic())
-                .addArgument(() -> event.key()).addArgument(() -> event.offset()).addArgument(() -> thrown.getMessage())
-                .log();
+                .setMessage("Failed to consume: {}, {}, {} because of {}").addArgument((Supplier<Object>) event::topic)
+                .addArgument((Supplier<Object>) event::key).addArgument((Supplier<Object>) event::offset)
+                .addArgument((Supplier<Object>) thrown::getMessage).log();
 
         LOGGER.atTrace().setCause(thrown).setMessage("{}").addMarker(AufKafkaConstant.EXCEPTION)
-                .addMarker(AufKafkaConstant.VALUE).addArgument(() -> event.value()).log();
+                .addMarker(AufKafkaConstant.VALUE).addArgument((Supplier<Object>) event::value).log();
     }
 
 }

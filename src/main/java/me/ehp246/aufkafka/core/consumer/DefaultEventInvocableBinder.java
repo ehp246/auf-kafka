@@ -91,9 +91,8 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
         final var mdcMapBinders = argBinders.mdcMapBinders();
         final Map<String, String> mdcMap = new HashMap<>();
         if (mdcMapBinders != null && mdcMapBinders.size() > 0) {
-            mdcMapBinders.entrySet().stream().forEach(entry -> {
-                mdcMap.put(entry.getKey(), mdcMapBinders.get(entry.getKey()).apply(arguments));
-            });
+            mdcMapBinders.entrySet().stream()
+                    .forEach(entry -> mdcMap.put(entry.getKey(), mdcMapBinders.get(entry.getKey()).apply(arguments)));
         }
 
         return new BoundInvocable() {
@@ -134,7 +133,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
              * Bindings in descending priorities.
              */
             if (reflectedParam.isType(InboundEvent.class)) {
-                paramBinders.put(i, context -> context.event());
+                paramBinders.put(i, InboundEventContext::event);
                 continue;
             } else if (reflectedParam.isType(ConsumerRecord.class)) {
                 paramBinders.put(i, context -> context.event().consumerRecord());
@@ -152,7 +151,7 @@ public final class DefaultEventInvocableBinder implements EventInvocableBinder {
                 paramBinders.put(i, context -> context.event().headers().lastHeader(key));
                 continue;
             } else if (reflectedParam.isType(Consumer.class)) {
-                paramBinders.put(i, context -> context.consumer());
+                paramBinders.put(i, InboundEventContext::consumer);
                 continue;
             } else if (reflectedParam.isType(InboundEventContext.class)) {
                 paramBinders.put(i, context -> context);

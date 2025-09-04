@@ -32,7 +32,7 @@ public final class ReflectedMethod {
     public Optional<ReflectedParameter> firstPayloadParameter(final Set<Class<? extends Annotation>> exclusions) {
         for (var i = 0; i < parameters.length; i++) {
             final var parameter = parameters[i];
-            if (exclusions.stream().filter(type -> parameter.isAnnotationPresent(type)).findAny().isEmpty()) {
+            if (exclusions.stream().filter(parameter::isAnnotationPresent).findAny().isEmpty()) {
                 return Optional.of(new ReflectedParameter(parameter, i));
             }
         }

@@ -65,7 +65,7 @@ public final class DefaultProducerFnProvider implements ProducerFnProvider, Auto
                     Optional.ofNullable(configMap.get(AufKafkaConstant.PRODUCER_FLUSH)).map(Object::toString)
                             .map(Boolean::valueOf).orElse(Boolean.FALSE),
                     Optional.ofNullable(configMap.get(AufKafkaConstant.PRODUCER_CALLBACK)).map(Object::toString)
-                            .filter(OneUtil::hasValue).map(name -> this.callbackBeanResolver.apply(name)).orElse(null));
+                            .filter(OneUtil::hasValue).map(this.callbackBeanResolver::apply).orElse(null));
         });
     }
 

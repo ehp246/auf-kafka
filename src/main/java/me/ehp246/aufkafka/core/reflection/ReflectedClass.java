@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -23,7 +22,7 @@ public final class ReflectedClass<C> {
     }
 
     public static <T> ReflectedClass<T> reflect(final Class<T> type) {
-        return new ReflectedClass<T>(type);
+        return new ReflectedClass<>(type);
     }
 
     /**
@@ -56,8 +55,7 @@ public final class ReflectedClass<C> {
      * @return
      */
     public List<Method> findMethods(final String name) {
-        return Stream.of(type.getMethods()).filter(method -> method.getName().equals(name))
-                .collect(Collectors.toList());
+        return Stream.of(type.getMethods()).filter(method -> method.getName().equals(name)).toList();
     }
 
     public Method findSingleNamedMethod(final String name) {
@@ -81,7 +79,7 @@ public final class ReflectedClass<C> {
      */
     public List<Method> findMethods(final Class<? extends Annotation> annotationClass) {
         return Stream.of(type.getMethods()).filter(method -> method.getDeclaredAnnotation(annotationClass) != null)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**

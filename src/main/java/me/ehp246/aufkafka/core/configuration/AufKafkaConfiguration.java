@@ -2,6 +2,7 @@ package me.ehp246.aufkafka.core.configuration;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.config.BeanExpressionContext;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -71,7 +72,7 @@ public final class AufKafkaConfiguration {
                 // Ignore failed modules.
                 return null;
             }
-        }).filter(module -> module != null).forEach(newMapper::registerModule);
+        }).filter(Objects::nonNull).forEach(newMapper::registerModule);
 
         return new JsonByJackson(newMapper);
     }

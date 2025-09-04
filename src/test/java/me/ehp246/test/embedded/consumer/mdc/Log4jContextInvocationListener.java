@@ -18,8 +18,8 @@ import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
  *
  */
 @Service
-class Log4jContextInvocationListener implements InvocationListener.CompletedListener,
-        InvocationListener.FailedListener, InvocationListener.InvokingListener {
+class Log4jContextInvocationListener implements InvocationListener.CompletedListener, InvocationListener.FailedListener,
+        InvocationListener.InvokingListener {
     private CompletableFuture<Map<String, String>> ref = new CompletableFuture<>();
     private final Map<String, String> map = new HashMap<String, String>();
 
@@ -35,13 +35,13 @@ class Log4jContextInvocationListener implements InvocationListener.CompletedList
     }
 
     @Override
-    public void onFailed(final Failed failed) {
+    public void onFailed(final BoundInvocable bound, final Failed failed) {
         map.putAll(ThreadContext.getContext());
         ref.complete(map);
     }
 
     @Override
-    public void onCompleted(final Completed completed) {
+    public void onCompleted(final BoundInvocable bound, final Completed completed) {
         map.putAll(ThreadContext.getContext());
         ref.complete(map);
     }

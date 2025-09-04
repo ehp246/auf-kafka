@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import me.ehp246.aufkafka.api.annotation.ByKafka;
@@ -93,7 +92,7 @@ public final class OneUtil {
     }
 
     public static List<String> listValues(final Collection<String> values) {
-        return streamValues(values).collect(Collectors.toList());
+        return streamValues(values).toList();
     }
 
     public static <V> V orElse(final Callable<V> callable, final V v) {
