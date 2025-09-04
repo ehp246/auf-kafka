@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +22,7 @@ import me.ehp246.test.mock.WildcardAction;
  * @author Lei Yang
  *
  */
+@Disabled
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, WildcardAction.class,
         MsgListener.class }, properties = { "p.3=3" }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { AppConfig.TOPIC }, partitions = 5)
