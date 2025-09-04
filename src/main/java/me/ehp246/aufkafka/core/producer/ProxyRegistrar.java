@@ -1,7 +1,6 @@
 package me.ehp246.aufkafka.core.producer;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,13 +20,11 @@ public final class ProxyRegistrar implements ImportBeanDefinitionRegistrar {
     private final static Logger LOGGER = LoggerFactory.getLogger(ProxyRegistrar.class);
 
     @Override
-    public void registerBeanDefinitions(final AnnotationMetadata metadata,
-            final BeanDefinitionRegistry registry) {
-        LOGGER.atTrace().setMessage("Scanning for {}").addArgument(ByKafka.class::getCanonicalName)
-                .log();
+    public void registerBeanDefinitions(final AnnotationMetadata metadata, final BeanDefinitionRegistry registry) {
+        LOGGER.atTrace().setMessage("Scanning for {}").addArgument(ByKafka.class::getCanonicalName).log();
 
-        for (final var found : new ProducerInterfaceScanner(EnableByKafka.class, ByKafka.class,
-                metadata).perform().collect(Collectors.toList())) {
+        for (final var found : new ProducerInterfaceScanner(EnableByKafka.class, ByKafka.class, metadata).perform()
+                .toList()) {
 
             final Class<?> producerInterface;
             try {
@@ -39,8 +36,7 @@ public final class ProxyRegistrar implements ImportBeanDefinitionRegistrar {
 
             final var beanName = OneUtil.producerInterfaceBeanName(producerInterface);
             final var proxyBeanDefinition = this.getProxyBeanDefinition(
-                    metadata.getAnnotationAttributes(EnableByKafka.class.getCanonicalName()),
-                    producerInterface);
+                    metadata.getAnnotationAttributes(EnableByKafka.class.getCanonicalName()), producerInterface);
 
             if (registry.containsBeanDefinition(beanName)) {
                 throw new BeanDefinitionOverrideException(beanName, proxyBeanDefinition,
@@ -51,8 +47,7 @@ public final class ProxyRegistrar implements ImportBeanDefinitionRegistrar {
         }
     }
 
-    private BeanDefinition getProxyBeanDefinition(final Map<String, Object> map,
-            final Class<?> byKafkaInterface) {
+    private BeanDefinition getProxyBeanDefinition(final Map<String, Object> map, final Class<?> byKafkaInterface) {
         final var args = new ConstructorArgumentValues();
 
         args.addGenericArgumentValue(byKafkaInterface);

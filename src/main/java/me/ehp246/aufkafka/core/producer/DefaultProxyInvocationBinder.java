@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import me.ehp246.aufkafka.api.producer.OutboundEvent;
@@ -49,7 +48,7 @@ final class DefaultProxyInvocationBinder implements ProxyInvocationBinder {
                 .concat(this.headerStatic.stream(),
                         this.headerBinder.entrySet().stream()
                                 .map(entry -> new OutboundHeader(entry.getValue().name(), args[entry.getKey()])))
-                .collect(Collectors.toList());
+                .toList();
 
         return new OutboundEvent() {
 

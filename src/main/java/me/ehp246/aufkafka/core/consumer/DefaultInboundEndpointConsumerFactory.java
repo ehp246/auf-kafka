@@ -78,7 +78,7 @@ public final class DefaultInboundEndpointConsumerFactory implements InboundEndpo
     public void close() throws Exception {
         LOGGER.atTrace().setMessage("Closing endpoint consumers").log();
 
-        final var closedFutures = new HashSet<CompletableFuture<Void>>(this.consumerRegistry.getNames().size());
+        final var closedFutures = HashSet.<CompletableFuture<Void>>newHashSet(this.consumerRegistry.getNames().size());
 
         this.consumerRegistry.getNames().forEach(name -> closedFutures.add(this.consumerRegistry.get(name).close()));
 
