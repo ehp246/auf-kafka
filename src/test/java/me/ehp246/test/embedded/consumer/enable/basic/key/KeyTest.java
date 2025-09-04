@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 import me.ehp246.test.mock.WildcardAction;
@@ -19,8 +18,7 @@ import me.ehp246.test.mock.WildcardAction;
  *
  */
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, WildcardAction.class })
-@EmbeddedKafka(topics = { "embedded" }, partitions = 1)
-@DirtiesContext
+@EmbeddedKafka(topics = { AppConfig.TOPIC }, partitions = 1)
 class KeyTest {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
@@ -31,7 +29,7 @@ class KeyTest {
     void key_01() {
         final var expected = UUID.randomUUID().toString();
 
-        kafkaTemplate.send(new ProducerRecord<String, String>("embedded", expected, null));
+        kafkaTemplate.send(new ProducerRecord<String, String>(AppConfig.TOPIC, expected, null));
 
         Assertions.assertEquals(expected, action.take().key());
     }
