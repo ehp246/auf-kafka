@@ -10,12 +10,12 @@ import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 public sealed interface InvocationListener {
     @FunctionalInterface
     public non-sealed interface InvokingListener extends InvocationListener {
-        void onInvoking(final BoundInvocable bound);
+        void onInvoking(BoundInvocable bound);
     }
 
     @FunctionalInterface
     public non-sealed interface CompletedListener extends InvocationListener {
-        void onCompleted(final Completed completed);
+        void onCompleted(BoundInvocable bound, Completed completed);
     }
 
     /**
@@ -34,6 +34,6 @@ public sealed interface InvocationListener {
      */
     @FunctionalInterface
     public non-sealed interface FailedListener extends InvocationListener {
-        void onFailed(Failed failed);
+        void onFailed(BoundInvocable bound, Failed failed);
     }
 }

@@ -74,7 +74,7 @@ final class DefaultEventInvocableRunnableBuilder implements EventInvocableRunnab
                 if (outcome instanceof final Failed failed) {
                     for (final var listener : DefaultEventInvocableRunnableBuilder.this.failed) {
                         try {
-                            listener.onFailed(failed);
+                            listener.onFailed(boundRef[0], failed);
                         } catch (final Exception e) {
                             failed.thrown().addSuppressed(e);
                         }
@@ -89,7 +89,7 @@ final class DefaultEventInvocableRunnableBuilder implements EventInvocableRunnab
 
                 final var completed = (Completed) outcome;
                 DefaultEventInvocableRunnableBuilder.this.completed
-                        .forEach(listener -> listener.onCompleted(completed));
+                        .forEach(listener -> listener.onCompleted(boundRef[0], completed));
             } finally {
                 try (eventInvocable) {
                 } catch (final Exception e) {

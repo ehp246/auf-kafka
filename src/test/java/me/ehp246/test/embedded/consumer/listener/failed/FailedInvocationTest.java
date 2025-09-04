@@ -39,10 +39,10 @@ class FailedInvocationTest {
 
         send.failedMsg(id);
 
-        final var failed = appConfig.consumer1Ref.get();
+        final var failedBound = appConfig.consumer1Ref.get();
 
-        Assertions.assertEquals(onMsg.ex, failed.thrown());
+        Assertions.assertEquals(onMsg.ex, failedBound.right().thrown());
         Assertions.assertEquals(toJson.toJson(id, TypeOfJson.of(id.getClass())),
-                failed.bound().eventContext().event().value());
+                failedBound.left().eventContext().event().value());
     }
 }

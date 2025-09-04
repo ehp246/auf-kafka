@@ -32,44 +32,11 @@ public interface BoundInvocable {
         try {
             final var invocable = this.eventInvocable();
             final var returned = invocable.method().invoke(invocable.instance(), this.arguments());
-            return new Completed() {
-
-                @Override
-                public BoundInvocable bound() {
-                    return BoundInvocable.this;
-                }
-
-                @Override
-                public Object returned() {
-                    return returned;
-                }
-            };
+            return (Completed) () -> returned;
         } catch (final InvocationTargetException e) {
-            return new Failed() {
-
-                @Override
-                public BoundInvocable bound() {
-                    return BoundInvocable.this;
-                }
-
-                @Override
-                public Throwable thrown() {
-                    return e.getCause();
-                }
-            };
+            return (Failed) () -> e.getCause();
         } catch (final Exception e) {
-            return new Failed() {
-
-                @Override
-                public BoundInvocable bound() {
-                    return BoundInvocable.this;
-                }
-
-                @Override
-                public Throwable thrown() {
-                    return e;
-                }
-            };
+            return (Failed) () -> e;
         }
     }
 }

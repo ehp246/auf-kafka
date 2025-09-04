@@ -11,13 +11,13 @@ import me.ehp246.aufkafka.api.consumer.InvocationListener.FailedListener;
  * @author Lei Yang
  *
  */
-@EnableForKafka({ @Inbound(value = @At("embedded"), invocationListener = "onFailed",
-        dispatchExceptionListener = "onConsumerException") })
+@EnableForKafka({
+        @Inbound(value = @At("embedded"), invocationListener = "onFailed", dispatchExceptionListener = "onConsumerException") })
 class AppConfig {
 
     @Bean
     FailedListener onFailed() {
-        return failed -> {
+        return (bound, failed) -> {
             throw new NullPointerException(failed.thrown().getMessage());
         };
     }
