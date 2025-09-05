@@ -19,7 +19,7 @@ import me.ehp246.test.embedded.consumer.listener.failed.invocation.FailMsg;
  *
  */
 @SpringBootTest(classes = { AppConfig.class }, properties = {}, webEnvironment = WebEnvironment.NONE)
-@EmbeddedKafka(topics = "embedded")
+@EmbeddedKafka(topics = AppConfig.TOPIC)
 class FailedInvocationTest {
     @Autowired
     private Send send;
