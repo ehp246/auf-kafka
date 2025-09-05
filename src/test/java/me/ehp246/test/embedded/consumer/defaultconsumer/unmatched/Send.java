@@ -7,7 +7,7 @@ import me.ehp246.aufkafka.api.annotation.OfKey;
  * @author Lei Yang
  *
  */
-@ByKafka("embedded")
+@ByKafka(AppConfig.TOPIC)
 interface Send {
     void send(@OfKey String key);
 }

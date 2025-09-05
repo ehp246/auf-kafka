@@ -17,7 +17,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  */
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class }, properties = {
         "default.consumer.name=unknown", "me.ehp246.aufkafka.consumer.messagelogging.enabled=true" })
-@EmbeddedKafka(topics = "embedded")
+@EmbeddedKafka(topics = AppConfig.TOPIC)
 class UnknownTest {
     @Autowired
     private Send send;
