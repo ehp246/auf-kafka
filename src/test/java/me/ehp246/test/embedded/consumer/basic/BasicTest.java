@@ -10,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
@@ -21,7 +20,6 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class,
         ConsumerExecutor.class }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { AppConfig.TOPIC })
-@DirtiesContext
 class BasicTest {
     @Autowired
     private KafkaTemplate<String, String> template;
