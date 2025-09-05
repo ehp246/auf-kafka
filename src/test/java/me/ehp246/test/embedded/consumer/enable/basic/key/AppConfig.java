@@ -12,6 +12,7 @@ import me.ehp246.test.mock.WildcardAction;
  *
  */
 @EnableKafka
-@EnableForKafka({ @Inbound(value = @At("embedded"), register = WildcardAction.class) })
+@EnableForKafka({ @Inbound(value = @At(AppConfig.TOPIC), register = WildcardAction.class) })
 class AppConfig {
+    final static String TOPIC = "9a2fc860-afd4-4563-a6aa-4225b465d930";
 }

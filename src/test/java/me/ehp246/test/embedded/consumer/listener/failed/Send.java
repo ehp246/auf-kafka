@@ -8,7 +8,7 @@ import me.ehp246.aufkafka.api.annotation.OfValue;
  * @author Lei Yang
  *
  */
-@ByKafka(value = "embedded", methodAsEvent = "")
+@ByKafka(value = AppConfig.TOPIC, methodAsEvent = "")
 interface Send {
     @OfKey("FailedMsg")
     void failedMsg(@OfValue String id);

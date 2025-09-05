@@ -18,16 +18,14 @@ import me.ehp246.aufkafka.api.consumer.DispatchListener;
 import me.ehp246.aufkafka.api.consumer.EventInvocable;
 import me.ehp246.aufkafka.api.consumer.EventInvocableKeyType;
 import me.ehp246.aufkafka.api.consumer.InvocationListener;
-import me.ehp246.aufkafka.api.consumer.Invoked.Completed;
-import me.ehp246.aufkafka.api.consumer.Invoked.Failed;
 import me.ehp246.aufkafka.core.configuration.AufKafkaConfiguration;
+import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointConsumerConfigurer;
+import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointFactory;
 import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointRegistrar;
 import me.ehp246.aufkafka.core.consumer.ConsumerConfiguration;
 import me.ehp246.aufkafka.core.consumer.DefaultEventInvocableBinder;
 import me.ehp246.aufkafka.core.consumer.DefaultInboundEndpointConsumerFactory;
 import me.ehp246.aufkafka.core.consumer.DefaultInvocableScanner;
-import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointConsumerConfigurer;
-import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointFactory;
 
 /**
  * Enables the consumer-side capabilities of Auf Kafka.
@@ -42,8 +40,8 @@ import me.ehp246.aufkafka.core.consumer.AnnotatedInboundEndpointFactory;
 @Retention(RUNTIME)
 @Target(ElementType.TYPE)
 @Import({ AufKafkaConfiguration.class, ConsumerConfiguration.class, AnnotatedInboundEndpointRegistrar.class,
-        AnnotatedInboundEndpointFactory.class, AnnotatedInboundEndpointConsumerConfigurer.class, DefaultInvocableScanner.class,
-        DefaultEventInvocableBinder.class, DefaultInboundEndpointConsumerFactory.class })
+        AnnotatedInboundEndpointFactory.class, AnnotatedInboundEndpointConsumerConfigurer.class,
+        DefaultInvocableScanner.class, DefaultEventInvocableBinder.class, DefaultInboundEndpointConsumerFactory.class })
 public @interface EnableForKafka {
     /**
      * Specifies the topics to listen for in-bound messages and their
@@ -135,13 +133,13 @@ public @interface EnableForKafka {
          * <p>
          * If the execution of a {@linkplain ForKey} object on this
          * {@linkplain EnableForKafka.Inbound} completes normally, the
-         * {@linkplain InvocationListener.CompletedListener#onCompleted(Completed)} will
-         * be invoked.
+         * {@linkplain InvocationListener.CompletedListener#onCompleted(me.ehp246.aufkafka.api.consumer.BoundInvocable, me.ehp246.aufkafka.api.consumer.Invoked.Completed)}
+         * will be invoked.
          * <p>
          * If the execution of a {@linkplain ForKey} object on this
          * {@linkplain EnableForKafka.Inbound} throws an exception, the
-         * {@linkplain InvocationListener.FailedListener#onFailed(Failed)} will be
-         * invoked.
+         * {@linkplain InvocationListener.FailedListener#onFailed(me.ehp246.aufkafka.api.consumer.BoundInvocable, me.ehp246.aufkafka.api.consumer.Invoked.Failed)}
+         * will be invoked.
          * <p>
          * {@linkplain InvocationListener.FailedListener} can throw
          * {@linkplain Exception}.

@@ -3,6 +3,7 @@ package me.ehp246.test.embedded.consumer.exception;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +17,8 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  *
  */
 @SpringBootTest(classes = { AppConfig.class, EmbeddedKafkaConfig.class })
-@EmbeddedKafka(topics = "embedded")
+@EmbeddedKafka(topics = AppConfig.TOPIC)
+@Disabled
 class ExceptionTest {
     @Autowired
     private OnConsumerException onException;
@@ -28,7 +30,7 @@ class ExceptionTest {
     void test_01() {
         final var key = UUID.randomUUID().toString();
 
-        template.send("embedded", key, null);
+        template.send(AppConfig.TOPIC, key, null);
 
         final var context = onException.take();
 

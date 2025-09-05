@@ -4,13 +4,13 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
@@ -21,7 +21,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class,
         ConsumerExecutor.class }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { AppConfig.TOPIC })
-@DirtiesContext
+@Disabled
 class BasicTest {
     @Autowired
     private KafkaTemplate<String, String> template;

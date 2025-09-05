@@ -12,9 +12,10 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.At;
  *
  */
 @EnableByKafka
-@EnableForKafka(value = {
-        @Inbound(value = @At("embedded"), unknownEventListener = "${default.consumer.name:}") })
+@EnableForKafka(value = { @Inbound(value = @At(AppConfig.TOPIC), unknownEventListener = "${default.consumer.name:}") })
 class AppConfig {
+    final static String TOPIC = "8449e0fd-7e14-409d-b423-d4094f41e5b0";
+
     @Bean
     Unknown unknown() {
         return new Unknown();

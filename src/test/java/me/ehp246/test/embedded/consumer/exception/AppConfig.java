@@ -12,8 +12,9 @@ import me.ehp246.aufkafka.api.consumer.InvocationListener.FailedListener;
  *
  */
 @EnableForKafka({
-        @Inbound(value = @At("embedded"), invocationListener = "onFailed", dispatchExceptionListener = "onConsumerException") })
+        @Inbound(value = @At(AppConfig.TOPIC), invocationListener = "onFailed", dispatchExceptionListener = "onConsumerException") })
 class AppConfig {
+    final static String TOPIC = "145f1070-f40e-41a1-b723-7b56b2c8b463";
 
     @Bean
     FailedListener onFailed() {

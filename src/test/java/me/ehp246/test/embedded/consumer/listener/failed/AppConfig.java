@@ -23,9 +23,10 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  */
 @ComponentScan
 @EnableByKafka
-@EnableForKafka({ @Inbound(value = @At("embedded"), scan = FailMsg.class, invocationListener = "consumer1") })
+@EnableForKafka({ @Inbound(value = @At(AppConfig.TOPIC), scan = FailMsg.class, invocationListener = "consumer1") })
 @Import(EmbeddedKafkaConfig.class)
 class AppConfig {
+    final static String TOPIC = "f4f5a7d9-fe6e-4458-998f-473dac084365";
     public CompletableFuture<Pair<BoundInvocable, Failed>> consumer1Ref = new CompletableFuture<>();
 
     @Bean("consumer1")

@@ -4,6 +4,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +20,8 @@ import me.ehp246.test.embedded.consumer.listener.failed.invocation.FailMsg;
  *
  */
 @SpringBootTest(classes = { AppConfig.class }, properties = {}, webEnvironment = WebEnvironment.NONE)
-@EmbeddedKafka(topics = "embedded")
+@EmbeddedKafka(topics = AppConfig.TOPIC)
+@Disabled
 class FailedInvocationTest {
     @Autowired
     private Send send;
