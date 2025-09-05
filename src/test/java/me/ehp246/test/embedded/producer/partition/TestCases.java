@@ -13,26 +13,26 @@ import me.ehp246.aufkafka.api.annotation.OfPartition;
 interface TestCases {
     @ByKafka(value = AppConfig.TOPIC)
     interface Case01 {
-        void onParam(@OfPartition int partition);
+        void onParam(@OfKey String key, @OfPartition int partition);
 
         @OfPartition
-        ProducerRecord<String, String> onMethod01();
+        ProducerRecord<String, String> onMethod01(@OfKey String key);
 
-        @OfPartition(6)
-        ProducerRecord<String, String> onMethod02();
+        @OfPartition(3)
+        ProducerRecord<String, String> onMethod02(@OfKey String key);
     }
 
     @ByKafka(value = AppConfig.TOPIC, partition = 2)
     interface Case02 {
-        void onType();
+        void onType(@OfKey String key);
 
-        ProducerRecord<String, String> onParam(@OfPartition Integer partition);
+        ProducerRecord<String, String> onParam(@OfKey String key, @OfPartition Integer partition);
 
         @OfPartition(7)
-        ProducerRecord<String, String> onParam02(@OfPartition Integer partition);
+        ProducerRecord<String, String> onParam02(@OfKey String key, @OfPartition Integer partition);
 
         @OfPartition
-        ProducerRecord<String, String> onMethod01();
+        ProducerRecord<String, String> onMethod01(@OfKey String key);
 
         @OfPartition(6)
         ProducerRecord<String, String> onMethod02(@OfKey String key);

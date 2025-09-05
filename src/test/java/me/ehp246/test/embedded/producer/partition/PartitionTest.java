@@ -34,45 +34,80 @@ class PartitionTest {
 
     @Test
     void partition_01() {
+        final var key = UUID.randomUUID().toString();
         final var expected = 2;
 
-        this.case01.onParam(expected);
+        this.case01.onParam(key, expected);
+        final var inboundEvent = listener.get();
 
-        Assertions.assertEquals(expected, listener.get().partition());
+        Assertions.assertEquals(key, inboundEvent.key());
+        Assertions.assertEquals(expected, inboundEvent.partition());
     }
 
     @Test
     void partition_02() {
-        Assertions.assertEquals(null, this.case01.onMethod01().partition());
+        final var key = UUID.randomUUID().toString();
+
+        final var send = this.case01.onMethod01(key);
+        final var inboundEvent = listener.get();
+
+        Assertions.assertEquals(null, send.partition());
+        Assertions.assertEquals(key, inboundEvent.key());
     }
 
     @Test
     void partition_03() {
-        Assertions.assertEquals(6, this.case01.onMethod02().partition());
+        final var key = UUID.randomUUID().toString();
+
+        final var sent = this.case01.onMethod02(key);
+        final var inboundEvent = listener.get();
+
+        Assertions.assertEquals(3, sent.partition());
+        Assertions.assertEquals(key, inboundEvent.key());
     }
 
     @Test
     void partition_04() {
-        this.case02.onType();
+        final var key = UUID.randomUUID().toString();
 
-        Assertions.assertEquals(2, this.listener.get().consumerRecord().partition());
+        this.case02.onType(key);
+        final var inboundEvent = this.listener.get();
+
+        Assertions.assertEquals(2, inboundEvent.consumerRecord().partition());
+        Assertions.assertEquals(key, inboundEvent.key());
     }
 
     @Test
     void partition_05() {
-        this.case02.onParam(0);
+        final var key = UUID.randomUUID().toString();
 
-        Assertions.assertEquals(0, this.listener.get().consumerRecord().partition());
+        this.case02.onParam(key, 0);
+        final var inboundEvent = listener.get();
+
+        Assertions.assertEquals(key, inboundEvent.key());
+        Assertions.assertEquals(0, inboundEvent.consumerRecord().partition());
     }
 
     @Test
     void partition_06() {
-        Assertions.assertEquals(null, this.case02.onParam(null).partition(), "should follow the specified");
+        final var key = UUID.randomUUID().toString();
+
+        final var sent = this.case02.onParam(key, null);
+        final var inboundEvent = listener.get();
+
+        Assertions.assertEquals(null, sent.partition(), "should follow the specified");
+        Assertions.assertEquals(key, inboundEvent.key());
     }
 
     @Test
     void partition_07() {
-        Assertions.assertEquals(null, this.case02.onMethod01().partition());
+        final var key = UUID.randomUUID().toString();
+
+        final var sent = this.case02.onMethod01(key);
+        final var inboundEvent = listener.get();
+
+        Assertions.assertEquals(null, sent.partition());
+        Assertions.assertEquals(key, inboundEvent.key());
     }
 
     @Test
@@ -80,15 +115,31 @@ class PartitionTest {
         final var sent = this.case02.onMethod02(UUID.randomUUID().toString());
         final var inboundEvent = this.listener.get();
 
-        Assertions.assertEquals(6, sent.partition());
-
         Assertions.assertEquals(sent.key(), inboundEvent.key());
+
+        Assertions.assertEquals(6, sent.partition());
         Assertions.assertEquals(6, inboundEvent.partition());
     }
 
     @Test
     void partition_09() {
-        Assertions.assertEquals(1, this.case02.onParam02(1).partition());
-        Assertions.assertEquals(null, this.case02.onParam02(null).partition());
+        final var key = UUID.randomUUID().toString();
+
+        final var sent = this.case02.onParam02(key, 1);
+        final var inboundEvent = listener.get();
+
+        Assertions.assertEquals(1, sent.partition());
+        Assertions.assertEquals(key, inboundEvent.key());
+    }
+
+    @Test
+    void partition_10() {
+        final var key = UUID.randomUUID().toString();
+
+        final var sent = this.case02.onParam02(key, null);
+        final var inboundEvent = listener.get();
+
+        Assertions.assertEquals(null, sent.partition());
+        Assertions.assertEquals(key, inboundEvent.key());
     }
 }
