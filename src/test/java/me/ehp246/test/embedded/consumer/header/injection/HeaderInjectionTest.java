@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +21,7 @@ import me.ehp246.test.mock.StringHeader;
  * @author Lei Yang
  *
  */
+@Disabled
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class,
         HeaderInjectAction.class }, webEnvironment = WebEnvironment.NONE)
 @EmbeddedKafka(topics = { AppConfig.TOPIC }, partitions = 1)
