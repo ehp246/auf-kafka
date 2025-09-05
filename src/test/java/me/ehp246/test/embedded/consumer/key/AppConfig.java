@@ -11,6 +11,7 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.At;
  *
  */
 @EnableKafka
-@EnableForKafka({ @Inbound(value = @At("embedded")) })
+@EnableForKafka({ @Inbound(value = @At(AppConfig.TOPIC)) })
 class AppConfig {
+    final static String TOPIC = "32a96fdb-9840-42f2-b890-7e3e519fdec7";
 }
