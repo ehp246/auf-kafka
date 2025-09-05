@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  */
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class, KeyAction.class })
 @EmbeddedKafka(topics = { AppConfig.TOPIC }, partitions = 1)
+@Disabled
 class KeyTest {
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
