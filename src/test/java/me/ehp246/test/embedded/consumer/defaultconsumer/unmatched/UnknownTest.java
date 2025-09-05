@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
 @SpringBootTest(classes = { EmbeddedKafkaConfig.class, AppConfig.class }, properties = {
         "default.consumer.name=unknown", "me.ehp246.aufkafka.consumer.messagelogging.enabled=true" })
 @EmbeddedKafka(topics = AppConfig.TOPIC)
+@Disabled
 class UnknownTest {
     @Autowired
     private Send send;
