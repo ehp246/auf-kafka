@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.test.annotation.DirtiesContext;
 
 import me.ehp246.test.mock.EmbeddedKafkaConfig;
 
@@ -20,8 +19,7 @@ import me.ehp246.test.mock.EmbeddedKafkaConfig;
  */
 @SpringBootTest(classes = { AppConfig.class, CompletedListener.class, EmbeddedKafkaConfig.class }, properties = {
         "comp1.name=completedListener" }, webEnvironment = WebEnvironment.NONE)
-@EmbeddedKafka(topics = { "embedded" }, partitions = 1)
-@DirtiesContext
+@EmbeddedKafka(topics = { AppConfig.TOPIC }, partitions = 1)
 class CompletedInvocationTest {
     @Autowired
     private Send send;

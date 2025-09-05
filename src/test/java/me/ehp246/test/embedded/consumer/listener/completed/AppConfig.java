@@ -13,6 +13,7 @@ import me.ehp246.aufkafka.api.annotation.EnableForKafka.Inbound.At;
  */
 @ComponentScan
 @EnableByKafka
-@EnableForKafka({ @Inbound(value = @At("embedded"), invocationListener = "${comp1.name:}") })
+@EnableForKafka({ @Inbound(value = @At(AppConfig.TOPIC), invocationListener = "${comp1.name:}") })
 class AppConfig {
+    final static String TOPIC = "dd0ed70b-8e96-4e53-bd56-1834d4bd0a4b";
 }
